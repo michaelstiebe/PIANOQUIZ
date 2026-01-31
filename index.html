@@ -444,6 +444,12 @@
         </select>
       </div>
 
+      <div class="field" style="flex-direction:row;align-items:center;gap:10px;">
+        <label for="hapticToggle" style="margin:0;cursor:pointer;">Vibration Feedback</label>
+        <input type="checkbox" id="hapticToggle" style="width:20px;height:20px;cursor:pointer;">
+      </div>
+      <div class="hint" style="margin-top:-8px;">Vibrate on button taps and answers (Android)</div>
+
     </div
   </div>
 
@@ -482,7 +488,39 @@
     let watchdogIntervalId = null;
     let timerIntervalId = null;
 
+    // ==================== HAPTIC FEEDBACK ====================
+    // Vibration patterns for different events (in milliseconds)
+    const HAPTIC = {
+      light: 10,           // Light tap for button press
+      medium: 25,          // Medium tap for selections
+      success: [15, 50, 15], // Double pulse for correct answer
+      error: [40, 30, 40],   // Stronger double pulse for wrong answer
+      streak: [10, 30, 10, 30, 20], // Triple pulse for streak milestone (5, 10, etc.)
+      timeout: [80],       // Single long pulse for timeout
+      roundComplete: [20, 40, 20, 40, 30, 50, 40] // Celebration pattern
+    };
 
+    // Check if haptic feedback is supported and enabled
+    let hapticEnabled = true; // Will be loaded from settings
+
+    function haptic(pattern) {
+      if (!hapticEnabled) return;
+      if (!navigator.vibrate) return; // Not supported
+      try {
+        navigator.vibrate(pattern);
+      } catch(e) {
+        // Silently fail if vibration not allowed
+      }
+    }
+
+    // Convenience functions for common haptic events
+    function hapticLight() { haptic(HAPTIC.light); }
+    function hapticMedium() { haptic(HAPTIC.medium); }
+    function hapticSuccess() { haptic(HAPTIC.success); }
+    function hapticError() { haptic(HAPTIC.error); }
+    function hapticStreak() { haptic(HAPTIC.streak); }
+    function hapticTimeout() { haptic(HAPTIC.timeout); }
+    function hapticRoundComplete() { haptic(HAPTIC.roundComplete); }
 
 
 
@@ -772,7 +810,7 @@ let inputLocked = false;
     const SETTINGS_KEY = 'piano_note_quiz_settings_v1';
     const TOTALS_KEY   = 'piano_note_quiz_totals_v1';
 
-    const DEFAULT_SETTINGS = { presetId: 'P2', roundTarget: 10, timerSeconds: 10, revealSeconds: 7, soundMode: 'manual' };
+    const DEFAULT_SETTINGS = { presetId: 'P2', roundTarget: 10, timerSeconds: 10, revealSeconds: 7, soundMode: 'manual', hapticEnabled: true };
     const DEFAULT_TOTALS   = { totalCorrect: 0, totalWrong: 0, bestStreakEver: 0 };
 
     function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
@@ -793,6 +831,9 @@ let inputLocked = false;
 
     let settings = loadJSON(SETTINGS_KEY, DEFAULT_SETTINGS);
     let totals   = loadJSON(TOTALS_KEY, DEFAULT_TOTALS);
+
+    // Initialize haptic from settings
+    hapticEnabled = settings.hapticEnabled !== false; // Default to true if not set
 
     function saveSettings(){ saveJSON(SETTINGS_KEY, settings); }
     function saveTotals(){ saveJSON(TOTALS_KEY, totals); }
@@ -1353,6 +1394,7 @@ function showKeyboardSolution(){
       inputLocked = true;
       stopTimer();
       window.disableAnswers();
+      hapticTimeout(); // Haptic feedback for timeout
 
       // Keyboard window to solution (exact played octave)
       clearKeyboardHighlights();
@@ -1441,6 +1483,7 @@ function showKeyboardSolution(){
           const now = Date.now();
           if(now - lastFire < 300) return; // Ignore if fired within 300ms
           lastFire = now;
+          hapticLight(); // Light haptic feedback on button tap
           handleAnswer(ans, btn);
         };
         // Use pointerdown for faster response, click as fallback for accessibility
@@ -1480,12 +1523,20 @@ function showKeyboardSolution(){
         if(isCorrect){
           stats.correct++;
           stats.streak++;
+          // Haptic feedback for correct answer
+          // Extra celebration for streak milestones (5, 10, 15, etc.)
+          if(stats.streak > 0 && stats.streak % 5 === 0) {
+            hapticStreak();
+          } else {
+            hapticSuccess();
+          }
           if(btn) btn.classList.add('correct');
           showKeyboardSelection(answer,'correct');
           setFeedback('✓ Correct! ' + currentQuestion.correctAnswer, true);
         }else{
           stats.wrong++;
           stats.streak = 0;
+          hapticError(); // Haptic feedback for wrong answer
           if(btn) btn.classList.add('wrong');
           showKeyboardSelection(answer,'wrong');
 
@@ -1505,6 +1556,7 @@ function showKeyboardSolution(){
         setTimeout(() => {
           inputLocked = false;
           if(roundComplete){
+            hapticRoundComplete(); // Celebration haptic for completing a round
             showRoundOverlay();
           } else if(running){
             nextQuestion();
@@ -1579,6 +1631,7 @@ startTimer();
 
     // ==================== EVENTS ====================
     document.getElementById('startBtn').onclick = async () => {
+      hapticMedium();
       try{ await ensurePiano(); }catch(e){}
       if(!running) startQuiz();
       else pauseQuiz();
@@ -1586,6 +1639,7 @@ startTimer();
 
     document.getElementById('skipBtn').onclick = () => {
       if(!running || inputLocked) return;
+      hapticLight();
       inputLocked = true;
       stopTimer();
       window.disableAnswers();
@@ -1625,16 +1679,20 @@ startTimer();
 
 
     document.getElementById('playBtn').onclick = async () => {
+      hapticLight();
       try{ await ensurePiano(); }catch(e){}
       playSound();
     };
 
-    document.getElementById('resetBtn').onclick = resetQuiz;
+    document.getElementById('resetBtn').onclick = () => {
+      hapticMedium();
+      resetQuiz();
+    };
 
     // Settings modal
     const modalBack = document.getElementById('modalBack');
-    document.getElementById('settingsBtn').onclick = () => modalBack.style.display = 'flex';
-    document.getElementById('closeSettings').onclick = () => modalBack.style.display = 'none';
+    document.getElementById('settingsBtn').onclick = () => { hapticLight(); modalBack.style.display = 'flex'; };
+    document.getElementById('closeSettings').onclick = () => { hapticLight(); modalBack.style.display = 'none'; };
     modalBack.addEventListener('click', e => { if(e.target === modalBack) modalBack.style.display = 'none'; });
 
     // --- Apply saved settings to UI ---
@@ -1643,6 +1701,7 @@ startTimer();
     const timerSetting = document.getElementById('timerSetting');
     const revealSetting = document.getElementById('revealSetting');
     const soundModeSel = document.getElementById('soundMode');
+    const hapticToggle = document.getElementById('hapticToggle');
 
     const roundVal = document.getElementById('roundSettingVal');
     const timerVal = document.getElementById('timerSettingVal');
@@ -1668,6 +1727,9 @@ startTimer();
       }
       if(soundModeSel){
         soundModeSel.value = settings.soundMode || 'manual';
+      }
+      if(hapticToggle){
+        hapticToggle.checked = settings.hapticEnabled !== false;
       }
     }
     applySettingsToUI();
@@ -1718,8 +1780,19 @@ startTimer();
       };
     }
 
+    if(hapticToggle){
+      hapticToggle.onchange = e => {
+        settings.hapticEnabled = e.target.checked;
+        hapticEnabled = e.target.checked;
+        // Give immediate feedback when enabling
+        if(hapticEnabled) hapticMedium();
+        saveSettings();
+      };
+    }
+
 // Round overlay buttons
     document.getElementById('nextRoundBtn').onclick = () => {
+      hapticMedium();
       hideRoundOverlay();
       resetRound();
       // Continue immediately
@@ -1731,6 +1804,7 @@ startTimer();
     };
 
     document.getElementById('closeRoundBtn').onclick = () => {
+      hapticLight();
       // Closing the overlay should also continue the quiz
       hideRoundOverlay();
       inputLocked = false;

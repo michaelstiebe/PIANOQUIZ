@@ -15,7 +15,26 @@
     :root{
       --bg:#ffffff; --card:#f7f7f9; --border:#d0d0d0;
       --btn:#e6e6ea; --primary:#3b6cff; --success:#1f8a4c; --danger:#d9534f; --text:#111;
+      --staff-bg:#fff; --key-white:#fff; --key-black:#111;
     }
+
+    /* Dark mode */
+    [data-theme="dark"]{
+      --bg:#1a1a1a; --card:#2a2a2a; --border:#444;
+      --btn:#3a3a3a; --primary:#5b8cff; --success:#2faa6c; --danger:#e9645f; --text:#eee;
+      --staff-bg:#2a2a2a; --key-white:#e8e8e8; --key-black:#222;
+    }
+    [data-theme="dark"] .boardWrap{ background:var(--staff-bg); }
+    [data-theme="dark"] .storkFrame{ background:#333; }
+    [data-theme="dark"] .keyboard{ background:var(--card); }
+    [data-theme="dark"] .kb-white{ background:var(--key-white); }
+    [data-theme="dark"] .kb-white .klabel{ color:#111; }
+    [data-theme="dark"] .kb-black{ background:var(--key-black); }
+    [data-theme="dark"] select{ background:var(--card); color:var(--text); }
+    [data-theme="dark"] .roundOverlay{ background:rgba(30,30,30,.97); }
+    [data-theme="dark"] .modalContent{ background:var(--card); }
+    /* Invert VexFlow SVG for dark mode */
+    [data-theme="dark"] #board svg{ filter: invert(0.85) hue-rotate(180deg); }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -296,6 +315,13 @@
     .kb-white.sol{ background:rgba(31,138,76,.25); }
     .kb-black.sol{ background:rgba(31,138,76,.9); }
 
+    /* Playable piano - pressed state */
+    .kb-white.pressed{ background:rgba(59,108,255,.4); transition:background 0.05s; }
+    .kb-black.pressed{ background:rgba(59,108,255,.95); transition:background 0.05s; }
+    .kb-white, .kb-black{ cursor:pointer; -webkit-tap-highlight-color:transparent; }
+    .kb-white:active:not(.sel):not(.sol):not(.correct):not(.wrong){ background:rgba(200,200,200,.5); }
+    .kb-black:active:not(.sel):not(.sol):not(.correct):not(.wrong){ background:#333; }
+
 
     @media (max-width: 520px){
       .boardCard{height:clamp(140px, 26vh, 220px); min-height:140px;}
@@ -450,6 +476,12 @@
         <button type="button" id="testVibrationBtn" style="padding:6px 12px;font-size:12px;margin-left:auto;">Test</button>
       </div>
       <div class="hint" style="margin-top:-8px;" id="vibrationHint">Vibrate on button taps and answers (Android)</div>
+
+      <div class="field" style="flex-direction:row;align-items:center;gap:10px;">
+        <label for="darkModeToggle" style="margin:0;cursor:pointer;">Dark Mode</label>
+        <input type="checkbox" id="darkModeToggle" style="width:20px;height:20px;cursor:pointer;">
+      </div>
+      <div class="hint" style="margin-top:-8px;">Easier on the eyes in low light</div>
 
     </div
   </div>
@@ -851,7 +883,7 @@ let inputLocked = false;
     const SETTINGS_KEY = 'piano_note_quiz_settings_v1';
     const TOTALS_KEY   = 'piano_note_quiz_totals_v1';
 
-    const DEFAULT_SETTINGS = { presetId: 'P2', roundTarget: 10, timerSeconds: 10, revealSeconds: 7, soundMode: 'manual', hapticEnabled: true };
+    const DEFAULT_SETTINGS = { presetId: 'P2', roundTarget: 10, timerSeconds: 10, revealSeconds: 7, soundMode: 'manual', hapticEnabled: true, darkMode: false };
     const DEFAULT_TOTALS   = { totalCorrect: 0, totalWrong: 0, bestStreakEver: 0 };
 
     function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
@@ -875,6 +907,15 @@ let inputLocked = false;
 
     // Initialize haptic from settings
     hapticEnabled = settings.hapticEnabled !== false; // Default to true if not set
+
+    // Initialize dark mode from settings
+    function applyDarkMode(enabled) {
+      document.documentElement.setAttribute('data-theme', enabled ? 'dark' : 'light');
+      // Update theme-color meta tag for browser UI
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if(metaTheme) metaTheme.setAttribute('content', enabled ? '#1a1a1a' : '#ffffff');
+    }
+    applyDarkMode(settings.darkMode === true);
 
     function saveSettings(){ saveJSON(SETTINGS_KEY, settings); }
     function saveTotals(){ saveJSON(TOTALS_KEY, totals); }
@@ -924,6 +965,54 @@ let inputLocked = false;
           piano.triggerAttackRelease(noteToTone(currentQuestion.data.note, currentQuestion.data.octave), '2n');
         }
       }catch(e){console.warn('Sound error:',e);}
+    }
+
+    // ==================== PLAYABLE PIANO ====================
+    // Convert MIDI number to Tone.js note name (e.g., 60 -> "C4")
+    function midiToNoteName(midi) {
+      const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+      const octave = Math.floor(midi / 12) - 1;
+      const noteIndex = midi % 12;
+      return noteNames[noteIndex] + octave;
+    }
+
+    // Play a single key by MIDI number
+    async function playKeyByMidi(midi, element) {
+      const soundMode = settings.soundMode || 'manual';
+      if(soundMode === 'off') return;
+
+      try {
+        await ensurePiano();
+        const noteName = midiToNoteName(midi);
+        piano.triggerAttackRelease(noteName, '8n'); // Short note for key press
+
+        // Visual feedback
+        if(element) {
+          element.classList.add('pressed');
+          setTimeout(() => element.classList.remove('pressed'), 150);
+        }
+
+        // Haptic feedback
+        hapticLight();
+      } catch(e) {
+        console.warn('Key play error:', e);
+      }
+    }
+
+    // Attach playable handlers to keyboard (called after buildKeyboard)
+    function makeKeyboardPlayable() {
+      if(!keyboardEl) return;
+
+      keyboardEl.querySelectorAll('.kb-white, .kb-black').forEach(key => {
+        const midi = parseInt(key.dataset.midi, 10);
+        if(isNaN(midi)) return;
+
+        // Use pointerdown for faster response
+        key.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          playKeyByMidi(midi, key);
+        }, { passive: false });
+      });
     }
 
     // ==================== VEXFLOW ====================
@@ -1185,12 +1274,15 @@ let inputLocked = false;
           keyboardEl.appendChild(el);
         });
       }
+
+      // Make keys playable after building
+      makeKeyboardPlayable();
     }
 
     function clearKeyboardHighlights(){
       if(!keyboardEl) return;
-      keyboardEl.querySelectorAll('.sel,.sol,.wrong,.correct').forEach(el => {
-        el.classList.remove('sel','sol','wrong','correct');
+      keyboardEl.querySelectorAll('.sel,.sol,.wrong,.correct,.pressed').forEach(el => {
+        el.classList.remove('sel','sol','wrong','correct','pressed');
       });
     }
 
@@ -1743,6 +1835,7 @@ startTimer();
     const revealSetting = document.getElementById('revealSetting');
     const soundModeSel = document.getElementById('soundMode');
     const hapticToggle = document.getElementById('hapticToggle');
+    const darkModeToggle = document.getElementById('darkModeToggle');
 
     const roundVal = document.getElementById('roundSettingVal');
     const timerVal = document.getElementById('timerSettingVal');
@@ -1771,6 +1864,9 @@ startTimer();
       }
       if(hapticToggle){
         hapticToggle.checked = settings.hapticEnabled !== false;
+      }
+      if(darkModeToggle){
+        darkModeToggle.checked = settings.darkMode === true;
       }
     }
     applySettingsToUI();
@@ -1859,6 +1955,16 @@ startTimer();
             vibrationHint.style.color = '';
           }, 4000);
         }
+      };
+    }
+
+    // Dark mode toggle
+    if(darkModeToggle){
+      darkModeToggle.onchange = e => {
+        settings.darkMode = e.target.checked;
+        applyDarkMode(e.target.checked);
+        hapticLight();
+        saveSettings();
       };
     }
 

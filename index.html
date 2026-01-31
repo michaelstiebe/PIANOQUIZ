@@ -25,7 +25,9 @@
       overflow:hidden;
     }
     .app{
-      height:100dvh;
+      height:100vh; /* Fallback for older Android browsers */
+      height:100dvh; /* Dynamic viewport height for modern browsers */
+      height:-webkit-fill-available; /* iOS/Android WebKit fallback */
       max-width:860px;
       margin:0 auto;
       padding:8px;
@@ -34,6 +36,8 @@
       flex-direction:column;
       gap:6px;
       overflow:hidden;
+      /* Prevent pull-to-refresh on Android Chrome */
+      overscroll-behavior:none;
     }
     
     .main{
@@ -440,6 +444,12 @@
         </select>
       </div>
 
+      <div class="field" style="flex-direction:row;align-items:center;gap:10px;">
+        <label for="hapticToggle" style="margin:0;cursor:pointer;">Vibration Feedback</label>
+        <input type="checkbox" id="hapticToggle" style="width:20px;height:20px;cursor:pointer;">
+      </div>
+      <div class="hint" style="margin-top:-8px;">Vibrate on button taps and answers (Android)</div>
+
     </div
   </div>
 
@@ -452,9 +462,65 @@
 
   <script>
 
+    // ==================== ANDROID STABILITY UTILITIES ====================
+    // Debounce function to prevent excessive resize handler calls
+    function debounce(fn, delay) {
+      let timeoutId;
+      return function(...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => fn.apply(this, args), delay);
+      };
+    }
 
+    // Throttle function for performance-critical operations
+    function throttle(fn, limit) {
+      let inThrottle = false;
+      return function(...args) {
+        if (!inThrottle) {
+          fn.apply(this, args);
+          inThrottle = true;
+          setTimeout(() => inThrottle = false, limit);
+        }
+      };
+    }
 
+    // Store interval IDs for cleanup
+    let watchdogIntervalId = null;
+    let timerIntervalId = null;
 
+    // ==================== HAPTIC FEEDBACK ====================
+    // Vibration patterns for different events (in milliseconds)
+    const HAPTIC = {
+      light: 10,           // Light tap for button press
+      medium: 25,          // Medium tap for selections
+      success: [15, 50, 15], // Double pulse for correct answer
+      error: [40, 30, 40],   // Stronger double pulse for wrong answer
+      streak: [10, 30, 10, 30, 20], // Triple pulse for streak milestone (5, 10, etc.)
+      timeout: [80],       // Single long pulse for timeout
+      roundComplete: [20, 40, 20, 40, 30, 50, 40] // Celebration pattern
+    };
+
+    // Check if haptic feedback is supported and enabled
+    let hapticEnabled = true; // Will be loaded from settings
+
+    function haptic(pattern) {
+      if (!hapticEnabled) return;
+      if (!navigator.vibrate) return; // Not supported
+      try {
+        navigator.vibrate(pattern);
+      } catch(e) {
+        // Silently fail if vibration not allowed
+      }
+    }
+
+    // Convenience functions for common haptic events
+    function hapticLight() { haptic(HAPTIC.light); }
+    function hapticMedium() { haptic(HAPTIC.medium); }
+    function hapticSuccess() { haptic(HAPTIC.success); }
+    function hapticError() { haptic(HAPTIC.error); }
+    function hapticStreak() { haptic(HAPTIC.streak); }
+    function hapticTimeout() { haptic(HAPTIC.timeout); }
+    function hapticRoundComplete() { haptic(HAPTIC.roundComplete); }
 
 
 
@@ -744,7 +810,7 @@ let inputLocked = false;
     const SETTINGS_KEY = 'piano_note_quiz_settings_v1';
     const TOTALS_KEY   = 'piano_note_quiz_totals_v1';
 
-    const DEFAULT_SETTINGS = { presetId: 'P2', roundTarget: 10, timerSeconds: 10, revealSeconds: 7, soundMode: 'manual' };
+    const DEFAULT_SETTINGS = { presetId: 'P2', roundTarget: 10, timerSeconds: 10, revealSeconds: 7, soundMode: 'manual', hapticEnabled: true };
     const DEFAULT_TOTALS   = { totalCorrect: 0, totalWrong: 0, bestStreakEver: 0 };
 
     function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
@@ -765,6 +831,9 @@ let inputLocked = false;
 
     let settings = loadJSON(SETTINGS_KEY, DEFAULT_SETTINGS);
     let totals   = loadJSON(TOTALS_KEY, DEFAULT_TOTALS);
+
+    // Initialize haptic from settings
+    hapticEnabled = settings.hapticEnabled !== false; // Default to true if not set
 
     function saveSettings(){ saveJSON(SETTINGS_KEY, settings); }
     function saveTotals(){ saveJSON(TOTALS_KEY, totals); }
@@ -819,28 +888,54 @@ let inputLocked = false;
     // ==================== VEXFLOW ====================
     const board = document.getElementById('board');
 
+    // Cache renderer dimensions to avoid unnecessary recreations
+    let cachedRenderer = null;
+    let cachedRendererWidth = 0;
+    let cachedRendererHeight = 0;
+
     function drawStaff(clef, keys, accidentals){
-      board.innerHTML = '';
-      const VF = Vex.Flow;
-      const w = Math.max(260, board.clientWidth - 8);
-      const h = Math.max(140, board.clientHeight - 8);
-      const renderer = new VF.Renderer(board, VF.Renderer.Backends.SVG);
-      renderer.resize(w, h);
-      const ctx = renderer.getContext();
-      const y = Math.max(18, h/2 - 48);
-      const stave = new VF.Stave(10, y, w - 20);
-      stave.addClef(clef);
-      stave.setContext(ctx).draw();
+      try {
+        const VF = Vex.Flow;
+        const w = Math.max(260, board.clientWidth - 8);
+        const h = Math.max(140, board.clientHeight - 8);
 
-      const note = new VF.StaveNote({clef, keys, duration:'w'});
-      accidentals.forEach((acc, i) => {
-        if(acc) note.addModifier(new VF.Accidental(acc), i);
-      });
+        // Reuse renderer if dimensions match (avoids expensive recreation on Android)
+        const needsNewRenderer = !cachedRenderer ||
+          Math.abs(cachedRendererWidth - w) > 5 ||
+          Math.abs(cachedRendererHeight - h) > 5;
 
-      const voice = new VF.Voice({num_beats:4, beat_value:4});
-      voice.addTickables([note]);
-      new VF.Formatter().joinVoices([voice]).format([voice], w - 60);
-      voice.draw(ctx, stave);
+        if(needsNewRenderer) {
+          board.innerHTML = '';
+          cachedRenderer = new VF.Renderer(board, VF.Renderer.Backends.SVG);
+          cachedRendererWidth = w;
+          cachedRendererHeight = h;
+        } else {
+          // Clear existing SVG content but reuse renderer
+          const svg = board.querySelector('svg');
+          if(svg) svg.innerHTML = '';
+        }
+
+        cachedRenderer.resize(w, h);
+        const ctx = cachedRenderer.getContext();
+        const y = Math.max(18, h/2 - 48);
+        const stave = new VF.Stave(10, y, w - 20);
+        stave.addClef(clef);
+        stave.setContext(ctx).draw();
+
+        const note = new VF.StaveNote({clef, keys, duration:'w'});
+        accidentals.forEach((acc, i) => {
+          if(acc) note.addModifier(new VF.Accidental(acc), i);
+        });
+
+        const voice = new VF.Voice({num_beats:4, beat_value:4});
+        voice.addTickables([note]);
+        new VF.Formatter().joinVoices([voice]).format([voice], w - 60);
+        voice.draw(ctx, stave);
+      } catch(e) {
+        console.warn('VexFlow draw error:', e);
+        // Fallback: show simple text representation
+        board.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666;font-size:14px;">Loading notation...</div>';
+      }
     }
 
     function renderQuestion(q){
@@ -1192,9 +1287,12 @@ function showKeyboardSolution(){
       midis.forEach(m => highlightMidi(m, 'correct'));
       return midis;
     }
-// Build once + rebuild on resize
+// Build once + rebuild on resize (debounced for Android stability)
     buildKeyboard();
-    window.addEventListener('resize', () => buildKeyboard());
+    const debouncedBuildKeyboard = debounce(() => {
+      try { buildKeyboard(); } catch(e) { console.warn('Keyboard rebuild error:', e); }
+    }, 150);
+    window.addEventListener('resize', debouncedBuildKeyboard);
 
 
     function updateStats(){
@@ -1296,6 +1394,7 @@ function showKeyboardSolution(){
       inputLocked = true;
       stopTimer();
       window.disableAnswers();
+      hapticTimeout(); // Haptic feedback for timeout
 
       // Keyboard window to solution (exact played octave)
       clearKeyboardHighlights();
@@ -1377,7 +1476,17 @@ function showKeyboardSolution(){
         btn.className = 'big';
         btn.textContent = ans;
 
-        const fire = () => handleAnswer(ans, btn);
+        // Use a timestamp guard to prevent double-firing on Android
+        // where both pointerdown and click can fire on the same tap
+        let lastFire = 0;
+        const fire = (e) => {
+          const now = Date.now();
+          if(now - lastFire < 300) return; // Ignore if fired within 300ms
+          lastFire = now;
+          hapticLight(); // Light haptic feedback on button tap
+          handleAnswer(ans, btn);
+        };
+        // Use pointerdown for faster response, click as fallback for accessibility
         btn.addEventListener('pointerdown', fire, {passive:true});
         btn.addEventListener('click', fire);
 
@@ -1414,12 +1523,20 @@ function showKeyboardSolution(){
         if(isCorrect){
           stats.correct++;
           stats.streak++;
+          // Haptic feedback for correct answer
+          // Extra celebration for streak milestones (5, 10, 15, etc.)
+          if(stats.streak > 0 && stats.streak % 5 === 0) {
+            hapticStreak();
+          } else {
+            hapticSuccess();
+          }
           if(btn) btn.classList.add('correct');
           showKeyboardSelection(answer,'correct');
           setFeedback('✓ Correct! ' + currentQuestion.correctAnswer, true);
         }else{
           stats.wrong++;
           stats.streak = 0;
+          hapticError(); // Haptic feedback for wrong answer
           if(btn) btn.classList.add('wrong');
           showKeyboardSelection(answer,'wrong');
 
@@ -1439,6 +1556,7 @@ function showKeyboardSolution(){
         setTimeout(() => {
           inputLocked = false;
           if(roundComplete){
+            hapticRoundComplete(); // Celebration haptic for completing a round
             showRoundOverlay();
           } else if(running){
             nextQuestion();
@@ -1513,6 +1631,7 @@ startTimer();
 
     // ==================== EVENTS ====================
     document.getElementById('startBtn').onclick = async () => {
+      hapticMedium();
       try{ await ensurePiano(); }catch(e){}
       if(!running) startQuiz();
       else pauseQuiz();
@@ -1520,6 +1639,7 @@ startTimer();
 
     document.getElementById('skipBtn').onclick = () => {
       if(!running || inputLocked) return;
+      hapticLight();
       inputLocked = true;
       stopTimer();
       window.disableAnswers();
@@ -1559,16 +1679,20 @@ startTimer();
 
 
     document.getElementById('playBtn').onclick = async () => {
+      hapticLight();
       try{ await ensurePiano(); }catch(e){}
       playSound();
     };
 
-    document.getElementById('resetBtn').onclick = resetQuiz;
+    document.getElementById('resetBtn').onclick = () => {
+      hapticMedium();
+      resetQuiz();
+    };
 
     // Settings modal
     const modalBack = document.getElementById('modalBack');
-    document.getElementById('settingsBtn').onclick = () => modalBack.style.display = 'flex';
-    document.getElementById('closeSettings').onclick = () => modalBack.style.display = 'none';
+    document.getElementById('settingsBtn').onclick = () => { hapticLight(); modalBack.style.display = 'flex'; };
+    document.getElementById('closeSettings').onclick = () => { hapticLight(); modalBack.style.display = 'none'; };
     modalBack.addEventListener('click', e => { if(e.target === modalBack) modalBack.style.display = 'none'; });
 
     // --- Apply saved settings to UI ---
@@ -1577,6 +1701,7 @@ startTimer();
     const timerSetting = document.getElementById('timerSetting');
     const revealSetting = document.getElementById('revealSetting');
     const soundModeSel = document.getElementById('soundMode');
+    const hapticToggle = document.getElementById('hapticToggle');
 
     const roundVal = document.getElementById('roundSettingVal');
     const timerVal = document.getElementById('timerSettingVal');
@@ -1602,6 +1727,9 @@ startTimer();
       }
       if(soundModeSel){
         soundModeSel.value = settings.soundMode || 'manual';
+      }
+      if(hapticToggle){
+        hapticToggle.checked = settings.hapticEnabled !== false;
       }
     }
     applySettingsToUI();
@@ -1652,8 +1780,19 @@ startTimer();
       };
     }
 
+    if(hapticToggle){
+      hapticToggle.onchange = e => {
+        settings.hapticEnabled = e.target.checked;
+        hapticEnabled = e.target.checked;
+        // Give immediate feedback when enabling
+        if(hapticEnabled) hapticMedium();
+        saveSettings();
+      };
+    }
+
 // Round overlay buttons
     document.getElementById('nextRoundBtn').onclick = () => {
+      hapticMedium();
       hideRoundOverlay();
       resetRound();
       // Continue immediately
@@ -1665,6 +1804,7 @@ startTimer();
     };
 
     document.getElementById('closeRoundBtn').onclick = () => {
+      hapticLight();
       // Closing the overlay should also continue the quiz
       hideRoundOverlay();
       inputLocked = false;
@@ -1672,12 +1812,18 @@ startTimer();
       if(running) nextQuestion();
     };
 
-    window.addEventListener('resize', () => {
-      if(currentQuestion) renderQuestion(currentQuestion);
-    
+    // Debounced resize handler for re-rendering questions
+    const debouncedRenderQuestion = debounce(() => {
+      try {
+        if(currentQuestion) renderQuestion(currentQuestion);
+      } catch(e) { console.warn('Render question error:', e); }
+    }, 150);
+    window.addEventListener('resize', debouncedRenderQuestion);
+
     // Global watchdog: if something ever leaves input locked for too long, unlock.
+    // Store interval ID for cleanup on page unload
     let _lockSince = 0;
-    setInterval(() => {
+    watchdogIntervalId = setInterval(() => {
       if(!running) return;
       if(inputLocked){
         if(!_lockSince) _lockSince = Date.now();
@@ -1691,15 +1837,45 @@ startTimer();
       }
     }, 500);
 
-});
+    // ==================== CLEANUP ON PAGE UNLOAD ====================
+    // Clean up resources when page is unloaded (critical for Android memory management)
+    function cleanupResources() {
+      // Clear intervals
+      if(watchdogIntervalId) { clearInterval(watchdogIntervalId); watchdogIntervalId = null; }
+      if(timerIntervalId) { clearInterval(timerIntervalId); timerIntervalId = null; }
+      if(typeof timer !== 'undefined' && timer) { clearInterval(timer); }
+
+      // Dispose audio context
+      try {
+        if(piano) {
+          piano.dispose();
+          piano = null;
+        }
+        if(Tone && Tone.context && Tone.context.state !== 'closed') {
+          Tone.context.close();
+        }
+      } catch(e) { console.warn('Audio cleanup error:', e); }
+    }
+
+    // Handle various page lifecycle events for Android
+    window.addEventListener('pagehide', cleanupResources);
+    window.addEventListener('beforeunload', cleanupResources);
+    document.addEventListener('visibilitychange', () => {
+      // On Android, pause audio when app goes to background to save battery
+      if(document.visibilityState === 'hidden' && Tone && Tone.context) {
+        try { Tone.context.suspend(); } catch(e) {}
+      } else if(document.visibilityState === 'visible' && Tone && Tone.context) {
+        try { Tone.context.resume(); } catch(e) {}
+      }
+    });
 
     // ==================== INIT ====================
     updateStats();
-    drawStaff('treble', ['c/4'], [null]);
+    try { drawStaff('treble', ['c/4'], [null]); } catch(e) { console.warn('Initial staff draw error:', e); }
 
     // Register service worker for PWA
     if('serviceWorker' in navigator){
-      navigator.serviceWorker.register('./sw.js').catch(e => console.log('SW:', e));
+      navigator.serviceWorker.register('./sw.js').catch(e => console.log('SW registration:', e));
     }
   
 

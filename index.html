@@ -447,8 +447,9 @@
       <div class="field" style="flex-direction:row;align-items:center;gap:10px;">
         <label for="hapticToggle" style="margin:0;cursor:pointer;">Vibration Feedback</label>
         <input type="checkbox" id="hapticToggle" style="width:20px;height:20px;cursor:pointer;">
+        <button type="button" id="testVibrationBtn" style="padding:6px 12px;font-size:12px;margin-left:auto;">Test</button>
       </div>
-      <div class="hint" style="margin-top:-8px;">Vibrate on button taps and answers (Android)</div>
+      <div class="hint" style="margin-top:-8px;" id="vibrationHint">Vibrate on button taps and answers (Android)</div>
 
     </div
   </div>
@@ -490,26 +491,41 @@
 
     // ==================== HAPTIC FEEDBACK ====================
     // Vibration patterns for different events (in milliseconds)
+    // Note: Very short durations (<20ms) may not be perceptible on all devices
     const HAPTIC = {
-      light: 10,           // Light tap for button press
-      medium: 25,          // Medium tap for selections
-      success: [15, 50, 15], // Double pulse for correct answer
-      error: [40, 30, 40],   // Stronger double pulse for wrong answer
-      streak: [10, 30, 10, 30, 20], // Triple pulse for streak milestone (5, 10, etc.)
-      timeout: [80],       // Single long pulse for timeout
-      roundComplete: [20, 40, 20, 40, 30, 50, 40] // Celebration pattern
+      light: 30,              // Light tap for button press
+      medium: 50,             // Medium tap for selections
+      success: [30, 60, 30],  // Double pulse for correct answer
+      error: [80, 50, 80],    // Stronger double pulse for wrong answer
+      streak: [30, 50, 30, 50, 50], // Triple pulse for streak milestone (5, 10, etc.)
+      timeout: [150],         // Single long pulse for timeout
+      roundComplete: [40, 60, 40, 60, 50, 80, 60] // Celebration pattern
     };
 
     // Check if haptic feedback is supported and enabled
     let hapticEnabled = true; // Will be loaded from settings
 
     function haptic(pattern) {
-      if (!hapticEnabled) return;
-      if (!navigator.vibrate) return; // Not supported
+      if (!hapticEnabled) return false;
+      if (typeof navigator.vibrate !== 'function') return false; // Not supported
       try {
-        navigator.vibrate(pattern);
+        return navigator.vibrate(pattern);
       } catch(e) {
-        // Silently fail if vibration not allowed
+        console.warn('Vibration error:', e);
+        return false;
+      }
+    }
+
+    // Test function for settings - returns true if vibration worked
+    function testVibration() {
+      if (typeof navigator.vibrate !== 'function') {
+        return { supported: false, message: 'Vibration API not supported on this device/browser' };
+      }
+      try {
+        const result = navigator.vibrate([100, 50, 100, 50, 150]);
+        return { supported: true, triggered: result, message: result ? 'Vibration triggered!' : 'Vibration call returned false' };
+      } catch(e) {
+        return { supported: true, triggered: false, message: 'Error: ' + e.message };
       }
     }
 
@@ -1787,6 +1803,32 @@ startTimer();
         // Give immediate feedback when enabling
         if(hapticEnabled) hapticMedium();
         saveSettings();
+      };
+    }
+
+    // Test vibration button
+    const testVibrationBtn = document.getElementById('testVibrationBtn');
+    const vibrationHint = document.getElementById('vibrationHint');
+    if(testVibrationBtn){
+      testVibrationBtn.onclick = () => {
+        const result = testVibration();
+        if(vibrationHint){
+          if(!result.supported){
+            vibrationHint.textContent = '❌ ' + result.message;
+            vibrationHint.style.color = '#d9534f';
+          } else if(result.triggered){
+            vibrationHint.textContent = '✓ Vibration working!';
+            vibrationHint.style.color = '#1f8a4c';
+          } else {
+            vibrationHint.textContent = '⚠️ Check phone vibration settings';
+            vibrationHint.style.color = '#f0ad4e';
+          }
+          // Reset hint after 3 seconds
+          setTimeout(() => {
+            vibrationHint.textContent = 'Vibrate on button taps and answers (Android)';
+            vibrationHint.style.color = '';
+          }, 3000);
+        }
       };
     }
 

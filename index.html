@@ -516,16 +516,41 @@
       }
     }
 
-    // Test function for settings - returns true if vibration worked
+    // Test function for settings - returns detailed info about vibration support
     function testVibration() {
-      if (typeof navigator.vibrate !== 'function') {
-        return { supported: false, message: 'Vibration API not supported on this device/browser' };
+      const info = {
+        supported: typeof navigator.vibrate === 'function',
+        secureContext: window.isSecureContext,
+        userAgent: navigator.userAgent.substring(0, 50)
+      };
+
+      if (!info.supported) {
+        return {
+          ...info,
+          triggered: false,
+          message: 'Vibration API not available in this browser'
+        };
       }
+
+      if (!info.secureContext) {
+        return {
+          ...info,
+          triggered: false,
+          message: 'Requires HTTPS or localhost'
+        };
+      }
+
       try {
         const result = navigator.vibrate([100, 50, 100, 50, 150]);
-        return { supported: true, triggered: result, message: result ? 'Vibration triggered!' : 'Vibration call returned false' };
+        console.log('Vibration test result:', result, info);
+        return {
+          ...info,
+          triggered: result,
+          message: result ? 'Vibration should work!' : 'API returned false - check phone settings'
+        };
       } catch(e) {
-        return { supported: true, triggered: false, message: 'Error: ' + e.message };
+        console.error('Vibration test error:', e);
+        return { ...info, triggered: false, message: 'Error: ' + e.message };
       }
     }
 
@@ -1812,22 +1837,27 @@ startTimer();
     if(testVibrationBtn){
       testVibrationBtn.onclick = () => {
         const result = testVibration();
+        console.log('Vibration test:', result);
+
         if(vibrationHint){
           if(!result.supported){
-            vibrationHint.textContent = '❌ ' + result.message;
+            vibrationHint.textContent = '❌ Not supported in this browser';
+            vibrationHint.style.color = '#d9534f';
+          } else if(!result.secureContext){
+            vibrationHint.textContent = '❌ Needs HTTPS (not http://)';
             vibrationHint.style.color = '#d9534f';
           } else if(result.triggered){
-            vibrationHint.textContent = '✓ Vibration working!';
+            vibrationHint.textContent = '✓ Vibration sent! Feel it?';
             vibrationHint.style.color = '#1f8a4c';
           } else {
-            vibrationHint.textContent = '⚠️ Check phone vibration settings';
+            vibrationHint.textContent = '⚠️ Phone vibration may be off';
             vibrationHint.style.color = '#f0ad4e';
           }
-          // Reset hint after 3 seconds
+          // Reset hint after 4 seconds
           setTimeout(() => {
             vibrationHint.textContent = 'Vibrate on button taps and answers (Android)';
             vibrationHint.style.color = '';
-          }, 3000);
+          }, 4000);
         }
       };
     }

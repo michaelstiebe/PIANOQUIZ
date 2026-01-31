@@ -25,7 +25,9 @@
       overflow:hidden;
     }
     .app{
-      height:100dvh;
+      height:100vh; /* Fallback for older Android browsers */
+      height:100dvh; /* Dynamic viewport height for modern browsers */
+      height:-webkit-fill-available; /* iOS/Android WebKit fallback */
       max-width:860px;
       margin:0 auto;
       padding:8px;
@@ -34,6 +36,8 @@
       flex-direction:column;
       gap:6px;
       overflow:hidden;
+      /* Prevent pull-to-refresh on Android Chrome */
+      overscroll-behavior:none;
     }
     
     .main{
@@ -452,7 +456,31 @@
 
   <script>
 
+    // ==================== ANDROID STABILITY UTILITIES ====================
+    // Debounce function to prevent excessive resize handler calls
+    function debounce(fn, delay) {
+      let timeoutId;
+      return function(...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => fn.apply(this, args), delay);
+      };
+    }
 
+    // Throttle function for performance-critical operations
+    function throttle(fn, limit) {
+      let inThrottle = false;
+      return function(...args) {
+        if (!inThrottle) {
+          fn.apply(this, args);
+          inThrottle = true;
+          setTimeout(() => inThrottle = false, limit);
+        }
+      };
+    }
+
+    // Store interval IDs for cleanup
+    let watchdogIntervalId = null;
+    let timerIntervalId = null;
 
 
 
@@ -819,28 +847,54 @@ let inputLocked = false;
     // ==================== VEXFLOW ====================
     const board = document.getElementById('board');
 
+    // Cache renderer dimensions to avoid unnecessary recreations
+    let cachedRenderer = null;
+    let cachedRendererWidth = 0;
+    let cachedRendererHeight = 0;
+
     function drawStaff(clef, keys, accidentals){
-      board.innerHTML = '';
-      const VF = Vex.Flow;
-      const w = Math.max(260, board.clientWidth - 8);
-      const h = Math.max(140, board.clientHeight - 8);
-      const renderer = new VF.Renderer(board, VF.Renderer.Backends.SVG);
-      renderer.resize(w, h);
-      const ctx = renderer.getContext();
-      const y = Math.max(18, h/2 - 48);
-      const stave = new VF.Stave(10, y, w - 20);
-      stave.addClef(clef);
-      stave.setContext(ctx).draw();
+      try {
+        const VF = Vex.Flow;
+        const w = Math.max(260, board.clientWidth - 8);
+        const h = Math.max(140, board.clientHeight - 8);
 
-      const note = new VF.StaveNote({clef, keys, duration:'w'});
-      accidentals.forEach((acc, i) => {
-        if(acc) note.addModifier(new VF.Accidental(acc), i);
-      });
+        // Reuse renderer if dimensions match (avoids expensive recreation on Android)
+        const needsNewRenderer = !cachedRenderer ||
+          Math.abs(cachedRendererWidth - w) > 5 ||
+          Math.abs(cachedRendererHeight - h) > 5;
 
-      const voice = new VF.Voice({num_beats:4, beat_value:4});
-      voice.addTickables([note]);
-      new VF.Formatter().joinVoices([voice]).format([voice], w - 60);
-      voice.draw(ctx, stave);
+        if(needsNewRenderer) {
+          board.innerHTML = '';
+          cachedRenderer = new VF.Renderer(board, VF.Renderer.Backends.SVG);
+          cachedRendererWidth = w;
+          cachedRendererHeight = h;
+        } else {
+          // Clear existing SVG content but reuse renderer
+          const svg = board.querySelector('svg');
+          if(svg) svg.innerHTML = '';
+        }
+
+        cachedRenderer.resize(w, h);
+        const ctx = cachedRenderer.getContext();
+        const y = Math.max(18, h/2 - 48);
+        const stave = new VF.Stave(10, y, w - 20);
+        stave.addClef(clef);
+        stave.setContext(ctx).draw();
+
+        const note = new VF.StaveNote({clef, keys, duration:'w'});
+        accidentals.forEach((acc, i) => {
+          if(acc) note.addModifier(new VF.Accidental(acc), i);
+        });
+
+        const voice = new VF.Voice({num_beats:4, beat_value:4});
+        voice.addTickables([note]);
+        new VF.Formatter().joinVoices([voice]).format([voice], w - 60);
+        voice.draw(ctx, stave);
+      } catch(e) {
+        console.warn('VexFlow draw error:', e);
+        // Fallback: show simple text representation
+        board.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666;font-size:14px;">Loading notation...</div>';
+      }
     }
 
     function renderQuestion(q){
@@ -1192,9 +1246,12 @@ function showKeyboardSolution(){
       midis.forEach(m => highlightMidi(m, 'correct'));
       return midis;
     }
-// Build once + rebuild on resize
+// Build once + rebuild on resize (debounced for Android stability)
     buildKeyboard();
-    window.addEventListener('resize', () => buildKeyboard());
+    const debouncedBuildKeyboard = debounce(() => {
+      try { buildKeyboard(); } catch(e) { console.warn('Keyboard rebuild error:', e); }
+    }, 150);
+    window.addEventListener('resize', debouncedBuildKeyboard);
 
 
     function updateStats(){
@@ -1377,7 +1434,16 @@ function showKeyboardSolution(){
         btn.className = 'big';
         btn.textContent = ans;
 
-        const fire = () => handleAnswer(ans, btn);
+        // Use a timestamp guard to prevent double-firing on Android
+        // where both pointerdown and click can fire on the same tap
+        let lastFire = 0;
+        const fire = (e) => {
+          const now = Date.now();
+          if(now - lastFire < 300) return; // Ignore if fired within 300ms
+          lastFire = now;
+          handleAnswer(ans, btn);
+        };
+        // Use pointerdown for faster response, click as fallback for accessibility
         btn.addEventListener('pointerdown', fire, {passive:true});
         btn.addEventListener('click', fire);
 
@@ -1672,12 +1738,18 @@ startTimer();
       if(running) nextQuestion();
     };
 
-    window.addEventListener('resize', () => {
-      if(currentQuestion) renderQuestion(currentQuestion);
-    
+    // Debounced resize handler for re-rendering questions
+    const debouncedRenderQuestion = debounce(() => {
+      try {
+        if(currentQuestion) renderQuestion(currentQuestion);
+      } catch(e) { console.warn('Render question error:', e); }
+    }, 150);
+    window.addEventListener('resize', debouncedRenderQuestion);
+
     // Global watchdog: if something ever leaves input locked for too long, unlock.
+    // Store interval ID for cleanup on page unload
     let _lockSince = 0;
-    setInterval(() => {
+    watchdogIntervalId = setInterval(() => {
       if(!running) return;
       if(inputLocked){
         if(!_lockSince) _lockSince = Date.now();
@@ -1691,15 +1763,45 @@ startTimer();
       }
     }, 500);
 
-});
+    // ==================== CLEANUP ON PAGE UNLOAD ====================
+    // Clean up resources when page is unloaded (critical for Android memory management)
+    function cleanupResources() {
+      // Clear intervals
+      if(watchdogIntervalId) { clearInterval(watchdogIntervalId); watchdogIntervalId = null; }
+      if(timerIntervalId) { clearInterval(timerIntervalId); timerIntervalId = null; }
+      if(typeof timer !== 'undefined' && timer) { clearInterval(timer); }
+
+      // Dispose audio context
+      try {
+        if(piano) {
+          piano.dispose();
+          piano = null;
+        }
+        if(Tone && Tone.context && Tone.context.state !== 'closed') {
+          Tone.context.close();
+        }
+      } catch(e) { console.warn('Audio cleanup error:', e); }
+    }
+
+    // Handle various page lifecycle events for Android
+    window.addEventListener('pagehide', cleanupResources);
+    window.addEventListener('beforeunload', cleanupResources);
+    document.addEventListener('visibilitychange', () => {
+      // On Android, pause audio when app goes to background to save battery
+      if(document.visibilityState === 'hidden' && Tone && Tone.context) {
+        try { Tone.context.suspend(); } catch(e) {}
+      } else if(document.visibilityState === 'visible' && Tone && Tone.context) {
+        try { Tone.context.resume(); } catch(e) {}
+      }
+    });
 
     // ==================== INIT ====================
     updateStats();
-    drawStaff('treble', ['c/4'], [null]);
+    try { drawStaff('treble', ['c/4'], [null]); } catch(e) { console.warn('Initial staff draw error:', e); }
 
     // Register service worker for PWA
     if('serviceWorker' in navigator){
-      navigator.serviceWorker.register('./sw.js').catch(e => console.log('SW:', e));
+      navigator.serviceWorker.register('./sw.js').catch(e => console.log('SW registration:', e));
     }
   
 

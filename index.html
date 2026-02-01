@@ -2202,8 +2202,8 @@ startTimer();
       }
     }
 
-    // Chord definitions (as arrays of MIDI offsets from root)
-    const CHORDS = {
+    // Chord definitions for theory examples (as arrays of MIDI offsets from root)
+    const THEORY_CHORDS = {
       C: [0, 4, 7],           // C major: C E G
       Dm: [2, 5, 9],          // D minor: D F A
       Em: [4, 7, 11],         // E minor: E G B
@@ -2220,7 +2220,7 @@ startTimer();
         btn?.classList.add('playing');
         hapticLight();
 
-        const notes = CHORDS[chordName];
+        const notes = THEORY_CHORDS[chordName];
         if (!notes) return;
 
         // Play all notes together
@@ -2259,7 +2259,7 @@ startTimer();
         chordSequence.forEach((chordName, i) => {
           if (!chordName) return;
           setTimeout(() => {
-            const notes = CHORDS[chordName];
+            const notes = THEORY_CHORDS[chordName];
             if (notes) {
               notes.forEach(offset => {
                 piano.triggerAttackRelease(midiToNoteName(BASE_MIDI + offset), '4n');

@@ -1,7 +1,7 @@
 // Service Worker for Piano Note Quiz
 // Provides offline support and caching for better Android stability
 
-const CACHE_NAME = 'piano-quiz-v1';
+const CACHE_NAME = 'piano-quiz-v2';
 const STATIC_ASSETS = [
   './',
   './index.html',

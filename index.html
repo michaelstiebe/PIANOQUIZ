@@ -1983,8 +1983,9 @@ startTimer();
 
     document.getElementById('closeRoundBtn').onclick = () => {
       hapticLight();
-      // Closing the overlay should also continue the quiz
+      // Closing the overlay should also continue the quiz AND reset the round
       hideRoundOverlay();
+      resetRound(); // Fix: reset round counter when closing overlay
       inputLocked = false;
       window.enableAnswers();
       if(running) nextQuestion();

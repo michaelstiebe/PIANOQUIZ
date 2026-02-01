@@ -599,35 +599,25 @@
         <div id="tab-intervals" class="theoryContent">
           <h3 style="margin:0 0 10px 0;font-size:16px;">Intervals</h3>
           <p style="font-size:13px;line-height:1.5;margin:0 0 12px 0;">
-            An <strong>interval</strong> is the distance between two notes, measured in half-steps (semitones). <em>Tap any row to hear it!</em>
+            An <strong>interval</strong> is the distance between two notes. Tap ▶ for pure interval, 🎵 for a song example!
           </p>
-          <div style="font-size:13px;line-height:1.8;background:var(--card);padding:12px;border-radius:8px;">
+          <div style="font-size:12px;background:var(--card);padding:8px;border-radius:8px;overflow-x:auto;">
             <table style="width:100%;border-collapse:collapse;" id="intervalsTable">
-              <tr style="border-bottom:1px solid var(--border);"><th style="text-align:left;padding:4px 8px;">Interval</th><th style="text-align:center;padding:4px;">½</th><th style="text-align:left;padding:4px 8px;">Example</th><th style="padding:4px;"></th></tr>
-              <tr class="interval-row" data-semitones="0"><td style="padding:4px 8px;">Unison</td><td style="text-align:center;">0</td><td style="padding:4px 8px;">C → C</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
-              <tr class="interval-row" data-semitones="1"><td style="padding:4px 8px;">Minor 2nd</td><td style="text-align:center;">1</td><td style="padding:4px 8px;">C → D♭</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
-              <tr class="interval-row" data-semitones="2"><td style="padding:4px 8px;">Major 2nd</td><td style="text-align:center;">2</td><td style="padding:4px 8px;">C → D</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
-              <tr class="interval-row" data-semitones="3"><td style="padding:4px 8px;">Minor 3rd</td><td style="text-align:center;">3</td><td style="padding:4px 8px;">C → E♭</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
-              <tr class="interval-row" data-semitones="4"><td style="padding:4px 8px;">Major 3rd</td><td style="text-align:center;">4</td><td style="padding:4px 8px;">C → E</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
-              <tr class="interval-row" data-semitones="5"><td style="padding:4px 8px;">Perfect 4th</td><td style="text-align:center;">5</td><td style="padding:4px 8px;">C → F</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
-              <tr class="interval-row" data-semitones="6"><td style="padding:4px 8px;">Tritone</td><td style="text-align:center;">6</td><td style="padding:4px 8px;">C → F♯</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
-              <tr class="interval-row" data-semitones="7"><td style="padding:4px 8px;">Perfect 5th</td><td style="text-align:center;">7</td><td style="padding:4px 8px;">C → G</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
-              <tr class="interval-row" data-semitones="8"><td style="padding:4px 8px;">Minor 6th</td><td style="text-align:center;">8</td><td style="padding:4px 8px;">C → A♭</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
-              <tr class="interval-row" data-semitones="9"><td style="padding:4px 8px;">Major 6th</td><td style="text-align:center;">9</td><td style="padding:4px 8px;">C → A</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
-              <tr class="interval-row" data-semitones="10"><td style="padding:4px 8px;">Minor 7th</td><td style="text-align:center;">10</td><td style="padding:4px 8px;">C → B♭</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
-              <tr class="interval-row" data-semitones="11"><td style="padding:4px 8px;">Major 7th</td><td style="text-align:center;">11</td><td style="padding:4px 8px;">C → B</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
-              <tr class="interval-row" data-semitones="12"><td style="padding:4px 8px;">Octave</td><td style="text-align:center;">12</td><td style="padding:4px 8px;">C → C</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><th style="text-align:left;padding:4px 6px;">Interval</th><th style="text-align:center;padding:4px;">½</th><th style="text-align:left;padding:4px 6px;">Song Example</th><th style="padding:4px;"></th></tr>
+              <tr class="interval-row" data-semitones="0" data-song="none"><td style="padding:4px 6px;">Unison</td><td style="text-align:center;">0</td><td style="padding:4px 6px;font-size:11px;">—</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button></td></tr>
+              <tr class="interval-row" data-semitones="1" data-song="jaws"><td style="padding:4px 6px;">Minor 2nd</td><td style="text-align:center;">1</td><td style="padding:4px 6px;font-size:11px;">"Jaws" theme</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="jaws">🎵</button></td></tr>
+              <tr class="interval-row" data-semitones="2" data-song="happy"><td style="padding:4px 6px;">Major 2nd</td><td style="text-align:center;">2</td><td style="padding:4px 6px;font-size:11px;">"Happy Birthday"</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="happy">🎵</button></td></tr>
+              <tr class="interval-row" data-semitones="3" data-song="greensleeves"><td style="padding:4px 6px;">Minor 3rd</td><td style="text-align:center;">3</td><td style="padding:4px 6px;font-size:11px;">"Greensleeves"</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="greensleeves">🎵</button></td></tr>
+              <tr class="interval-row" data-semitones="4" data-song="saints"><td style="padding:4px 6px;">Major 3rd</td><td style="text-align:center;">4</td><td style="padding:4px 6px;font-size:11px;">"Oh When the Saints"</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="saints">🎵</button></td></tr>
+              <tr class="interval-row" data-semitones="5" data-song="bride"><td style="padding:4px 6px;">Perfect 4th</td><td style="text-align:center;">5</td><td style="padding:4px 6px;font-size:11px;">"Here Comes the Bride"</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="bride">🎵</button></td></tr>
+              <tr class="interval-row" data-semitones="6" data-song="simpsons"><td style="padding:4px 6px;">Tritone</td><td style="text-align:center;">6</td><td style="padding:4px 6px;font-size:11px;">"The Simpsons"</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="simpsons">🎵</button></td></tr>
+              <tr class="interval-row" data-semitones="7" data-song="starwars"><td style="padding:4px 6px;">Perfect 5th</td><td style="text-align:center;">7</td><td style="padding:4px 6px;font-size:11px;">"Star Wars" theme</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="starwars">🎵</button></td></tr>
+              <tr class="interval-row" data-semitones="8" data-song="lovestory"><td style="padding:4px 6px;">Minor 6th</td><td style="text-align:center;">8</td><td style="padding:4px 6px;font-size:11px;">"Love Story" theme</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="lovestory">🎵</button></td></tr>
+              <tr class="interval-row" data-semitones="9" data-song="nbc"><td style="padding:4px 6px;">Major 6th</td><td style="text-align:center;">9</td><td style="padding:4px 6px;font-size:11px;">"NBC" chimes</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="nbc">🎵</button></td></tr>
+              <tr class="interval-row" data-semitones="10" data-song="startrek"><td style="padding:4px 6px;">Minor 7th</td><td style="text-align:center;">10</td><td style="padding:4px 6px;font-size:11px;">"Star Trek" theme</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="startrek">🎵</button></td></tr>
+              <tr class="interval-row" data-semitones="11" data-song="takeonme"><td style="padding:4px 6px;">Major 7th</td><td style="text-align:center;">11</td><td style="padding:4px 6px;font-size:11px;">"Take On Me"</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="takeonme">🎵</button></td></tr>
+              <tr class="interval-row" data-semitones="12" data-song="rainbow"><td style="padding:4px 6px;">Octave</td><td style="text-align:center;">12</td><td style="padding:4px 6px;font-size:11px;">"Over the Rainbow"</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="rainbow">🎵</button></td></tr>
             </table>
-          </div>
-          <div style="font-size:12px;margin-top:12px;padding:10px;background:var(--card);border-radius:8px;">
-            <strong>Tip:</strong> Use songs to remember intervals!<br>
-            • Minor 2nd: "Jaws" theme<br>
-            • Major 2nd: "Happy Birthday"<br>
-            • Minor 3rd: "Greensleeves"<br>
-            • Major 3rd: "Oh When the Saints"<br>
-            • Perfect 4th: "Here Comes the Bride"<br>
-            • Perfect 5th: "Star Wars" theme<br>
-            • Octave: "Somewhere Over the Rainbow"
           </div>
         </div>
 
@@ -686,15 +676,27 @@
             </div>
           </div>
 
-          <div class="scale-item" data-scale="blues" style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;">
+          <div class="scale-item" data-scale="blues" style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;">
               <div>
-                <strong>Blues Scale</strong><br>
+                <strong>Blues Scale</strong> (Hexatonic)<br>
                 Notes: 1 - ♭3 - 4 - ♭5 - 5 - ♭7<br>
                 Example: C E♭ F G♭ G B♭ C<br>
-                <em style="font-size:12px;opacity:0.8;">Sound: Blues, jazz, rock</em>
+                <em style="font-size:12px;opacity:0.8;">Sound: Classic blues, rock</em>
               </div>
               <button class="listen-btn scale-listen" data-scale="blues">▶</button>
+            </div>
+          </div>
+
+          <div class="scale-item" data-scale="blues9" style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <strong>Blues Scale</strong> (9-note)<br>
+                Notes: 1 - 2 - ♭3 - 3 - 4 - ♭5 - 5 - 6 - ♭7<br>
+                Example: C D E♭ E F G♭ G A B♭ C<br>
+                <em style="font-size:12px;opacity:0.8;">Sound: Rich, jazzy blues with major/minor blend</em>
+              </div>
+              <button class="listen-btn scale-listen" data-scale="blues9">▶</button>
             </div>
           </div>
         </div>
@@ -739,24 +741,45 @@
             </div>
           </div>
 
+          <!-- Chord Inversions -->
           <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
-            <strong>Common Progressions:</strong> <em style="font-size:11px;opacity:0.8;">(tap to hear)</em><br>
+            <strong>Chord Inversions</strong> <em style="font-size:11px;opacity:0.8;">(same notes, different bass)</em><br>
+            <p style="font-size:12px;margin:8px 0;opacity:0.9;">Inversions change which note is lowest, giving chords different colors while using the same notes.</p>
+            <div style="margin-top:8px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
+                <div><strong>Root Position</strong><br><span style="font-size:11px;opacity:0.8;">C-E-G (root on bottom)</span></div>
+                <button class="listen-btn inversion-listen" data-inversion="root">▶</button>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
+                <div><strong>1st Inversion</strong><br><span style="font-size:11px;opacity:0.8;">E-G-C (3rd on bottom)</span></div>
+                <button class="listen-btn inversion-listen" data-inversion="first">▶</button>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;">
+                <div><strong>2nd Inversion</strong><br><span style="font-size:11px;opacity:0.8;">G-C-E (5th on bottom)</span></div>
+                <button class="listen-btn inversion-listen" data-inversion="second">▶</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Common Progressions with Song Examples -->
+          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
+            <strong>Common Progressions:</strong> <em style="font-size:11px;opacity:0.8;">(▶ chords, 🎵 song example)</em><br>
             <div style="margin-top:8px;">
               <div class="progression-item" style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
-                <span><strong>I - IV - V - I</strong> <em style="font-size:11px;opacity:0.8;">(Classic rock)</em></span>
-                <button class="listen-btn progression-listen" data-progression="1-4-5-1">▶</button>
+                <div><strong>I - IV - V - I</strong><br><span style="font-size:10px;opacity:0.8;">"La Bamba", "Twist and Shout"</span></div>
+                <div style="white-space:nowrap;"><button class="listen-btn progression-listen" data-progression="1-4-5-1">▶</button> <button class="listen-btn progression-song" data-progsong="labamba">🎵</button></div>
               </div>
               <div class="progression-item" style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
-                <span><strong>I - V - vi - IV</strong> <em style="font-size:11px;opacity:0.8;">(Pop hits)</em></span>
-                <button class="listen-btn progression-listen" data-progression="1-5-6m-4">▶</button>
+                <div><strong>I - V - vi - IV</strong><br><span style="font-size:10px;opacity:0.8;">"Let It Be", "No Woman No Cry"</span></div>
+                <div style="white-space:nowrap;"><button class="listen-btn progression-listen" data-progression="1-5-6m-4">▶</button> <button class="listen-btn progression-song" data-progsong="letitbe">🎵</button></div>
               </div>
               <div class="progression-item" style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
-                <span><strong>ii - V - I</strong> <em style="font-size:11px;opacity:0.8;">(Jazz standard)</em></span>
-                <button class="listen-btn progression-listen" data-progression="2m-5-1">▶</button>
+                <div><strong>ii - V - I</strong><br><span style="font-size:10px;opacity:0.8;">"Fly Me to the Moon", jazz standards</span></div>
+                <div style="white-space:nowrap;"><button class="listen-btn progression-listen" data-progression="2m-5-1">▶</button> <button class="listen-btn progression-song" data-progsong="flyme">🎵</button></div>
               </div>
               <div class="progression-item" style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;">
-                <span><strong>I - vi - IV - V</strong> <em style="font-size:11px;opacity:0.8;">(50s doo-wop)</em></span>
-                <button class="listen-btn progression-listen" data-progression="1-6m-4-5">▶</button>
+                <div><strong>I - vi - IV - V</strong><br><span style="font-size:10px;opacity:0.8;">"Stand By Me", "Earth Angel"</span></div>
+                <div style="white-space:nowrap;"><button class="listen-btn progression-listen" data-progression="1-6m-4-5">▶</button> <button class="listen-btn progression-song" data-progsong="standbyme">🎵</button></div>
               </div>
             </div>
           </div>
@@ -2175,7 +2198,8 @@ startTimer();
       minor: [0, 2, 3, 5, 7, 8, 10, 12],        // Natural minor (starting from C)
       harmonic: [0, 2, 3, 5, 7, 8, 11, 12],     // Harmonic minor
       pentatonic: [0, 2, 4, 7, 9, 12],          // Pentatonic major
-      blues: [0, 3, 5, 6, 7, 10, 12]            // Blues scale
+      blues: [0, 3, 5, 6, 7, 10, 12],           // Blues scale (hexatonic)
+      blues9: [0, 2, 3, 4, 5, 6, 7, 9, 10, 12]  // Blues scale (9-note)
     };
 
     // Play a scale
@@ -2276,13 +2300,157 @@ startTimer();
       }
     }
 
-    // Attach event listeners for theory audio examples
-    // Interval rows
-    document.querySelectorAll('.interval-row').forEach(row => {
-      const semitones = parseInt(row.dataset.semitones);
-      const btn = row.querySelector('.listen-btn');
+    // Song melody examples for intervals (as arrays of [midiOffset, duration] pairs)
+    // Durations: '16n'=short, '8n'=medium, '4n'=long, '2n'=very long
+    const SONG_MELODIES = {
+      jaws: [[4,'.4n'], [5,'4n'], [4,'.4n'], [5,'4n'], [4,'8n'], [5,'8n'], [4,'8n'], [5,'2n']], // E-F repeating (Jaws)
+      happy: [[0,'4n'], [0,'8n'], [2,'4n'], [0,'4n'], [5,'4n'], [4,'2n']], // G-G-A-G-C-B (Happy Birthday)
+      greensleeves: [[0,'4n'], [3,'2n'], [5,'4n'], [7,'4n.'], [8,'8n'], [7,'4n']], // A-C-D-E-F-E (Greensleeves)
+      saints: [[0,'4n'], [4,'4n'], [5,'4n'], [7,'2n']], // C-E-F-G (Oh When the Saints)
+      bride: [[0,'2n'], [5,'4n'], [5,'4n'], [5,'2n']], // C-F-F-F (Here Comes the Bride)
+      simpsons: [[0,'4n'], [6,'4n'], [5,'4n'], [1,'4n'], [0,'2n']], // The Simpsons
+      starwars: [[0,'2n'], [7,'2n'], [5,'8n'], [4,'8n'], [2,'8n'], [12,'2n']], // Star Wars main theme
+      lovestory: [[0,'4n'], [8,'2n'], [7,'4n'], [5,'2n']], // Love Story theme
+      nbc: [[7,'2n'], [4,'2n'], [0,'1n']], // NBC chimes G-E-C
+      startrek: [[0,'2n'], [10,'2n'], [7,'4n']], // Star Trek
+      takeonme: [[9,'8n'], [9,'8n'], [11,'8n'], [9,'8n'], [4,'8n'], [4,'8n'], [9,'4n']], // Take On Me
+      rainbow: [[0,'4n'], [12,'2n'], [10,'4n'], [7,'4n'], [5,'2n']] // Somewhere Over the Rainbow
+    };
 
-      row.onclick = () => playInterval(semitones, btn);
+    // Play a song melody example
+    async function playSongExample(songKey, btn) {
+      const melody = SONG_MELODIES[songKey];
+      if (!melody) return;
+
+      try {
+        await ensurePiano();
+        btn?.classList.add('playing');
+        hapticLight();
+
+        let delay = 0;
+        const startNote = 60; // C4
+
+        melody.forEach(([offset, duration]) => {
+          setTimeout(() => {
+            piano.triggerAttackRelease(midiToNoteName(startNote + offset), duration.replace('.', ''));
+          }, delay);
+          // Calculate delay based on duration
+          const durationMs = duration.includes('1n') ? 800 :
+                            duration.includes('2n') ? 500 :
+                            duration.includes('4n') ? 300 :
+                            duration.includes('8n') ? 180 : 120;
+          delay += durationMs;
+        });
+
+        setTimeout(() => btn?.classList.remove('playing'), delay + 300);
+      } catch(e) {
+        console.warn('Song play error:', e);
+        btn?.classList.remove('playing');
+      }
+    }
+
+    // Chord inversions (C major as example)
+    const INVERSIONS = {
+      root: [0, 4, 7],      // C-E-G (root position)
+      first: [4, 7, 12],    // E-G-C (1st inversion)
+      second: [7, 12, 16]   // G-C-E (2nd inversion)
+    };
+
+    // Play a chord inversion
+    async function playInversion(inversionType, btn) {
+      try {
+        await ensurePiano();
+        btn?.classList.add('playing');
+        hapticLight();
+
+        const notes = INVERSIONS[inversionType];
+        if (!notes) return;
+
+        // Play notes as arpeggio then together
+        let delay = 0;
+        notes.forEach((offset, i) => {
+          setTimeout(() => {
+            piano.triggerAttackRelease(midiToNoteName(BASE_MIDI + offset), '8n');
+          }, delay);
+          delay += 200;
+        });
+
+        // Then play all together
+        setTimeout(() => {
+          notes.forEach(offset => {
+            piano.triggerAttackRelease(midiToNoteName(BASE_MIDI + offset), '2n');
+          });
+        }, delay + 100);
+
+        setTimeout(() => btn?.classList.remove('playing'), delay + 800);
+      } catch(e) {
+        console.warn('Inversion play error:', e);
+        btn?.classList.remove('playing');
+      }
+    }
+
+    // Progression song melodies (simplified recognizable phrases)
+    const PROGRESSION_SONGS = {
+      labamba: [ // La Bamba intro riff in C
+        [[0,4,7],'4n'], [[5,9,12],'4n'], [[7,11,14],'4n'], [[0,4,7],'2n']
+      ],
+      letitbe: [ // Let It Be - simplified chords with melody hint
+        [[0,4,7],'2n'], [[7,11,14],'2n'], [[9,12,16],'2n'], [[5,9,12],'2n']
+      ],
+      flyme: [ // Fly Me to the Moon - ii-V-I jazz feel
+        [[2,5,9],'4n.'], [[7,11,14],'4n.'], [[0,4,7],'2n']
+      ],
+      standbyme: [ // Stand By Me bass line with chords
+        [[0,4,7],'2n'], [[9,12,16],'2n'], [[5,9,12],'2n'], [[7,11,14],'2n']
+      ]
+    };
+
+    // Play a progression song example
+    async function playProgressionSong(songKey, btn) {
+      const song = PROGRESSION_SONGS[songKey];
+      if (!song) return;
+
+      try {
+        await ensurePiano();
+        btn?.classList.add('playing');
+        hapticLight();
+
+        let delay = 0;
+        song.forEach(([notes, duration]) => {
+          setTimeout(() => {
+            notes.forEach(offset => {
+              piano.triggerAttackRelease(midiToNoteName(BASE_MIDI + offset), duration.replace('.', ''));
+            });
+          }, delay);
+          const durationMs = duration.includes('2n') ? 600 :
+                            duration.includes('4n') ? 350 : 200;
+          delay += durationMs;
+        });
+
+        setTimeout(() => btn?.classList.remove('playing'), delay + 400);
+      } catch(e) {
+        console.warn('Progression song error:', e);
+        btn?.classList.remove('playing');
+      }
+    }
+
+    // Attach event listeners for theory audio examples
+    // Pure interval buttons
+    document.querySelectorAll('.interval-pure').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const row = btn.closest('.interval-row');
+        const semitones = parseInt(row.dataset.semitones);
+        playInterval(semitones, btn);
+      };
+    });
+
+    // Song example buttons
+    document.querySelectorAll('.song-btn').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        playSongExample(btn.dataset.song, btn);
+      };
     });
 
     // Scale listen buttons
@@ -2306,6 +2474,22 @@ startTimer();
       btn.onclick = (e) => {
         e.stopPropagation();
         playProgression(btn.dataset.progression, btn);
+      };
+    });
+
+    // Inversion listen buttons
+    document.querySelectorAll('.inversion-listen').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        playInversion(btn.dataset.inversion, btn);
+      };
+    });
+
+    // Progression song example buttons
+    document.querySelectorAll('.progression-song').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        playProgressionSong(btn.dataset.progsong, btn);
       };
     });
 

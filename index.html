@@ -367,6 +367,28 @@
     .theoryContent code{ font-family:monospace; }
     .learnModal .modalContent{ padding:12px; }
 
+    /* Listen Buttons for Theory Examples */
+    .listen-btn{
+      background:var(--primary);
+      color:#fff;
+      border:none;
+      border-radius:50%;
+      width:32px;
+      height:32px;
+      font-size:14px;
+      cursor:pointer;
+      transition:all 0.15s;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-shrink:0;
+    }
+    .listen-btn:hover{ background:var(--success); transform:scale(1.1); }
+    .listen-btn:active{ transform:scale(0.95); }
+    .listen-btn.playing{ background:var(--danger); }
+    .interval-row{ cursor:pointer; transition:background 0.15s; }
+    .interval-row:hover{ background:rgba(59,108,255,0.1); }
+
     /* Circle of Fifths */
     .cof-note{
       cursor:pointer;
@@ -577,24 +599,24 @@
         <div id="tab-intervals" class="theoryContent">
           <h3 style="margin:0 0 10px 0;font-size:16px;">Intervals</h3>
           <p style="font-size:13px;line-height:1.5;margin:0 0 12px 0;">
-            An <strong>interval</strong> is the distance between two notes, measured in half-steps (semitones).
+            An <strong>interval</strong> is the distance between two notes, measured in half-steps (semitones). <em>Tap any row to hear it!</em>
           </p>
           <div style="font-size:13px;line-height:1.8;background:var(--card);padding:12px;border-radius:8px;">
-            <table style="width:100%;border-collapse:collapse;">
-              <tr style="border-bottom:1px solid var(--border);"><th style="text-align:left;padding:4px 8px;">Interval</th><th style="text-align:center;padding:4px;">Half-steps</th><th style="text-align:left;padding:4px 8px;">Example (from C)</th></tr>
-              <tr><td style="padding:4px 8px;">Unison</td><td style="text-align:center;">0</td><td style="padding:4px 8px;">C → C</td></tr>
-              <tr><td style="padding:4px 8px;">Minor 2nd</td><td style="text-align:center;">1</td><td style="padding:4px 8px;">C → D♭</td></tr>
-              <tr><td style="padding:4px 8px;">Major 2nd</td><td style="text-align:center;">2</td><td style="padding:4px 8px;">C → D</td></tr>
-              <tr><td style="padding:4px 8px;">Minor 3rd</td><td style="text-align:center;">3</td><td style="padding:4px 8px;">C → E♭</td></tr>
-              <tr><td style="padding:4px 8px;">Major 3rd</td><td style="text-align:center;">4</td><td style="padding:4px 8px;">C → E</td></tr>
-              <tr><td style="padding:4px 8px;">Perfect 4th</td><td style="text-align:center;">5</td><td style="padding:4px 8px;">C → F</td></tr>
-              <tr><td style="padding:4px 8px;">Tritone</td><td style="text-align:center;">6</td><td style="padding:4px 8px;">C → F♯/G♭</td></tr>
-              <tr><td style="padding:4px 8px;">Perfect 5th</td><td style="text-align:center;">7</td><td style="padding:4px 8px;">C → G</td></tr>
-              <tr><td style="padding:4px 8px;">Minor 6th</td><td style="text-align:center;">8</td><td style="padding:4px 8px;">C → A♭</td></tr>
-              <tr><td style="padding:4px 8px;">Major 6th</td><td style="text-align:center;">9</td><td style="padding:4px 8px;">C → A</td></tr>
-              <tr><td style="padding:4px 8px;">Minor 7th</td><td style="text-align:center;">10</td><td style="padding:4px 8px;">C → B♭</td></tr>
-              <tr><td style="padding:4px 8px;">Major 7th</td><td style="text-align:center;">11</td><td style="padding:4px 8px;">C → B</td></tr>
-              <tr><td style="padding:4px 8px;">Octave</td><td style="text-align:center;">12</td><td style="padding:4px 8px;">C → C</td></tr>
+            <table style="width:100%;border-collapse:collapse;" id="intervalsTable">
+              <tr style="border-bottom:1px solid var(--border);"><th style="text-align:left;padding:4px 8px;">Interval</th><th style="text-align:center;padding:4px;">½</th><th style="text-align:left;padding:4px 8px;">Example</th><th style="padding:4px;"></th></tr>
+              <tr class="interval-row" data-semitones="0"><td style="padding:4px 8px;">Unison</td><td style="text-align:center;">0</td><td style="padding:4px 8px;">C → C</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
+              <tr class="interval-row" data-semitones="1"><td style="padding:4px 8px;">Minor 2nd</td><td style="text-align:center;">1</td><td style="padding:4px 8px;">C → D♭</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
+              <tr class="interval-row" data-semitones="2"><td style="padding:4px 8px;">Major 2nd</td><td style="text-align:center;">2</td><td style="padding:4px 8px;">C → D</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
+              <tr class="interval-row" data-semitones="3"><td style="padding:4px 8px;">Minor 3rd</td><td style="text-align:center;">3</td><td style="padding:4px 8px;">C → E♭</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
+              <tr class="interval-row" data-semitones="4"><td style="padding:4px 8px;">Major 3rd</td><td style="text-align:center;">4</td><td style="padding:4px 8px;">C → E</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
+              <tr class="interval-row" data-semitones="5"><td style="padding:4px 8px;">Perfect 4th</td><td style="text-align:center;">5</td><td style="padding:4px 8px;">C → F</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
+              <tr class="interval-row" data-semitones="6"><td style="padding:4px 8px;">Tritone</td><td style="text-align:center;">6</td><td style="padding:4px 8px;">C → F♯</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
+              <tr class="interval-row" data-semitones="7"><td style="padding:4px 8px;">Perfect 5th</td><td style="text-align:center;">7</td><td style="padding:4px 8px;">C → G</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
+              <tr class="interval-row" data-semitones="8"><td style="padding:4px 8px;">Minor 6th</td><td style="text-align:center;">8</td><td style="padding:4px 8px;">C → A♭</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
+              <tr class="interval-row" data-semitones="9"><td style="padding:4px 8px;">Major 6th</td><td style="text-align:center;">9</td><td style="padding:4px 8px;">C → A</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
+              <tr class="interval-row" data-semitones="10"><td style="padding:4px 8px;">Minor 7th</td><td style="text-align:center;">10</td><td style="padding:4px 8px;">C → B♭</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
+              <tr class="interval-row" data-semitones="11"><td style="padding:4px 8px;">Major 7th</td><td style="text-align:center;">11</td><td style="padding:4px 8px;">C → B</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
+              <tr class="interval-row" data-semitones="12"><td style="padding:4px 8px;">Octave</td><td style="text-align:center;">12</td><td style="padding:4px 8px;">C → C</td><td style="padding:4px;"><button class="listen-btn">▶</button></td></tr>
             </table>
           </div>
           <div style="font-size:12px;margin-top:12px;padding:10px;background:var(--card);border-radius:8px;">
@@ -616,39 +638,64 @@
             A <strong>scale</strong> is a sequence of notes in ascending or descending order. The pattern of whole (W) and half (H) steps defines the scale type.
           </p>
 
-          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
-            <strong>Major Scale</strong> (Ionian)<br>
-            Pattern: <code style="background:var(--btn);padding:2px 6px;border-radius:4px;">W - W - H - W - W - W - H</code><br>
-            Example: C D E F G A B C<br>
-            <em style="font-size:12px;opacity:0.8;">Sound: Happy, bright, resolved</em>
+          <div class="scale-item" data-scale="major" style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <strong>Major Scale</strong> (Ionian)<br>
+                Pattern: <code style="background:var(--btn);padding:2px 6px;border-radius:4px;">W - W - H - W - W - W - H</code><br>
+                Example: C D E F G A B C<br>
+                <em style="font-size:12px;opacity:0.8;">Sound: Happy, bright, resolved</em>
+              </div>
+              <button class="listen-btn scale-listen" data-scale="major">▶</button>
+            </div>
           </div>
 
-          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
-            <strong>Natural Minor Scale</strong> (Aeolian)<br>
-            Pattern: <code style="background:var(--btn);padding:2px 6px;border-radius:4px;">W - H - W - W - H - W - W</code><br>
-            Example: A B C D E F G A<br>
-            <em style="font-size:12px;opacity:0.8;">Sound: Sad, dark, introspective</em>
+          <div class="scale-item" data-scale="minor" style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <strong>Natural Minor Scale</strong> (Aeolian)<br>
+                Pattern: <code style="background:var(--btn);padding:2px 6px;border-radius:4px;">W - H - W - W - H - W - W</code><br>
+                Example: A B C D E F G A<br>
+                <em style="font-size:12px;opacity:0.8;">Sound: Sad, dark, introspective</em>
+              </div>
+              <button class="listen-btn scale-listen" data-scale="minor">▶</button>
+            </div>
           </div>
 
-          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
-            <strong>Harmonic Minor Scale</strong><br>
-            Pattern: <code style="background:var(--btn);padding:2px 6px;border-radius:4px;">W - H - W - W - H - 1½ - H</code><br>
-            Example: A B C D E F G♯ A<br>
-            <em style="font-size:12px;opacity:0.8;">Sound: Exotic, tension, classical</em>
+          <div class="scale-item" data-scale="harmonic" style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <strong>Harmonic Minor Scale</strong><br>
+                Pattern: <code style="background:var(--btn);padding:2px 6px;border-radius:4px;">W - H - W - W - H - 1½ - H</code><br>
+                Example: A B C D E F G♯ A<br>
+                <em style="font-size:12px;opacity:0.8;">Sound: Exotic, tension, classical</em>
+              </div>
+              <button class="listen-btn scale-listen" data-scale="harmonic">▶</button>
+            </div>
           </div>
 
-          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
-            <strong>Pentatonic Major</strong><br>
-            Notes: 1 - 2 - 3 - 5 - 6 (skip 4th and 7th)<br>
-            Example: C D E G A C<br>
-            <em style="font-size:12px;opacity:0.8;">Sound: Folk, Asian, rock solos</em>
+          <div class="scale-item" data-scale="pentatonic" style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <strong>Pentatonic Major</strong><br>
+                Notes: 1 - 2 - 3 - 5 - 6 (skip 4th and 7th)<br>
+                Example: C D E G A C<br>
+                <em style="font-size:12px;opacity:0.8;">Sound: Folk, Asian, rock solos</em>
+              </div>
+              <button class="listen-btn scale-listen" data-scale="pentatonic">▶</button>
+            </div>
           </div>
 
-          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;">
-            <strong>Blues Scale</strong><br>
-            Notes: 1 - ♭3 - 4 - ♭5 - 5 - ♭7<br>
-            Example: C E♭ F G♭ G B♭ C<br>
-            <em style="font-size:12px;opacity:0.8;">Sound: Blues, jazz, rock</em>
+          <div class="scale-item" data-scale="blues" style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <strong>Blues Scale</strong><br>
+                Notes: 1 - ♭3 - 4 - ♭5 - 5 - ♭7<br>
+                Example: C E♭ F G♭ G B♭ C<br>
+                <em style="font-size:12px;opacity:0.8;">Sound: Blues, jazz, rock</em>
+              </div>
+              <button class="listen-btn scale-listen" data-scale="blues">▶</button>
+            </div>
           </div>
         </div>
 
@@ -659,30 +706,59 @@
             In a key, each chord has a <strong>function</strong> that creates tension or resolution. Understanding these helps you predict chord progressions.
           </p>
 
-          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
-            <strong style="color:var(--success);">Tonic (I) - Home</strong><br>
-            The "home base" chord. Feels stable and resolved.<br>
-            <em>In C major: <strong>C major</strong></em>
+          <div class="chord-item" data-chord="I" style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <strong style="color:var(--success);">Tonic (I) - Home</strong><br>
+                The "home base" chord. Feels stable and resolved.<br>
+                <em>In C major: <strong>C major</strong></em>
+              </div>
+              <button class="listen-btn chord-listen" data-chord="C">▶</button>
+            </div>
+          </div>
+
+          <div class="chord-item" data-chord="IV" style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <strong style="color:var(--primary);">Subdominant (IV) - Away</strong><br>
+                Creates gentle movement away from home.<br>
+                <em>In C major: <strong>F major</strong></em>
+              </div>
+              <button class="listen-btn chord-listen" data-chord="F">▶</button>
+            </div>
+          </div>
+
+          <div class="chord-item" data-chord="V" style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <strong style="color:var(--danger);">Dominant (V) - Tension</strong><br>
+                Creates strong tension that wants to resolve to I.<br>
+                <em>In C major: <strong>G major</strong> (or G7)</em>
+              </div>
+              <button class="listen-btn chord-listen" data-chord="G">▶</button>
+            </div>
           </div>
 
           <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
-            <strong style="color:var(--primary);">Subdominant (IV) - Away</strong><br>
-            Creates gentle movement away from home.<br>
-            <em>In C major: <strong>F major</strong></em>
-          </div>
-
-          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
-            <strong style="color:var(--danger);">Dominant (V) - Tension</strong><br>
-            Creates strong tension that wants to resolve to I.<br>
-            <em>In C major: <strong>G major</strong> (or G7)</em>
-          </div>
-
-          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
-            <strong>Common Progressions:</strong><br>
-            • <strong>I - IV - V - I</strong> (Classic rock, pop)<br>
-            • <strong>I - V - vi - IV</strong> (Pop hits - "Let It Be", "No Woman No Cry")<br>
-            • <strong>ii - V - I</strong> (Jazz standard)<br>
-            • <strong>I - vi - IV - V</strong> (50s progression - "Stand By Me")
+            <strong>Common Progressions:</strong> <em style="font-size:11px;opacity:0.8;">(tap to hear)</em><br>
+            <div style="margin-top:8px;">
+              <div class="progression-item" style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
+                <span><strong>I - IV - V - I</strong> <em style="font-size:11px;opacity:0.8;">(Classic rock)</em></span>
+                <button class="listen-btn progression-listen" data-progression="1-4-5-1">▶</button>
+              </div>
+              <div class="progression-item" style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
+                <span><strong>I - V - vi - IV</strong> <em style="font-size:11px;opacity:0.8;">(Pop hits)</em></span>
+                <button class="listen-btn progression-listen" data-progression="1-5-6m-4">▶</button>
+              </div>
+              <div class="progression-item" style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
+                <span><strong>ii - V - I</strong> <em style="font-size:11px;opacity:0.8;">(Jazz standard)</em></span>
+                <button class="listen-btn progression-listen" data-progression="2m-5-1">▶</button>
+              </div>
+              <div class="progression-item" style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;">
+                <span><strong>I - vi - IV - V</strong> <em style="font-size:11px;opacity:0.8;">(50s doo-wop)</em></span>
+                <button class="listen-btn progression-listen" data-progression="1-6m-4-5">▶</button>
+              </div>
+            </div>
           </div>
 
           <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;">
@@ -2065,6 +2141,171 @@ startTimer();
         tab.classList.add('active');
         const content = document.getElementById('tab-' + tab.dataset.tab);
         if(content) content.classList.add('active');
+      };
+    });
+
+    // ==================== THEORY AUDIO EXAMPLES ====================
+    // Base note for intervals (C4 = MIDI 60)
+    const BASE_MIDI = 60;
+
+    // Play an interval from C
+    async function playInterval(semitones, btn) {
+      try {
+        await ensurePiano();
+        btn?.classList.add('playing');
+        hapticLight();
+
+        // Play root note first
+        piano.triggerAttackRelease(midiToNoteName(BASE_MIDI), '4n');
+
+        // Play second note after 400ms
+        setTimeout(() => {
+          piano.triggerAttackRelease(midiToNoteName(BASE_MIDI + semitones), '4n');
+          setTimeout(() => btn?.classList.remove('playing'), 400);
+        }, 400);
+      } catch(e) {
+        console.warn('Interval play error:', e);
+        btn?.classList.remove('playing');
+      }
+    }
+
+    // Scale definitions (as arrays of semitones from root)
+    const SCALES = {
+      major: [0, 2, 4, 5, 7, 9, 11, 12],        // C D E F G A B C
+      minor: [0, 2, 3, 5, 7, 8, 10, 12],        // Natural minor (starting from C)
+      harmonic: [0, 2, 3, 5, 7, 8, 11, 12],     // Harmonic minor
+      pentatonic: [0, 2, 4, 7, 9, 12],          // Pentatonic major
+      blues: [0, 3, 5, 6, 7, 10, 12]            // Blues scale
+    };
+
+    // Play a scale
+    async function playScale(scaleType, btn) {
+      try {
+        await ensurePiano();
+        btn?.classList.add('playing');
+        hapticLight();
+
+        const intervals = SCALES[scaleType] || SCALES.major;
+        let delay = 0;
+
+        intervals.forEach((interval, i) => {
+          setTimeout(() => {
+            piano.triggerAttackRelease(midiToNoteName(BASE_MIDI + interval), '8n');
+          }, delay);
+          delay += 250;
+        });
+
+        setTimeout(() => btn?.classList.remove('playing'), delay + 200);
+      } catch(e) {
+        console.warn('Scale play error:', e);
+        btn?.classList.remove('playing');
+      }
+    }
+
+    // Chord definitions (as arrays of MIDI offsets from root)
+    const CHORDS = {
+      C: [0, 4, 7],           // C major: C E G
+      Dm: [2, 5, 9],          // D minor: D F A
+      Em: [4, 7, 11],         // E minor: E G B
+      F: [5, 9, 12],          // F major: F A C
+      G: [7, 11, 14],         // G major: G B D
+      Am: [9, 12, 16],        // A minor: A C E
+      Bdim: [11, 14, 17]      // B dim: B D F
+    };
+
+    // Play a single chord
+    async function playChord(chordName, btn) {
+      try {
+        await ensurePiano();
+        btn?.classList.add('playing');
+        hapticLight();
+
+        const notes = CHORDS[chordName];
+        if (!notes) return;
+
+        // Play all notes together
+        notes.forEach(offset => {
+          piano.triggerAttackRelease(midiToNoteName(BASE_MIDI + offset), '2n');
+        });
+
+        setTimeout(() => btn?.classList.remove('playing'), 800);
+      } catch(e) {
+        console.warn('Chord play error:', e);
+        btn?.classList.remove('playing');
+      }
+    }
+
+    // Progression chord mappings (in C major)
+    const PROGRESSION_CHORDS = {
+      '1': 'C',    // I
+      '2m': 'Dm',  // ii
+      '3m': 'Em',  // iii
+      '4': 'F',    // IV
+      '5': 'G',    // V
+      '6m': 'Am',  // vi
+      '7dim': 'Bdim' // vii°
+    };
+
+    // Play a chord progression
+    async function playProgression(progressionCode, btn) {
+      try {
+        await ensurePiano();
+        btn?.classList.add('playing');
+        hapticLight();
+
+        const chordSequence = progressionCode.split('-').map(code => PROGRESSION_CHORDS[code]);
+        let delay = 0;
+
+        chordSequence.forEach((chordName, i) => {
+          if (!chordName) return;
+          setTimeout(() => {
+            const notes = CHORDS[chordName];
+            if (notes) {
+              notes.forEach(offset => {
+                piano.triggerAttackRelease(midiToNoteName(BASE_MIDI + offset), '4n');
+              });
+            }
+          }, delay);
+          delay += 600; // 600ms between chords
+        });
+
+        setTimeout(() => btn?.classList.remove('playing'), delay + 400);
+      } catch(e) {
+        console.warn('Progression play error:', e);
+        btn?.classList.remove('playing');
+      }
+    }
+
+    // Attach event listeners for theory audio examples
+    // Interval rows
+    document.querySelectorAll('.interval-row').forEach(row => {
+      const semitones = parseInt(row.dataset.semitones);
+      const btn = row.querySelector('.listen-btn');
+
+      row.onclick = () => playInterval(semitones, btn);
+    });
+
+    // Scale listen buttons
+    document.querySelectorAll('.scale-listen').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        playScale(btn.dataset.scale, btn);
+      };
+    });
+
+    // Chord listen buttons
+    document.querySelectorAll('.chord-listen').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        playChord(btn.dataset.chord, btn);
+      };
+    });
+
+    // Progression listen buttons
+    document.querySelectorAll('.progression-listen').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        playProgression(btn.dataset.progression, btn);
       };
     });
 

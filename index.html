@@ -170,6 +170,21 @@
       overflow:hidden;
     }
     .iconOverlay img{max-width:100%;max-height:100%;height:auto;width:auto;object-fit:contain;display:block;}
+    .iconOverlay.active img{
+      animation: storkPop 0.22s ease-out, storkWiggle 0.9s ease-in-out infinite;
+    }
+    @keyframes storkPop{
+      0%{transform:scale(0.7) rotate(-4deg);opacity:0}
+      60%{transform:scale(1.08) rotate(2deg);opacity:1}
+      100%{transform:scale(1) rotate(0)}
+    }
+    @keyframes storkWiggle{
+      0%{transform:rotate(0)}
+      25%{transform:rotate(-3deg)}
+      50%{transform:rotate(2deg)}
+      75%{transform:rotate(-2deg)}
+      100%{transform:rotate(0)}
+    }
 
     .feedback{
       height:26px; font-size:12px;
@@ -424,6 +439,7 @@
   <div class="app">
     <div class="topbar">
       <div class="title">🎹 Piano Note Quiz</div>
+      <button id="soundModeBtn" class="tinybtn" aria-label="Sound Mode">Sound: Manual</button>
       <button id="settingsBtn" class="tinybtn" aria-label="Settings">⚙️</button>
     </div>
 
@@ -604,19 +620,19 @@
           <div style="font-size:12px;background:var(--card);padding:8px;border-radius:8px;overflow-x:auto;">
             <table style="width:100%;border-collapse:collapse;" id="intervalsTable">
               <tr style="border-bottom:1px solid var(--border);"><th style="text-align:left;padding:4px 6px;">Interval</th><th style="text-align:center;padding:4px;">½</th><th style="text-align:left;padding:4px 6px;">Song Example</th><th style="padding:4px;"></th></tr>
-              <tr class="interval-row" data-semitones="0" data-song="none"><td style="padding:4px 6px;">Unison</td><td style="text-align:center;">0</td><td style="padding:4px 6px;font-size:11px;">—</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button></td></tr>
-              <tr class="interval-row" data-semitones="1" data-song="jaws"><td style="padding:4px 6px;">Minor 2nd</td><td style="text-align:center;">1</td><td style="padding:4px 6px;font-size:11px;">"Jaws" theme</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="jaws">🎵</button></td></tr>
+              <tr class="interval-row" data-semitones="0" data-song="jingle"><td style="padding:4px 6px;">Unison</td><td style="text-align:center;">0</td><td style="padding:4px 6px;font-size:11px;">"Jingle Bells"</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="jingle">🎵</button></td></tr>
+              <tr class="interval-row" data-semitones="1" data-song="jaws"><td style="padding:4px 6px;">Minor 2nd</td><td style="text-align:center;">1</td><td style="padding:4px 6px;font-size:11px;">"Jaws" Theme</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="jaws">🎵</button></td></tr>
               <tr class="interval-row" data-semitones="2" data-song="happy"><td style="padding:4px 6px;">Major 2nd</td><td style="text-align:center;">2</td><td style="padding:4px 6px;font-size:11px;">"Happy Birthday"</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="happy">🎵</button></td></tr>
-              <tr class="interval-row" data-semitones="3" data-song="greensleeves"><td style="padding:4px 6px;">Minor 3rd</td><td style="text-align:center;">3</td><td style="padding:4px 6px;font-size:11px;">"Greensleeves"</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="greensleeves">🎵</button></td></tr>
+              <tr class="interval-row" data-semitones="3" data-song="sevennation"><td style="padding:4px 6px;">Minor 3rd</td><td style="text-align:center;">3</td><td style="padding:4px 6px;font-size:11px;">"Seven Nation Army"</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="sevennation">🎵</button></td></tr>
               <tr class="interval-row" data-semitones="4" data-song="saints"><td style="padding:4px 6px;">Major 3rd</td><td style="text-align:center;">4</td><td style="padding:4px 6px;font-size:11px;">"Oh When the Saints"</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="saints">🎵</button></td></tr>
               <tr class="interval-row" data-semitones="5" data-song="bride"><td style="padding:4px 6px;">Perfect 4th</td><td style="text-align:center;">5</td><td style="padding:4px 6px;font-size:11px;">"Here Comes the Bride"</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="bride">🎵</button></td></tr>
               <tr class="interval-row" data-semitones="6" data-song="simpsons"><td style="padding:4px 6px;">Tritone</td><td style="text-align:center;">6</td><td style="padding:4px 6px;font-size:11px;">"The Simpsons"</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="simpsons">🎵</button></td></tr>
-              <tr class="interval-row" data-semitones="7" data-song="starwars"><td style="padding:4px 6px;">Perfect 5th</td><td style="text-align:center;">7</td><td style="padding:4px 6px;font-size:11px;">"Star Wars" theme</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="starwars">🎵</button></td></tr>
-              <tr class="interval-row" data-semitones="8" data-song="lovestory"><td style="padding:4px 6px;">Minor 6th</td><td style="text-align:center;">8</td><td style="padding:4px 6px;font-size:11px;">"Love Story" theme</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="lovestory">🎵</button></td></tr>
-              <tr class="interval-row" data-semitones="9" data-song="nbc"><td style="padding:4px 6px;">Major 6th</td><td style="text-align:center;">9</td><td style="padding:4px 6px;font-size:11px;">"NBC" chimes</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="nbc">🎵</button></td></tr>
-              <tr class="interval-row" data-semitones="10" data-song="startrek"><td style="padding:4px 6px;">Minor 7th</td><td style="text-align:center;">10</td><td style="padding:4px 6px;font-size:11px;">"Star Trek" theme</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="startrek">🎵</button></td></tr>
+              <tr class="interval-row" data-semitones="7" data-song="twinkle"><td style="padding:4px 6px;">Perfect 5th</td><td style="text-align:center;">7</td><td style="padding:4px 6px;font-size:11px;">"Twinkle Twinkle Little Star"</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="twinkle">🎵</button></td></tr>
+              <tr class="interval-row" data-semitones="8" data-song="godownmoses"><td style="padding:4px 6px;">Minor 6th</td><td style="text-align:center;">8</td><td style="padding:4px 6px;font-size:11px;">"Go Down Moses"</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="godownmoses">🎵</button></td></tr>
+              <tr class="interval-row" data-semitones="9" data-song="mybonnie"><td style="padding:4px 6px;">Major 6th</td><td style="text-align:center;">9</td><td style="padding:4px 6px;font-size:11px;">"My Bonnie Lies Over the Ocean"</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="mybonnie">🎵</button></td></tr>
+              <tr class="interval-row" data-semitones="10" data-song="startrek"><td style="padding:4px 6px;">Minor 7th</td><td style="text-align:center;">10</td><td style="padding:4px 6px;font-size:11px;">"Star Trek (Original Theme)"</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="startrek">🎵</button></td></tr>
               <tr class="interval-row" data-semitones="11" data-song="takeonme"><td style="padding:4px 6px;">Major 7th</td><td style="text-align:center;">11</td><td style="padding:4px 6px;font-size:11px;">"Take On Me"</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="takeonme">🎵</button></td></tr>
-              <tr class="interval-row" data-semitones="12" data-song="rainbow"><td style="padding:4px 6px;">Octave</td><td style="text-align:center;">12</td><td style="padding:4px 6px;font-size:11px;">"Over the Rainbow"</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="rainbow">🎵</button></td></tr>
+              <tr class="interval-row" data-semitones="12" data-song="rainbow"><td style="padding:4px 6px;">Octave</td><td style="text-align:center;">12</td><td style="padding:4px 6px;font-size:11px;">"Somewhere Over the Rainbow"</td><td style="padding:4px;white-space:nowrap;"><button class="listen-btn interval-pure">▶</button> <button class="listen-btn song-btn" data-song="rainbow">🎵</button></td></tr>
             </table>
           </div>
         </div>
@@ -1244,6 +1260,9 @@ let inputLocked = false;
 
     async function ensurePiano(){
       await Tone.start();
+      if(Tone && Tone.context && Tone.context.state !== 'running'){
+        try{ await Tone.context.resume(); }catch(e){}
+      }
       if(piano) return;
       piano = new Tone.Sampler({
         urls:{
@@ -1914,7 +1933,12 @@ function showKeyboardSolution(){
       }
       iconOverlay.innerHTML = `<img src="${img}" alt="${ok ? 'Correct' : 'Wrong'}">`;
       iconOverlay.style.display = 'flex';
-      setTimeout(() => iconOverlay.style.display = 'none', 900);
+      iconOverlay.classList.add('active');
+      const revealMs = Math.max(600, (getRevealSetting() || 7) * 1000);
+      setTimeout(() => {
+        iconOverlay.style.display = 'none';
+        iconOverlay.classList.remove('active');
+      }, revealMs);
     }
 
     function buildAnswerButtons(){
@@ -2144,15 +2168,21 @@ startTimer();
     const learnModalBack = document.getElementById('learnModalBack');
     document.getElementById('learnBtn').onclick = () => {
       hapticLight();
+      stopAllPlayback();
+      if(running) pauseQuiz();
       learnModalBack.style.display = 'flex';
       drawCircleOfFifths();
     };
     document.getElementById('closeLearn').onclick = () => {
       hapticLight();
+      stopAllPlayback();
       learnModalBack.style.display = 'none';
     };
     learnModalBack.addEventListener('click', e => {
-      if(e.target === learnModalBack) learnModalBack.style.display = 'none';
+      if(e.target === learnModalBack) {
+        stopAllPlayback();
+        learnModalBack.style.display = 'none';
+      }
     });
 
     // Theory tabs
@@ -2175,6 +2205,7 @@ startTimer();
     async function playInterval(semitones, btn) {
       try {
         await ensurePiano();
+        stopAllPlayback();
         btn?.classList.add('playing');
         hapticLight();
 
@@ -2182,9 +2213,9 @@ startTimer();
         piano.triggerAttackRelease(midiToNoteName(BASE_MIDI), '4n');
 
         // Play second note after 400ms
-        setTimeout(() => {
+        scheduleTimeout(() => {
           piano.triggerAttackRelease(midiToNoteName(BASE_MIDI + semitones), '4n');
-          setTimeout(() => btn?.classList.remove('playing'), 400);
+          scheduleTimeout(() => btn?.classList.remove('playing'), 400);
         }, 400);
       } catch(e) {
         console.warn('Interval play error:', e);
@@ -2206,6 +2237,7 @@ startTimer();
     async function playScale(scaleType, btn) {
       try {
         await ensurePiano();
+        stopAllPlayback();
         btn?.classList.add('playing');
         hapticLight();
 
@@ -2213,13 +2245,13 @@ startTimer();
         let delay = 0;
 
         intervals.forEach((interval, i) => {
-          setTimeout(() => {
+          scheduleTimeout(() => {
             piano.triggerAttackRelease(midiToNoteName(BASE_MIDI + interval), '8n');
           }, delay);
           delay += 250;
         });
 
-        setTimeout(() => btn?.classList.remove('playing'), delay + 200);
+        scheduleTimeout(() => btn?.classList.remove('playing'), delay + 200);
       } catch(e) {
         console.warn('Scale play error:', e);
         btn?.classList.remove('playing');
@@ -2241,6 +2273,7 @@ startTimer();
     async function playChord(chordName, btn) {
       try {
         await ensurePiano();
+        stopAllPlayback();
         btn?.classList.add('playing');
         hapticLight();
 
@@ -2252,7 +2285,7 @@ startTimer();
           piano.triggerAttackRelease(midiToNoteName(BASE_MIDI + offset), '2n');
         });
 
-        setTimeout(() => btn?.classList.remove('playing'), 800);
+        scheduleTimeout(() => btn?.classList.remove('playing'), 800);
       } catch(e) {
         console.warn('Chord play error:', e);
         btn?.classList.remove('playing');
@@ -2270,30 +2303,79 @@ startTimer();
       '7dim': 'Bdim' // vii°
     };
 
-    // Play a chord progression
+    const TEMPO_BPM = 92;
+    const QUARTER_MS = 60000 / TEMPO_BPM;
+    const activeTimeouts = [];
+
+    function scheduleTimeout(fn, delayMs) {
+      const id = setTimeout(fn, delayMs);
+      activeTimeouts.push(id);
+      return id;
+    }
+
+    function stopAllPlayback() {
+      while(activeTimeouts.length) clearTimeout(activeTimeouts.pop());
+      try { piano?.releaseAll?.(); } catch(e) {}
+      document.querySelectorAll('.listen-btn.playing').forEach(btn => btn.classList.remove('playing'));
+    }
+
+    function durationToMs(duration) {
+      const dotted = duration.includes('.');
+      const base = duration.replace('.', '');
+      const baseMs =
+        base.includes('1n') ? QUARTER_MS * 4 :
+        base.includes('2n') ? QUARTER_MS * 2 :
+        base.includes('4n') ? QUARTER_MS :
+        base.includes('8n') ? QUARTER_MS / 2 :
+        QUARTER_MS / 4;
+      return dotted ? Math.round(baseMs * 1.5) : Math.round(baseMs);
+    }
+
+    function scheduleNotes(offsets, duration, delayMs) {
+      const dur = duration.replace('.', '');
+      scheduleTimeout(() => {
+        offsets.forEach(offset => {
+          piano.triggerAttackRelease(midiToNoteName(BASE_MIDI + offset), dur);
+        });
+      }, delayMs);
+    }
+
+    const PROGRESSION_VOICINGS = {
+      C:  { bass: -24, chord: [0, 4, 7, 12] },   // C2 + C4 E4 G4 C5
+      Dm: { bass: -22, chord: [-7, -3, 2, 5] },  // D2 + F3 A3 D4 F4
+      Em: { bass: -20, chord: [-5, -1, 4, 7] },  // E2 + G3 B3 E4 G4
+      F:  { bass: -19, chord: [-3, 0, 5, 12] },  // F2 + A3 C4 F4 C5
+      G:  { bass: -17, chord: [-1, 2, 7, 11] },  // G2 + B3 D4 G4 B4
+      Am: { bass: -15, chord: [-3, 0, 4, 9] },   // A2 + C4 E4 A4
+      Bdim:{ bass: -13, chord: [-1, 2, 5, 11] }  // B2 + B3 D4 F4 B4
+    };
+
+    // Play a chord progression with bass + simple inversions
     async function playProgression(progressionCode, btn) {
       try {
         await ensurePiano();
+        stopAllPlayback();
         btn?.classList.add('playing');
         hapticLight();
 
         const chordSequence = progressionCode.split('-').map(code => PROGRESSION_CHORDS[code]);
         let delay = 0;
 
-        chordSequence.forEach((chordName, i) => {
+        chordSequence.forEach(chordName => {
           if (!chordName) return;
-          setTimeout(() => {
+          const voicing = PROGRESSION_VOICINGS[chordName];
+          if (voicing) {
+            // Bass on beat 1, chord a touch later for clarity
+            scheduleNotes([voicing.bass], '4n', delay);
+            scheduleNotes(voicing.chord, '2n', delay + Math.round(QUARTER_MS * 0.25));
+          } else {
             const notes = THEORY_CHORDS[chordName];
-            if (notes) {
-              notes.forEach(offset => {
-                piano.triggerAttackRelease(midiToNoteName(BASE_MIDI + offset), '4n');
-              });
-            }
-          }, delay);
-          delay += 600; // 600ms between chords
+            if (notes) scheduleNotes(notes, '2n', delay);
+          }
+          delay += Math.round(QUARTER_MS * 2); // one chord per half note
         });
 
-        setTimeout(() => btn?.classList.remove('playing'), delay + 400);
+        scheduleTimeout(() => btn?.classList.remove('playing'), delay + 300);
       } catch(e) {
         console.warn('Progression play error:', e);
         btn?.classList.remove('playing');
@@ -2301,20 +2383,24 @@ startTimer();
     }
 
     // Song melody examples for intervals (as arrays of [midiOffset, duration] pairs)
-    // Durations: '16n'=short, '8n'=medium, '4n'=long, '2n'=very long
+    // Durations: 16n, 8n, 4n, 2n, 1n. Dotted durations use a trailing "."
     const SONG_MELODIES = {
-      jaws: [[4,'.4n'], [5,'4n'], [4,'.4n'], [5,'4n'], [4,'8n'], [5,'8n'], [4,'8n'], [5,'2n']], // E-F repeating (Jaws)
-      happy: [[0,'4n'], [0,'8n'], [2,'4n'], [0,'4n'], [5,'4n'], [4,'2n']], // G-G-A-G-C-B (Happy Birthday)
-      greensleeves: [[0,'4n'], [3,'2n'], [5,'4n'], [7,'4n.'], [8,'8n'], [7,'4n']], // A-C-D-E-F-E (Greensleeves)
-      saints: [[0,'4n'], [4,'4n'], [5,'4n'], [7,'2n']], // C-E-F-G (Oh When the Saints)
-      bride: [[0,'2n'], [5,'4n'], [5,'4n'], [5,'2n']], // C-F-F-F (Here Comes the Bride)
-      simpsons: [[0,'4n'], [6,'4n'], [5,'4n'], [1,'4n'], [0,'2n']], // The Simpsons
-      starwars: [[0,'2n'], [7,'2n'], [5,'8n'], [4,'8n'], [2,'8n'], [12,'2n']], // Star Wars main theme
-      lovestory: [[0,'4n'], [8,'2n'], [7,'4n'], [5,'2n']], // Love Story theme
-      nbc: [[7,'2n'], [4,'2n'], [0,'1n']], // NBC chimes G-E-C
-      startrek: [[0,'2n'], [10,'2n'], [7,'4n']], // Star Trek
-      takeonme: [[9,'8n'], [9,'8n'], [11,'8n'], [9,'8n'], [4,'8n'], [4,'8n'], [9,'4n']], // Take On Me
-      rainbow: [[0,'4n'], [12,'2n'], [10,'4n'], [7,'4n'], [5,'2n']] // Somewhere Over the Rainbow
+      jingle: [[4,'4n'], [4,'4n'], [4,'2n'], [4,'4n'], [4,'4n'], [4,'2n']], // Jingle Bells
+      jaws: [[-20,'2n'], [-19,'2n'], [-20,'4n'], [-19,'4n'], [-20,'8n'], [-19,'8n']], // Jaws Theme
+      happy: [[0,'8n.'], [0,'16n'], [2,'4n'], [0,'4n'], [5,'4n'], [4,'2n']], // Happy Birthday
+      sevennation: [[4,'4n'], [4,'4n'], [7,'4n'], [4,'4n'], [2,'4n'], [0,'2n']], // Seven Nation Army
+      saints: [[0,'4n'], [4,'4n'], [5,'4n'], [7,'1n']], // Oh When the Saints
+      bride: [[-5,'4n.'], [0,'8n'], [0,'4n.'], [0,'8n']], // Here Comes the Bride
+      simpsons: [[0,'4n.'], [6,'4n'], [7,'2n.']], // The Simpsons
+      twinkle: [[0,'4n'], [0,'4n'], [7,'4n'], [7,'4n'], [9,'4n'], [9,'4n'], [7,'2n']], // Twinkle Twinkle
+      godownmoses: [
+        [2,'4n'],  [10,'4n'], [10,'4n'], [9,'4n'],
+        [9,'4n'], [10,'4n'], [10,'4n'], [7,'2n']
+      ], // Go Down Moses: "When Israel was in Egypt's land" (ascending)
+      mybonnie: [[-5,'4n'], [4,'4n'], [2,'4n'], [0,'4n'], [2,'4n'], [0,'4n']], // My Bonnie Lies Over the Ocean
+      startrek: [[0,'2n.'], [10,'2n.']], // Star Trek (Original Theme)
+      takeonme: [[9,'2n'], [20,'4n'], [21,'2n']], // Take On Me: Take (A4), on (G#5), me (A5)
+      rainbow: [[0,'2n'], [12,'2n'], [11,'4n'], [7,'8n'], [9,'8n'], [11,'4n'], [12,'4n']] // Somewhere Over the Rainbow
     };
 
     // Play a song melody example
@@ -2324,6 +2410,7 @@ startTimer();
 
       try {
         await ensurePiano();
+        stopAllPlayback();
         btn?.classList.add('playing');
         hapticLight();
 
@@ -2331,18 +2418,13 @@ startTimer();
         const startNote = 60; // C4
 
         melody.forEach(([offset, duration]) => {
-          setTimeout(() => {
+          scheduleTimeout(() => {
             piano.triggerAttackRelease(midiToNoteName(startNote + offset), duration.replace('.', ''));
           }, delay);
-          // Calculate delay based on duration
-          const durationMs = duration.includes('1n') ? 800 :
-                            duration.includes('2n') ? 500 :
-                            duration.includes('4n') ? 300 :
-                            duration.includes('8n') ? 180 : 120;
-          delay += durationMs;
+          delay += durationToMs(duration);
         });
 
-        setTimeout(() => btn?.classList.remove('playing'), delay + 300);
+        scheduleTimeout(() => btn?.classList.remove('playing'), delay + 300);
       } catch(e) {
         console.warn('Song play error:', e);
         btn?.classList.remove('playing');
@@ -2360,6 +2442,7 @@ startTimer();
     async function playInversion(inversionType, btn) {
       try {
         await ensurePiano();
+        stopAllPlayback();
         btn?.classList.add('playing');
         hapticLight();
 
@@ -2369,39 +2452,50 @@ startTimer();
         // Play notes as arpeggio then together
         let delay = 0;
         notes.forEach((offset, i) => {
-          setTimeout(() => {
+          scheduleTimeout(() => {
             piano.triggerAttackRelease(midiToNoteName(BASE_MIDI + offset), '8n');
           }, delay);
           delay += 200;
         });
 
         // Then play all together
-        setTimeout(() => {
+        scheduleTimeout(() => {
           notes.forEach(offset => {
             piano.triggerAttackRelease(midiToNoteName(BASE_MIDI + offset), '2n');
           });
         }, delay + 100);
 
-        setTimeout(() => btn?.classList.remove('playing'), delay + 800);
+        scheduleTimeout(() => btn?.classList.remove('playing'), delay + 800);
       } catch(e) {
         console.warn('Inversion play error:', e);
         btn?.classList.remove('playing');
       }
     }
 
-    // Progression song melodies (simplified recognizable phrases)
+    // Progression song examples with bass + voiced chords
     const PROGRESSION_SONGS = {
-      labamba: [ // La Bamba intro riff in C
-        [[0,4,7],'4n'], [[5,9,12],'4n'], [[7,11,14],'4n'], [[0,4,7],'2n']
+      labamba: [ // I-IV-V-I with bass and simple inversions
+        { chord: 'C', dur: '2n' },
+        { chord: 'F', dur: '2n' },
+        { chord: 'G', dur: '2n' },
+        { chord: 'C', dur: '2n' }
       ],
-      letitbe: [ // Let It Be - simplified chords with melody hint
-        [[0,4,7],'2n'], [[7,11,14],'2n'], [[9,12,16],'2n'], [[5,9,12],'2n']
+      letitbe: [ // I-V-vi-IV
+        { chord: 'C', dur: '2n' },
+        { chord: 'G', dur: '2n' },
+        { chord: 'Am', dur: '2n' },
+        { chord: 'F', dur: '2n' }
       ],
-      flyme: [ // Fly Me to the Moon - ii-V-I jazz feel
-        [[2,5,9],'4n.'], [[7,11,14],'4n.'], [[0,4,7],'2n']
+      flyme: [ // ii-V-I
+        { chord: 'Dm', dur: '2n' },
+        { chord: 'G', dur: '2n' },
+        { chord: 'C', dur: '2n' }
       ],
-      standbyme: [ // Stand By Me bass line with chords
-        [[0,4,7],'2n'], [[9,12,16],'2n'], [[5,9,12],'2n'], [[7,11,14],'2n']
+      standbyme: [ // I-vi-IV-V
+        { chord: 'C', dur: '2n' },
+        { chord: 'Am', dur: '2n' },
+        { chord: 'F', dur: '2n' },
+        { chord: 'G', dur: '2n' }
       ]
     };
 
@@ -2412,22 +2506,33 @@ startTimer();
 
       try {
         await ensurePiano();
+        stopAllPlayback();
         btn?.classList.add('playing');
         hapticLight();
 
         let delay = 0;
-        song.forEach(([notes, duration]) => {
-          setTimeout(() => {
-            notes.forEach(offset => {
-              piano.triggerAttackRelease(midiToNoteName(BASE_MIDI + offset), duration.replace('.', ''));
-            });
-          }, delay);
-          const durationMs = duration.includes('2n') ? 600 :
-                            duration.includes('4n') ? 350 : 200;
-          delay += durationMs;
+        song.forEach((entry) => {
+          if (Array.isArray(entry)) {
+            const [notes, duration] = entry;
+            scheduleNotes(notes, duration, delay);
+            delay += durationToMs(duration);
+            return;
+          }
+
+          const chordName = entry?.chord;
+          const duration = entry?.dur || '2n';
+          const voicing = PROGRESSION_VOICINGS[chordName];
+          if (voicing) {
+            scheduleNotes([voicing.bass], '4n', delay);
+            scheduleNotes(voicing.chord, duration, delay + Math.round(QUARTER_MS * 0.25));
+          } else {
+            const notes = THEORY_CHORDS[chordName];
+            if (notes) scheduleNotes(notes, duration, delay);
+          }
+          delay += durationToMs(duration);
         });
 
-        setTimeout(() => btn?.classList.remove('playing'), delay + 400);
+        scheduleTimeout(() => btn?.classList.remove('playing'), delay + 400);
       } catch(e) {
         console.warn('Progression song error:', e);
         btn?.classList.remove('playing');
@@ -2609,9 +2714,23 @@ startTimer();
 
     // Settings modal
     const modalBack = document.getElementById('modalBack');
-    document.getElementById('settingsBtn').onclick = () => { hapticLight(); modalBack.style.display = 'flex'; };
-    document.getElementById('closeSettings').onclick = () => { hapticLight(); modalBack.style.display = 'none'; };
-    modalBack.addEventListener('click', e => { if(e.target === modalBack) modalBack.style.display = 'none'; });
+    document.getElementById('settingsBtn').onclick = () => {
+      hapticLight();
+      stopAllPlayback();
+      if(running) pauseQuiz();
+      modalBack.style.display = 'flex';
+    };
+    document.getElementById('closeSettings').onclick = () => {
+      hapticLight();
+      stopAllPlayback();
+      modalBack.style.display = 'none';
+    };
+    modalBack.addEventListener('click', e => {
+      if(e.target === modalBack) {
+        stopAllPlayback();
+        modalBack.style.display = 'none';
+      }
+    });
 
     // --- Apply saved settings to UI ---
     const presetSelect = document.getElementById('presetSelect');
@@ -2619,12 +2738,29 @@ startTimer();
     const timerSetting = document.getElementById('timerSetting');
     const revealSetting = document.getElementById('revealSetting');
     const soundModeSel = document.getElementById('soundMode');
+    const soundModeBtn = document.getElementById('soundModeBtn');
     const hapticToggle = document.getElementById('hapticToggle');
     const darkModeToggle = document.getElementById('darkModeToggle');
 
     const roundVal = document.getElementById('roundSettingVal');
     const timerVal = document.getElementById('timerSettingVal');
     const revealVal = document.getElementById('revealSettingVal');
+
+    function updateSoundModeBtn(){
+      if(!soundModeBtn) return;
+      const mode = settings.soundMode || 'manual';
+      const label = mode === 'auto' ? 'Auto' : (mode === 'off' ? 'Off' : 'Manual');
+      soundModeBtn.textContent = `Sound: ${label}`;
+      soundModeBtn.dataset.mode = mode;
+    }
+
+    function setSoundMode(mode){
+      settings.soundMode = mode;
+      saveSettings();
+      if(soundModeSel) soundModeSel.value = mode;
+      updateSoundModeBtn();
+      if(mode === 'off') stopAllPlayback();
+    }
 
     function applySettingsToUI(){
       if(presetSelect){
@@ -2647,6 +2783,7 @@ startTimer();
       if(soundModeSel){
         soundModeSel.value = settings.soundMode || 'manual';
       }
+      updateSoundModeBtn();
       if(hapticToggle){
         hapticToggle.checked = settings.hapticEnabled !== false;
       }
@@ -2697,8 +2834,17 @@ startTimer();
 
     if(soundModeSel){
       soundModeSel.onchange = e => {
-        settings.soundMode = e.target.value;
-        saveSettings();
+        setSoundMode(e.target.value);
+      };
+    }
+
+    if(soundModeBtn){
+      soundModeBtn.onclick = () => {
+        hapticLight();
+        const order = ['manual','auto','off'];
+        const current = settings.soundMode || 'manual';
+        const next = order[(order.indexOf(current) + 1) % order.length];
+        setSoundMode(next);
       };
     }
 

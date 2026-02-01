@@ -574,7 +574,7 @@
         </div>
 
         <!-- Intervals -->
-        <div id="tab-intervals" class="theoryContent" style="display:none;">
+        <div id="tab-intervals" class="theoryContent">
           <h3 style="margin:0 0 10px 0;font-size:16px;">Intervals</h3>
           <p style="font-size:13px;line-height:1.5;margin:0 0 12px 0;">
             An <strong>interval</strong> is the distance between two notes, measured in half-steps (semitones).
@@ -610,7 +610,7 @@
         </div>
 
         <!-- Scales -->
-        <div id="tab-scales" class="theoryContent" style="display:none;">
+        <div id="tab-scales" class="theoryContent">
           <h3 style="margin:0 0 10px 0;font-size:16px;">Scales</h3>
           <p style="font-size:13px;line-height:1.5;margin:0 0 12px 0;">
             A <strong>scale</strong> is a sequence of notes in ascending or descending order. The pattern of whole (W) and half (H) steps defines the scale type.
@@ -653,7 +653,7 @@
         </div>
 
         <!-- Chord Functions -->
-        <div id="tab-chords" class="theoryContent" style="display:none;">
+        <div id="tab-chords" class="theoryContent">
           <h3 style="margin:0 0 10px 0;font-size:16px;">Chord Functions</h3>
           <p style="font-size:13px;line-height:1.5;margin:0 0 12px 0;">
             In a key, each chord has a <strong>function</strong> that creates tension or resolution. Understanding these helps you predict chord progressions.
@@ -2075,50 +2075,77 @@ startTimer();
 
       const majorKeys = ['C', 'G', 'D', 'A', 'E', 'B', 'F♯', 'D♭', 'A♭', 'E♭', 'B♭', 'F'];
       const minorKeys = ['Am', 'Em', 'Bm', 'F♯m', 'C♯m', 'G♯m', 'D♯m', 'B♭m', 'Fm', 'Cm', 'Gm', 'Dm'];
-      const signatures = ['0', '1♯', '2♯', '3♯', '4♯', '5♯', '6♯/6♭', '5♭', '4♭', '3♭', '2♭', '1♭'];
+      const signatures = ['0', '1♯', '2♯', '3♯', '4♯', '5♯', '6♯', '5♭', '4♭', '3♭', '2♭', '1♭'];
 
-      const size = Math.min(280, window.innerWidth - 60);
+      const size = Math.min(320, window.innerWidth - 40);
       const cx = size / 2;
       const cy = size / 2;
-      const outerR = size / 2 - 10;
-      const innerR = size / 2 - 45;
-      const minorR = size / 2 - 70;
+      const outerR = size / 2 - 12;
+      const keyR = size / 2 - 35;
+      const sigR = size / 2 - 58;
+      const minorR = size / 2 - 82;
 
       let svg = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">`;
 
-      // Draw outer circle
+      // Background circles
       svg += `<circle cx="${cx}" cy="${cy}" r="${outerR}" fill="none" stroke="var(--border)" stroke-width="2"/>`;
-      svg += `<circle cx="${cx}" cy="${cy}" r="${innerR}" fill="none" stroke="var(--border)" stroke-width="1"/>`;
+      svg += `<circle cx="${cx}" cy="${cy}" r="${sigR + 12}" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,3"/>`;
+      svg += `<circle cx="${cx}" cy="${cy}" r="${minorR + 12}" fill="none" stroke="var(--border)" stroke-width="1"/>`;
+
+      // Direction arrows and labels
+      // Clockwise arrow (Perfect 5th) - right side
+      const arrowY = cy;
+      const arrowStartX = cx + 15;
+      const arrowEndX = cx + 45;
+      svg += `<path d="M${arrowStartX},${arrowY} L${arrowEndX},${arrowY}" stroke="var(--primary)" stroke-width="2" fill="none"/>`;
+      svg += `<path d="M${arrowEndX-6},${arrowY-4} L${arrowEndX},${arrowY} L${arrowEndX-6},${arrowY+4}" stroke="var(--primary)" stroke-width="2" fill="none"/>`;
+      svg += `<text x="${cx + 30}" y="${arrowY + 14}" text-anchor="middle" style="font-size:8px;fill:var(--primary);font-weight:600;">P5 →</text>`;
+
+      // Counter-clockwise arrow (Perfect 4th) - left side
+      const arrowStartX2 = cx - 15;
+      const arrowEndX2 = cx - 45;
+      svg += `<path d="M${arrowStartX2},${arrowY} L${arrowEndX2},${arrowY}" stroke="var(--success)" stroke-width="2" fill="none"/>`;
+      svg += `<path d="M${arrowEndX2+6},${arrowY-4} L${arrowEndX2},${arrowY} L${arrowEndX2+6},${arrowY+4}" stroke="var(--success)" stroke-width="2" fill="none"/>`;
+      svg += `<text x="${cx - 30}" y="${arrowY + 14}" text-anchor="middle" style="font-size:8px;fill:var(--success);font-weight:600;">← P4</text>`;
 
       // Draw keys
       for(let i = 0; i < 12; i++) {
         const angle = (i * 30 - 90) * Math.PI / 180;
 
-        // Major key (outer)
-        const mx = cx + Math.cos(angle) * (outerR - 18);
-        const my = cy + Math.sin(angle) * (outerR - 18);
+        // Major key position (outer ring)
+        const mx = cx + Math.cos(angle) * keyR;
+        const my = cy + Math.sin(angle) * keyR;
 
-        // Minor key (inner)
+        // Signature position (middle ring)
+        const sx = cx + Math.cos(angle) * sigR;
+        const sy = cy + Math.sin(angle) * sigR;
+
+        // Minor key position (inner ring)
         const nx = cx + Math.cos(angle) * minorR;
         const ny = cy + Math.sin(angle) * minorR;
 
-        // Line from center
-        const lx1 = cx + Math.cos(angle) * (innerR + 5);
-        const ly1 = cy + Math.sin(angle) * (innerR + 5);
+        // Divider lines
+        const lx1 = cx + Math.cos(angle) * (minorR - 8);
+        const ly1 = cy + Math.sin(angle) * (minorR - 8);
         const lx2 = cx + Math.cos(angle) * outerR;
         const ly2 = cy + Math.sin(angle) * outerR;
-        svg += `<line x1="${lx1}" y1="${ly1}" x2="${lx2}" y2="${ly2}" stroke="var(--border)" stroke-width="1"/>`;
+        svg += `<line x1="${lx1}" y1="${ly1}" x2="${lx2}" y2="${ly2}" stroke="var(--border)" stroke-width="1" opacity="0.5"/>`;
 
         // Major key text
         const isTonic = (i === 0);
         svg += `<text x="${mx}" y="${my}" text-anchor="middle" dominant-baseline="middle"
           class="cof-note" data-note="${majorKeys[i]}"
-          style="font-size:${isTonic ? 16 : 13}px;font-weight:${isTonic ? 900 : 700};fill:${isTonic ? 'var(--primary)' : 'var(--text)'};">${majorKeys[i]}</text>`;
+          style="font-size:${isTonic ? 15 : 12}px;font-weight:${isTonic ? 900 : 700};fill:${isTonic ? 'var(--primary)' : 'var(--text)'};">${majorKeys[i]}</text>`;
+
+        // Signature text (sharps/flats count)
+        const sigColor = signatures[i].includes('♯') ? 'var(--danger)' : (signatures[i].includes('♭') ? 'var(--primary)' : 'var(--text)');
+        svg += `<text x="${sx}" y="${sy}" text-anchor="middle" dominant-baseline="middle"
+          style="font-size:9px;font-weight:600;fill:${sigColor};opacity:0.85;">${signatures[i]}</text>`;
 
         // Minor key text
         svg += `<text x="${nx}" y="${ny}" text-anchor="middle" dominant-baseline="middle"
           class="cof-note" data-note="${minorKeys[i]}"
-          style="font-size:10px;font-weight:600;fill:var(--text);opacity:0.7;">${minorKeys[i]}</text>`;
+          style="font-size:9px;font-weight:600;fill:var(--text);opacity:0.7;">${minorKeys[i]}</text>`;
       }
 
       svg += '</svg>';

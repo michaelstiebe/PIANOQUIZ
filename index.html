@@ -18,23 +18,42 @@
       --staff-bg:#fff; --key-white:#fff; --key-black:#111;
     }
 
-    /* Dark mode */
+    /* Dark mode - improved contrast and readability */
     [data-theme="dark"]{
-      --bg:#1a1a1a; --card:#2a2a2a; --border:#444;
-      --btn:#3a3a3a; --primary:#5b8cff; --success:#2faa6c; --danger:#e9645f; --text:#eee;
-      --staff-bg:#2a2a2a; --key-white:#e8e8e8; --key-black:#222;
+      --bg:#121212; --card:#1e1e1e; --border:#3a3a3a;
+      --btn:#2d2d2d; --primary:#6b9fff; --success:#4ade80; --danger:#f87171; --text:#f0f0f0;
+      --staff-bg:#1e1e1e; --key-white:#e8e8e8; --key-black:#1a1a1a;
     }
     [data-theme="dark"] .boardWrap{ background:var(--staff-bg); }
-    [data-theme="dark"] .storkFrame{ background:#333; }
-    [data-theme="dark"] .keyboard{ background:var(--card); }
-    [data-theme="dark"] .kb-white{ background:var(--key-white); }
+    [data-theme="dark"] .storkFrame{ background:#252525; }
+    [data-theme="dark"] .storkTitle{ color:#ccc; }
+    [data-theme="dark"] .keyboard{ background:#151515; border-color:#333; }
+    [data-theme="dark"] .kb-white{ background:var(--key-white); border-color:#bbb; }
     [data-theme="dark"] .kb-white .klabel{ color:#111; }
     [data-theme="dark"] .kb-black{ background:var(--key-black); }
-    [data-theme="dark"] select{ background:var(--card); color:var(--text); }
-    [data-theme="dark"] .roundOverlay{ background:rgba(30,30,30,.97); }
-    [data-theme="dark"] .modalContent{ background:var(--card); }
+    [data-theme="dark"] .kb-black .klabel{ color:#ddd; }
+    [data-theme="dark"] select{ background:#2a2a2a; color:var(--text); border-color:#444; }
+    [data-theme="dark"] .roundOverlay{ background:rgba(18,18,18,.98); color:var(--text); }
+    [data-theme="dark"] .modalContent{ background:#1e1e1e; color:var(--text); }
+    [data-theme="dark"] .modalBack{ background:rgba(0,0,0,.85); }
+    [data-theme="dark"] button{ color:var(--text); }
+    [data-theme="dark"] button.primary{ color:#fff; background:var(--primary); }
+    [data-theme="dark"] button.danger{ color:#fff; }
+    [data-theme="dark"] .hint{ color:#999; }
+    [data-theme="dark"] .stat .k{ color:#999; }
+    [data-theme="dark"] .stat .v{ color:#fff; }
+    [data-theme="dark"] .field label{ color:#ddd; }
+    [data-theme="dark"] .field{ border-color:#3a3a3a; }
+    [data-theme="dark"] input[type="range"]{ accent-color:var(--primary); }
+    [data-theme="dark"] .feedback{ text-shadow: 0 1px 2px rgba(0,0,0,.5); }
+    [data-theme="dark"] .title{ color:#fff; }
+    [data-theme="dark"] .kbTitle{ color:#bbb; }
+    [data-theme="dark"] .roundStat .k{ color:#999; }
+    [data-theme="dark"] .roundStat .v{ color:#fff; }
+    [data-theme="dark"] .roundOverlay h2{ color:#fff; }
+    [data-theme="dark"] .tinybtn{ color:var(--text); }
     /* Invert VexFlow SVG for dark mode */
-    [data-theme="dark"] #board svg{ filter: invert(0.85) hue-rotate(180deg); }
+    [data-theme="dark"] #board svg{ filter: invert(0.88) hue-rotate(180deg); }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -322,6 +341,40 @@
     .kb-white:active:not(.sel):not(.sol):not(.correct):not(.wrong){ background:rgba(200,200,200,.5); }
     .kb-black:active:not(.sel):not(.sol):not(.correct):not(.wrong){ background:#333; }
 
+    /* Theory Tabs */
+    .theoryTab{
+      padding:8px 12px;
+      font-size:12px;
+      font-weight:700;
+      border:1px solid var(--border);
+      border-radius:8px;
+      background:var(--card);
+      color:var(--text);
+      cursor:pointer;
+      transition:all 0.15s;
+    }
+    .theoryTab:hover{ background:var(--btn); }
+    .theoryTab.active{
+      background:var(--primary);
+      color:#fff;
+      border-color:var(--primary);
+    }
+    .theoryContent{ display:none; }
+    .theoryContent.active{ display:block; }
+    .theoryContent h3{ color:var(--text); }
+    .theoryContent p{ color:var(--text); opacity:0.9; }
+    .theoryContent table{ color:var(--text); }
+    .theoryContent code{ font-family:monospace; }
+    .learnModal .modalContent{ padding:12px; }
+
+    /* Circle of Fifths */
+    .cof-note{
+      cursor:pointer;
+      transition:all 0.15s;
+    }
+    .cof-note:hover{
+      transform:scale(1.1);
+    }
 
     @media (max-width: 520px){
       .boardCard{height:clamp(140px, 26vh, 220px); min-height:140px;}
@@ -400,6 +453,7 @@
       <button id="startBtn" class="big primary">Start</button>
       <button id="skipBtn" class="big">Skip</button>
       <button id="playBtn" class="big">Sound</button>
+      <button id="learnBtn" class="big">Learn</button>
       <button id="resetBtn" class="big danger">Reset</button>
     </div>
   </div>
@@ -483,11 +537,176 @@
       </div>
       <div class="hint" style="margin-top:-8px;">Easier on the eyes in low light</div>
 
-    </div
+    </div>
   </div>
 
+  <!-- Learn Modal - Music Theory -->
+  <div id="learnModalBack" class="modalBack" role="dialog" aria-modal="true">
+    <div class="modal learnModal" style="max-width:95vw;width:600px;max-height:90vh;">
+      <div class="modalHeader">
+        <div class="h">🎵 Music Theory</div>
+        <button id="closeLearn" class="tinybtn">Done</button>
+      </div>
+      <div class="modalContent" style="overflow-y:auto;max-height:calc(90vh - 80px);">
 
+        <!-- Theory Navigation Tabs -->
+        <div class="theoryTabs" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+          <button class="theoryTab active" data-tab="circle">Circle of 5ths</button>
+          <button class="theoryTab" data-tab="intervals">Intervals</button>
+          <button class="theoryTab" data-tab="scales">Scales</button>
+          <button class="theoryTab" data-tab="chords">Chord Functions</button>
+        </div>
 
+        <!-- Circle of Fifths -->
+        <div id="tab-circle" class="theoryContent active">
+          <h3 style="margin:0 0 10px 0;font-size:16px;">Circle of Fifths</h3>
+          <p style="font-size:13px;line-height:1.5;margin:0 0 12px 0;">
+            The Circle of Fifths shows the relationship between the 12 tones of the chromatic scale.
+            Moving clockwise, each key is a <strong>perfect 5th</strong> higher. Moving counter-clockwise, each key is a <strong>perfect 4th</strong> higher (or 5th lower).
+          </p>
+          <div id="circleOfFifths" style="display:flex;justify-content:center;margin:10px 0;"></div>
+          <div style="font-size:12px;line-height:1.6;background:var(--card);padding:10px;border-radius:8px;margin-top:10px;">
+            <strong>Key Signatures:</strong><br>
+            • <strong>Sharps</strong> (clockwise): G, D, A, E, B, F♯, C♯<br>
+            • <strong>Flats</strong> (counter-clockwise): F, B♭, E♭, A♭, D♭, G♭, C♭<br><br>
+            <strong>Relative Minor:</strong> Each major key's relative minor is 3 half-steps down (inner circle).
+          </div>
+        </div>
+
+        <!-- Intervals -->
+        <div id="tab-intervals" class="theoryContent" style="display:none;">
+          <h3 style="margin:0 0 10px 0;font-size:16px;">Intervals</h3>
+          <p style="font-size:13px;line-height:1.5;margin:0 0 12px 0;">
+            An <strong>interval</strong> is the distance between two notes, measured in half-steps (semitones).
+          </p>
+          <div style="font-size:13px;line-height:1.8;background:var(--card);padding:12px;border-radius:8px;">
+            <table style="width:100%;border-collapse:collapse;">
+              <tr style="border-bottom:1px solid var(--border);"><th style="text-align:left;padding:4px 8px;">Interval</th><th style="text-align:center;padding:4px;">Half-steps</th><th style="text-align:left;padding:4px 8px;">Example (from C)</th></tr>
+              <tr><td style="padding:4px 8px;">Unison</td><td style="text-align:center;">0</td><td style="padding:4px 8px;">C → C</td></tr>
+              <tr><td style="padding:4px 8px;">Minor 2nd</td><td style="text-align:center;">1</td><td style="padding:4px 8px;">C → D♭</td></tr>
+              <tr><td style="padding:4px 8px;">Major 2nd</td><td style="text-align:center;">2</td><td style="padding:4px 8px;">C → D</td></tr>
+              <tr><td style="padding:4px 8px;">Minor 3rd</td><td style="text-align:center;">3</td><td style="padding:4px 8px;">C → E♭</td></tr>
+              <tr><td style="padding:4px 8px;">Major 3rd</td><td style="text-align:center;">4</td><td style="padding:4px 8px;">C → E</td></tr>
+              <tr><td style="padding:4px 8px;">Perfect 4th</td><td style="text-align:center;">5</td><td style="padding:4px 8px;">C → F</td></tr>
+              <tr><td style="padding:4px 8px;">Tritone</td><td style="text-align:center;">6</td><td style="padding:4px 8px;">C → F♯/G♭</td></tr>
+              <tr><td style="padding:4px 8px;">Perfect 5th</td><td style="text-align:center;">7</td><td style="padding:4px 8px;">C → G</td></tr>
+              <tr><td style="padding:4px 8px;">Minor 6th</td><td style="text-align:center;">8</td><td style="padding:4px 8px;">C → A♭</td></tr>
+              <tr><td style="padding:4px 8px;">Major 6th</td><td style="text-align:center;">9</td><td style="padding:4px 8px;">C → A</td></tr>
+              <tr><td style="padding:4px 8px;">Minor 7th</td><td style="text-align:center;">10</td><td style="padding:4px 8px;">C → B♭</td></tr>
+              <tr><td style="padding:4px 8px;">Major 7th</td><td style="text-align:center;">11</td><td style="padding:4px 8px;">C → B</td></tr>
+              <tr><td style="padding:4px 8px;">Octave</td><td style="text-align:center;">12</td><td style="padding:4px 8px;">C → C</td></tr>
+            </table>
+          </div>
+          <div style="font-size:12px;margin-top:12px;padding:10px;background:var(--card);border-radius:8px;">
+            <strong>Tip:</strong> Use songs to remember intervals!<br>
+            • Minor 2nd: "Jaws" theme<br>
+            • Major 2nd: "Happy Birthday"<br>
+            • Minor 3rd: "Greensleeves"<br>
+            • Major 3rd: "Oh When the Saints"<br>
+            • Perfect 4th: "Here Comes the Bride"<br>
+            • Perfect 5th: "Star Wars" theme<br>
+            • Octave: "Somewhere Over the Rainbow"
+          </div>
+        </div>
+
+        <!-- Scales -->
+        <div id="tab-scales" class="theoryContent" style="display:none;">
+          <h3 style="margin:0 0 10px 0;font-size:16px;">Scales</h3>
+          <p style="font-size:13px;line-height:1.5;margin:0 0 12px 0;">
+            A <strong>scale</strong> is a sequence of notes in ascending or descending order. The pattern of whole (W) and half (H) steps defines the scale type.
+          </p>
+
+          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
+            <strong>Major Scale</strong> (Ionian)<br>
+            Pattern: <code style="background:var(--btn);padding:2px 6px;border-radius:4px;">W - W - H - W - W - W - H</code><br>
+            Example: C D E F G A B C<br>
+            <em style="font-size:12px;opacity:0.8;">Sound: Happy, bright, resolved</em>
+          </div>
+
+          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
+            <strong>Natural Minor Scale</strong> (Aeolian)<br>
+            Pattern: <code style="background:var(--btn);padding:2px 6px;border-radius:4px;">W - H - W - W - H - W - W</code><br>
+            Example: A B C D E F G A<br>
+            <em style="font-size:12px;opacity:0.8;">Sound: Sad, dark, introspective</em>
+          </div>
+
+          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
+            <strong>Harmonic Minor Scale</strong><br>
+            Pattern: <code style="background:var(--btn);padding:2px 6px;border-radius:4px;">W - H - W - W - H - 1½ - H</code><br>
+            Example: A B C D E F G♯ A<br>
+            <em style="font-size:12px;opacity:0.8;">Sound: Exotic, tension, classical</em>
+          </div>
+
+          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
+            <strong>Pentatonic Major</strong><br>
+            Notes: 1 - 2 - 3 - 5 - 6 (skip 4th and 7th)<br>
+            Example: C D E G A C<br>
+            <em style="font-size:12px;opacity:0.8;">Sound: Folk, Asian, rock solos</em>
+          </div>
+
+          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;">
+            <strong>Blues Scale</strong><br>
+            Notes: 1 - ♭3 - 4 - ♭5 - 5 - ♭7<br>
+            Example: C E♭ F G♭ G B♭ C<br>
+            <em style="font-size:12px;opacity:0.8;">Sound: Blues, jazz, rock</em>
+          </div>
+        </div>
+
+        <!-- Chord Functions -->
+        <div id="tab-chords" class="theoryContent" style="display:none;">
+          <h3 style="margin:0 0 10px 0;font-size:16px;">Chord Functions</h3>
+          <p style="font-size:13px;line-height:1.5;margin:0 0 12px 0;">
+            In a key, each chord has a <strong>function</strong> that creates tension or resolution. Understanding these helps you predict chord progressions.
+          </p>
+
+          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
+            <strong style="color:var(--success);">Tonic (I) - Home</strong><br>
+            The "home base" chord. Feels stable and resolved.<br>
+            <em>In C major: <strong>C major</strong></em>
+          </div>
+
+          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
+            <strong style="color:var(--primary);">Subdominant (IV) - Away</strong><br>
+            Creates gentle movement away from home.<br>
+            <em>In C major: <strong>F major</strong></em>
+          </div>
+
+          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
+            <strong style="color:var(--danger);">Dominant (V) - Tension</strong><br>
+            Creates strong tension that wants to resolve to I.<br>
+            <em>In C major: <strong>G major</strong> (or G7)</em>
+          </div>
+
+          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
+            <strong>Common Progressions:</strong><br>
+            • <strong>I - IV - V - I</strong> (Classic rock, pop)<br>
+            • <strong>I - V - vi - IV</strong> (Pop hits - "Let It Be", "No Woman No Cry")<br>
+            • <strong>ii - V - I</strong> (Jazz standard)<br>
+            • <strong>I - vi - IV - V</strong> (50s progression - "Stand By Me")
+          </div>
+
+          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;">
+            <strong>Chords in Major Key:</strong><br>
+            <table style="width:100%;border-collapse:collapse;margin-top:6px;">
+              <tr style="border-bottom:1px solid var(--border);">
+                <th style="text-align:left;padding:4px;">Degree</th>
+                <th style="text-align:left;padding:4px;">Chord</th>
+                <th style="text-align:left;padding:4px;">Function</th>
+              </tr>
+              <tr><td style="padding:4px;">I</td><td>Major</td><td>Tonic</td></tr>
+              <tr><td style="padding:4px;">ii</td><td>minor</td><td>Subdominant</td></tr>
+              <tr><td style="padding:4px;">iii</td><td>minor</td><td>Tonic</td></tr>
+              <tr><td style="padding:4px;">IV</td><td>Major</td><td>Subdominant</td></tr>
+              <tr><td style="padding:4px;">V</td><td>Major</td><td>Dominant</td></tr>
+              <tr><td style="padding:4px;">vi</td><td>minor</td><td>Tonic</td></tr>
+              <tr><td style="padding:4px;">vii°</td><td>diminished</td><td>Dominant</td></tr>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
 
   <!-- Libraries -->
   <script src="https://unpkg.com/vexflow@4.2.5/build/cjs/vexflow.js"></script>
@@ -1821,6 +2040,120 @@ startTimer();
       hapticMedium();
       resetQuiz();
     };
+
+    // Learn modal
+    const learnModalBack = document.getElementById('learnModalBack');
+    document.getElementById('learnBtn').onclick = () => {
+      hapticLight();
+      learnModalBack.style.display = 'flex';
+      drawCircleOfFifths();
+    };
+    document.getElementById('closeLearn').onclick = () => {
+      hapticLight();
+      learnModalBack.style.display = 'none';
+    };
+    learnModalBack.addEventListener('click', e => {
+      if(e.target === learnModalBack) learnModalBack.style.display = 'none';
+    });
+
+    // Theory tabs
+    document.querySelectorAll('.theoryTab').forEach(tab => {
+      tab.onclick = () => {
+        hapticLight();
+        document.querySelectorAll('.theoryTab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.theoryContent').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        const content = document.getElementById('tab-' + tab.dataset.tab);
+        if(content) content.classList.add('active');
+      };
+    });
+
+    // Circle of Fifths
+    function drawCircleOfFifths() {
+      const container = document.getElementById('circleOfFifths');
+      if(!container || container.querySelector('svg')) return;
+
+      const majorKeys = ['C', 'G', 'D', 'A', 'E', 'B', 'F♯', 'D♭', 'A♭', 'E♭', 'B♭', 'F'];
+      const minorKeys = ['Am', 'Em', 'Bm', 'F♯m', 'C♯m', 'G♯m', 'D♯m', 'B♭m', 'Fm', 'Cm', 'Gm', 'Dm'];
+      const signatures = ['0', '1♯', '2♯', '3♯', '4♯', '5♯', '6♯/6♭', '5♭', '4♭', '3♭', '2♭', '1♭'];
+
+      const size = Math.min(280, window.innerWidth - 60);
+      const cx = size / 2;
+      const cy = size / 2;
+      const outerR = size / 2 - 10;
+      const innerR = size / 2 - 45;
+      const minorR = size / 2 - 70;
+
+      let svg = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">`;
+
+      // Draw outer circle
+      svg += `<circle cx="${cx}" cy="${cy}" r="${outerR}" fill="none" stroke="var(--border)" stroke-width="2"/>`;
+      svg += `<circle cx="${cx}" cy="${cy}" r="${innerR}" fill="none" stroke="var(--border)" stroke-width="1"/>`;
+
+      // Draw keys
+      for(let i = 0; i < 12; i++) {
+        const angle = (i * 30 - 90) * Math.PI / 180;
+
+        // Major key (outer)
+        const mx = cx + Math.cos(angle) * (outerR - 18);
+        const my = cy + Math.sin(angle) * (outerR - 18);
+
+        // Minor key (inner)
+        const nx = cx + Math.cos(angle) * minorR;
+        const ny = cy + Math.sin(angle) * minorR;
+
+        // Line from center
+        const lx1 = cx + Math.cos(angle) * (innerR + 5);
+        const ly1 = cy + Math.sin(angle) * (innerR + 5);
+        const lx2 = cx + Math.cos(angle) * outerR;
+        const ly2 = cy + Math.sin(angle) * outerR;
+        svg += `<line x1="${lx1}" y1="${ly1}" x2="${lx2}" y2="${ly2}" stroke="var(--border)" stroke-width="1"/>`;
+
+        // Major key text
+        const isTonic = (i === 0);
+        svg += `<text x="${mx}" y="${my}" text-anchor="middle" dominant-baseline="middle"
+          class="cof-note" data-note="${majorKeys[i]}"
+          style="font-size:${isTonic ? 16 : 13}px;font-weight:${isTonic ? 900 : 700};fill:${isTonic ? 'var(--primary)' : 'var(--text)'};">${majorKeys[i]}</text>`;
+
+        // Minor key text
+        svg += `<text x="${nx}" y="${ny}" text-anchor="middle" dominant-baseline="middle"
+          class="cof-note" data-note="${minorKeys[i]}"
+          style="font-size:10px;font-weight:600;fill:var(--text);opacity:0.7;">${minorKeys[i]}</text>`;
+      }
+
+      svg += '</svg>';
+      container.innerHTML = svg;
+
+      // Add click handlers to play notes
+      container.querySelectorAll('.cof-note').forEach(el => {
+        el.addEventListener('click', async () => {
+          const note = el.dataset.note.replace('♯', '#').replace('♭', 'b').replace('m', '');
+          hapticLight();
+          try {
+            await ensurePiano();
+            if(el.dataset.note.includes('m')) {
+              // Minor chord
+              const root = note;
+              const intervals = [0, 3, 7];
+              const tones = intervals.map(i => {
+                const midi = Tone.Frequency(root + '4').toMidi() + i;
+                return Tone.Frequency(midi, 'midi').toNote();
+              });
+              piano.triggerAttackRelease(tones, '2n');
+            } else {
+              // Major chord
+              const root = note;
+              const intervals = [0, 4, 7];
+              const tones = intervals.map(i => {
+                const midi = Tone.Frequency(root + '4').toMidi() + i;
+                return Tone.Frequency(midi, 'midi').toNote();
+              });
+              piano.triggerAttackRelease(tones, '2n');
+            }
+          } catch(e) { console.warn('Circle play error:', e); }
+        });
+      });
+    }
 
     // Settings modal
     const modalBack = document.getElementById('modalBack');

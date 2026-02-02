@@ -590,7 +590,9 @@
           <button class="theoryTab active" data-tab="circle">Circle of 5ths</button>
           <button class="theoryTab" data-tab="intervals">Intervals</button>
           <button class="theoryTab" data-tab="scales">Scales</button>
+          <button class="theoryTab" data-tab="modes">Modes</button>
           <button class="theoryTab" data-tab="chords">Chord Functions</button>
+          <button class="theoryTab" data-tab="rhythm">Rhythm</button>
         </div>
 
         <!-- Circle of Fifths -->
@@ -715,6 +717,108 @@
           </div>
         </div>
 
+        <!-- Modes -->
+        <div id="tab-modes" class="theoryContent">
+          <h3 style="margin:0 0 10px 0;font-size:16px;">The 7 Modes</h3>
+          <p style="font-size:13px;line-height:1.5;margin:0 0 12px 0;">
+            <strong>Modes</strong> are scales derived from the major scale, each starting on a different degree. They create unique moods and colors in music.
+          </p>
+
+          <div class="mode-item" style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <strong style="color:var(--success);">I. Ionian</strong> (Major Scale)<br>
+                Pattern: <code style="background:var(--btn);padding:2px 6px;border-radius:4px;">W-W-H-W-W-W-H</code><br>
+                <span style="font-size:12px;">C D E F G A B C</span><br>
+                <em style="font-size:11px;opacity:0.8;">Happy, bright • Pop, classical, folk</em>
+              </div>
+              <button class="listen-btn mode-listen" data-mode="ionian">▶</button>
+            </div>
+          </div>
+
+          <div class="mode-item" style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <strong style="color:var(--primary);">II. Dorian</strong> (Minor with raised 6th)<br>
+                Pattern: <code style="background:var(--btn);padding:2px 6px;border-radius:4px;">W-H-W-W-W-H-W</code><br>
+                <span style="font-size:12px;">D E F G A B C D</span><br>
+                <em style="font-size:11px;opacity:0.8;">Jazzy minor • Jazz, funk, "So What"</em>
+              </div>
+              <button class="listen-btn mode-listen" data-mode="dorian">▶</button>
+            </div>
+          </div>
+
+          <div class="mode-item" style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <strong style="color:var(--danger);">III. Phrygian</strong> (Minor with ♭2)<br>
+                Pattern: <code style="background:var(--btn);padding:2px 6px;border-radius:4px;">H-W-W-W-H-W-W</code><br>
+                <span style="font-size:12px;">E F G A B C D E</span><br>
+                <em style="font-size:11px;opacity:0.8;">Spanish, exotic • Flamenco, metal</em>
+              </div>
+              <button class="listen-btn mode-listen" data-mode="phrygian">▶</button>
+            </div>
+          </div>
+
+          <div class="mode-item" style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <strong style="color:var(--success);">IV. Lydian</strong> (Major with #4)<br>
+                Pattern: <code style="background:var(--btn);padding:2px 6px;border-radius:4px;">W-W-W-H-W-W-H</code><br>
+                <span style="font-size:12px;">F G A B C D E F</span><br>
+                <em style="font-size:11px;opacity:0.8;">Dreamy, floating • Film scores, prog rock</em>
+              </div>
+              <button class="listen-btn mode-listen" data-mode="lydian">▶</button>
+            </div>
+          </div>
+
+          <div class="mode-item" style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <strong style="color:var(--primary);">V. Mixolydian</strong> (Major with ♭7)<br>
+                Pattern: <code style="background:var(--btn);padding:2px 6px;border-radius:4px;">W-W-H-W-W-H-W</code><br>
+                <span style="font-size:12px;">G A B C D E F G</span><br>
+                <em style="font-size:11px;opacity:0.8;">Bluesy major • Rock, blues, "Sweet Home Alabama"</em>
+              </div>
+              <button class="listen-btn mode-listen" data-mode="mixolydian">▶</button>
+            </div>
+          </div>
+
+          <div class="mode-item" style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <strong style="color:var(--danger);">VI. Aeolian</strong> (Natural Minor)<br>
+                Pattern: <code style="background:var(--btn);padding:2px 6px;border-radius:4px;">W-H-W-W-H-W-W</code><br>
+                <span style="font-size:12px;">A B C D E F G A</span><br>
+                <em style="font-size:11px;opacity:0.8;">Sad, serious • Rock ballads, pop minor keys</em>
+              </div>
+              <button class="listen-btn mode-listen" data-mode="aeolian">▶</button>
+            </div>
+          </div>
+
+          <div class="mode-item" style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <strong style="color:#888;">VII. Locrian</strong> (Diminished)<br>
+                Pattern: <code style="background:var(--btn);padding:2px 6px;border-radius:4px;">H-W-W-H-W-W-W</code><br>
+                <span style="font-size:12px;">B C D E F G A B</span><br>
+                <em style="font-size:11px;opacity:0.8;">Unstable, dark • Heavy metal, experimental</em>
+              </div>
+              <button class="listen-btn mode-listen" data-mode="locrian">▶</button>
+            </div>
+          </div>
+
+          <div style="font-size:12px;background:var(--card);padding:10px;border-radius:8px;margin-top:8px;">
+            <strong>Quick Reference:</strong><br>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px;">
+              <div><span style="color:var(--success);">●</span> Major modes: Ionian, Lydian</div>
+              <div><span style="color:var(--primary);">●</span> Minor modes: Dorian, Aeolian</div>
+              <div><span style="color:var(--danger);">●</span> Dark modes: Phrygian, Locrian</div>
+              <div><span style="color:var(--primary);">●</span> Bluesy: Mixolydian</div>
+            </div>
+          </div>
+        </div>
+
         <!-- Chord Functions -->
         <div id="tab-chords" class="theoryContent">
           <h3 style="margin:0 0 10px 0;font-size:16px;">Chord Functions</h3>
@@ -814,6 +918,138 @@
               <tr><td style="padding:4px;">vi</td><td>minor</td><td>Tonic</td></tr>
               <tr><td style="padding:4px;">vii°</td><td>diminished</td><td>Dominant</td></tr>
             </table>
+          </div>
+        </div>
+
+        <!-- Rhythm Basics -->
+        <div id="tab-rhythm" class="theoryContent">
+          <h3 style="margin:0 0 10px 0;font-size:16px;">Rhythm Basics</h3>
+          <p style="font-size:13px;line-height:1.5;margin:0 0 12px 0;">
+            <strong>Rhythm</strong> is the pattern of sounds and silences in music. Understanding note values and time signatures is essential for reading and playing music.
+          </p>
+
+          <!-- Note Values -->
+          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
+            <strong>Note Values</strong><br>
+            <p style="font-size:12px;margin:6px 0;opacity:0.9;">Each note type represents a different duration. In 4/4 time:</p>
+            <table style="width:100%;border-collapse:collapse;margin-top:8px;">
+              <tr style="border-bottom:1px solid var(--border);">
+                <th style="text-align:left;padding:6px;">Note</th>
+                <th style="text-align:center;padding:6px;">Symbol</th>
+                <th style="text-align:left;padding:6px;">Beats</th>
+                <th style="padding:6px;"></th>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border);">
+                <td style="padding:6px;">Whole note</td>
+                <td style="text-align:center;font-size:20px;">𝅝</td>
+                <td style="padding:6px;">4 beats</td>
+                <td style="padding:6px;"><button class="listen-btn rhythm-listen" data-rhythm="whole">▶</button></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border);">
+                <td style="padding:6px;">Half note</td>
+                <td style="text-align:center;font-size:20px;">𝅗𝅥</td>
+                <td style="padding:6px;">2 beats</td>
+                <td style="padding:6px;"><button class="listen-btn rhythm-listen" data-rhythm="half">▶</button></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border);">
+                <td style="padding:6px;">Quarter note</td>
+                <td style="text-align:center;font-size:20px;">𝅘𝅥</td>
+                <td style="padding:6px;">1 beat</td>
+                <td style="padding:6px;"><button class="listen-btn rhythm-listen" data-rhythm="quarter">▶</button></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border);">
+                <td style="padding:6px;">Eighth note</td>
+                <td style="text-align:center;font-size:20px;">𝅘𝅥𝅮</td>
+                <td style="padding:6px;">½ beat</td>
+                <td style="padding:6px;"><button class="listen-btn rhythm-listen" data-rhythm="eighth">▶</button></td>
+              </tr>
+              <tr>
+                <td style="padding:6px;">Sixteenth note</td>
+                <td style="text-align:center;font-size:20px;">𝅘𝅥𝅯</td>
+                <td style="padding:6px;">¼ beat</td>
+                <td style="padding:6px;"><button class="listen-btn rhythm-listen" data-rhythm="sixteenth">▶</button></td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Time Signatures -->
+          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
+            <strong>Time Signatures</strong><br>
+            <p style="font-size:12px;margin:6px 0 10px 0;opacity:0.9;">The top number = beats per measure. The bottom = which note gets one beat.</p>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+              <div>
+                <span style="font-size:18px;font-weight:bold;">4/4</span> <span style="font-size:12px;opacity:0.8;">(Common Time)</span><br>
+                <span style="font-size:11px;">4 quarter-note beats per measure • Pop, rock, most music</span>
+              </div>
+              <button class="listen-btn timesig-listen" data-timesig="4-4">▶</button>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+              <div>
+                <span style="font-size:18px;font-weight:bold;">3/4</span> <span style="font-size:12px;opacity:0.8;">(Waltz Time)</span><br>
+                <span style="font-size:11px;">3 quarter-note beats • Waltzes, ballads</span>
+              </div>
+              <button class="listen-btn timesig-listen" data-timesig="3-4">▶</button>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+              <div>
+                <span style="font-size:18px;font-weight:bold;">6/8</span> <span style="font-size:12px;opacity:0.8;">(Compound Duple)</span><br>
+                <span style="font-size:11px;">2 groups of 3 eighth notes • "House of the Rising Sun"</span>
+              </div>
+              <button class="listen-btn timesig-listen" data-timesig="6-8">▶</button>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
+              <div>
+                <span style="font-size:18px;font-weight:bold;">2/4</span> <span style="font-size:12px;opacity:0.8;">(March Time)</span><br>
+                <span style="font-size:11px;">2 quarter-note beats • Marches, polkas</span>
+              </div>
+              <button class="listen-btn timesig-listen" data-timesig="2-4">▶</button>
+            </div>
+          </div>
+
+          <!-- Rests -->
+          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
+            <strong>Rests</strong> <em style="font-size:11px;opacity:0.8;">(silence for the same duration)</em><br>
+            <div style="display:grid;grid-template-columns:repeat(5, 1fr);gap:8px;margin-top:10px;text-align:center;">
+              <div>
+                <div style="font-size:18px;">𝄻</div>
+                <div style="font-size:10px;">Whole</div>
+              </div>
+              <div>
+                <div style="font-size:18px;">𝄼</div>
+                <div style="font-size:10px;">Half</div>
+              </div>
+              <div>
+                <div style="font-size:18px;">𝄽</div>
+                <div style="font-size:10px;">Quarter</div>
+              </div>
+              <div>
+                <div style="font-size:18px;">𝄾</div>
+                <div style="font-size:10px;">Eighth</div>
+              </div>
+              <div>
+                <div style="font-size:18px;">𝄿</div>
+                <div style="font-size:10px;">16th</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dotted Notes & Ties -->
+          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;">
+            <strong>Dotted Notes & Ties</strong><br>
+            <div style="margin-top:8px;">
+              <div style="padding:6px 0;border-bottom:1px solid var(--border);">
+                <strong>Dotted note (•)</strong> — adds half the value<br>
+                <span style="font-size:11px;opacity:0.8;">Dotted half = 3 beats • Dotted quarter = 1½ beats</span>
+              </div>
+              <div style="padding:6px 0;">
+                <strong>Tie (⁀)</strong> — connects notes of same pitch<br>
+                <span style="font-size:11px;opacity:0.8;">Hold the note across the combined duration</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -2451,6 +2687,127 @@ startTimer();
       blues9: [0, 2, 3, 4, 5, 6, 7, 9, 10, 12]  // Blues scale (9-note)
     };
 
+    // Mode definitions (as arrays of semitones from root)
+    const MODES = {
+      ionian:     [0, 2, 4, 5, 7, 9, 11, 12],   // C D E F G A B C (Major)
+      dorian:     [0, 2, 3, 5, 7, 9, 10, 12],   // D E F G A B C D
+      phrygian:   [0, 1, 3, 5, 7, 8, 10, 12],   // E F G A B C D E
+      lydian:     [0, 2, 4, 6, 7, 9, 11, 12],   // F G A B C D E F
+      mixolydian: [0, 2, 4, 5, 7, 9, 10, 12],   // G A B C D E F G
+      aeolian:    [0, 2, 3, 5, 7, 8, 10, 12],   // A B C D E F G A (Natural Minor)
+      locrian:    [0, 1, 3, 5, 6, 8, 10, 12]    // B C D E F G A B
+    };
+
+    // Play a mode
+    async function playMode(modeType, btn) {
+      try {
+        await ensurePiano();
+        btn?.classList.add('playing');
+        hapticLight();
+
+        const intervals = MODES[modeType] || MODES.ionian;
+        let delay = 0;
+
+        intervals.forEach((interval, i) => {
+          setTimeout(() => {
+            piano.triggerAttackRelease(midiToNoteName(BASE_MIDI + interval), '8n');
+          }, delay);
+          delay += 250;
+        });
+
+        setTimeout(() => btn?.classList.remove('playing'), delay + 200);
+      } catch(e) {
+        console.warn('Mode play error:', e);
+        btn?.classList.remove('playing');
+      }
+    }
+
+    // Rhythm demonstration definitions (durations in ms at ~100 BPM)
+    const RHYTHM_DURATIONS = {
+      whole: 2000,     // 4 beats
+      half: 1000,      // 2 beats
+      quarter: 500,    // 1 beat
+      eighth: 250,     // 1/2 beat
+      sixteenth: 125   // 1/4 beat
+    };
+
+    // Play rhythm demonstration
+    async function playRhythm(rhythmType, btn) {
+      try {
+        await ensurePiano();
+        btn?.classList.add('playing');
+        hapticLight();
+
+        const duration = RHYTHM_DURATIONS[rhythmType] || 500;
+        const noteDuration = rhythmType === 'whole' ? '1n' :
+                            rhythmType === 'half' ? '2n' :
+                            rhythmType === 'quarter' ? '4n' :
+                            rhythmType === 'eighth' ? '8n' : '16n';
+
+        // Play the note
+        piano.triggerAttackRelease(midiToNoteName(BASE_MIDI), noteDuration);
+
+        setTimeout(() => btn?.classList.remove('playing'), duration + 200);
+      } catch(e) {
+        console.warn('Rhythm play error:', e);
+        btn?.classList.remove('playing');
+      }
+    }
+
+    // Time signature patterns (as arrays of [midiOffset, duration, delay] or null for rest emphasis)
+    const TIME_SIG_PATTERNS = {
+      '4-4': [[0, '4n'], [0, '8n'], [0, '8n'], [0, '4n'], [0, '8n'], [0, '8n']], // Strong-weak-weak-weak
+      '3-4': [[0, '4n'], [0, '8n'], [0, '8n']], // Strong-weak-weak (waltz)
+      '6-8': [[0, '4n.'], [0, '4n.']], // Two groups of 3 eighth notes
+      '2-4': [[0, '4n'], [0, '4n']]  // March: Strong-weak
+    };
+
+    // Play time signature demonstration
+    async function playTimeSignature(timeSig, btn) {
+      try {
+        await ensurePiano();
+        btn?.classList.add('playing');
+        hapticLight();
+
+        const pattern = TIME_SIG_PATTERNS[timeSig];
+        if (!pattern) return;
+
+        let delay = 0;
+        const baseDelay = timeSig === '6-8' ? 200 : 400; // Faster for 6/8
+
+        pattern.forEach((note, i) => {
+          setTimeout(() => {
+            // First beat of each group is emphasized (higher velocity/different note)
+            const isStrong = (timeSig === '4-4' && i % 2 === 0) ||
+                           (timeSig === '3-4' && i === 0) ||
+                           (timeSig === '6-8' && i === 0) ||
+                           (timeSig === '2-4' && i === 0);
+            const pitch = isStrong ? BASE_MIDI : BASE_MIDI - 5;
+            piano.triggerAttackRelease(midiToNoteName(pitch), note[1]);
+          }, delay);
+          delay += baseDelay;
+        });
+
+        // Repeat the pattern once more
+        pattern.forEach((note, i) => {
+          setTimeout(() => {
+            const isStrong = (timeSig === '4-4' && i % 2 === 0) ||
+                           (timeSig === '3-4' && i === 0) ||
+                           (timeSig === '6-8' && i === 0) ||
+                           (timeSig === '2-4' && i === 0);
+            const pitch = isStrong ? BASE_MIDI : BASE_MIDI - 5;
+            piano.triggerAttackRelease(midiToNoteName(pitch), note[1]);
+          }, delay);
+          delay += baseDelay;
+        });
+
+        setTimeout(() => btn?.classList.remove('playing'), delay + 300);
+      } catch(e) {
+        console.warn('Time signature play error:', e);
+        btn?.classList.remove('playing');
+      }
+    }
+
     // Play a scale
     async function playScale(scaleType, btn) {
       try {
@@ -2739,6 +3096,30 @@ startTimer();
       btn.onclick = (e) => {
         e.stopPropagation();
         playProgressionSong(btn.dataset.progsong, btn);
+      };
+    });
+
+    // Mode listen buttons
+    document.querySelectorAll('.mode-listen').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        playMode(btn.dataset.mode, btn);
+      };
+    });
+
+    // Rhythm demonstration buttons
+    document.querySelectorAll('.rhythm-listen').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        playRhythm(btn.dataset.rhythm, btn);
+      };
+    });
+
+    // Time signature demonstration buttons
+    document.querySelectorAll('.timesig-listen').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        playTimeSignature(btn.dataset.timesig, btn);
       };
     });
 

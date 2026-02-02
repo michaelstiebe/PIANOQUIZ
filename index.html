@@ -522,8 +522,22 @@
           <option value="P13">P13 — Level 13 — Chords: Extended (11/13)</option>
           <option value="P14">P14 — Level 14 — Chords (All roots, advanced)</option>
           <option value="P15">P15 — Level 15 — Mixed (Notes + Chords)</option>
+          <option value="P16">P16 — Ear Training: Simple Intervals</option>
+          <option value="P17">P17 — Ear Training: All Intervals</option>
+          <option value="P18">P18 — Ear Training: Triads</option>
+          <option value="P19">P19 — Ear Training: Sevenths</option>
+          <option value="P20">P20 — Ear Training: All Chords</option>
         </select>
         <div class="hint">Presets control clefs, accidentals, and chord complexity.</div>
+      </div>
+
+      <div class="field" id="earTrainingModeField" style="display:none;">
+        <label>Ear Training Mode</label>
+        <select id="earTrainingMode">
+          <option value="melodic">Melodic (notes played separately)</option>
+          <option value="harmonic">Harmonic (notes played together)</option>
+        </select>
+        <div class="hint">How intervals are played for ear training.</div>
       </div>
 
       <div class="field">
@@ -1119,8 +1133,34 @@
       P14:{id:'P14',name:'Level 14 — Chords (All roots, advanced)',clefs:['treble','bass'],accs:['#','b'],mode:'chord',roots:'all',chordLevel:10},
 
       // Mixed (notes + chords)
-      P15:{id:'P15',name:'Level 15 — Mixed (Notes + Chords)',clefs:['treble','bass'],accs:['#','b'],mode:'both',roots:'all',chordLevel:3}
+      P15:{id:'P15',name:'Level 15 — Mixed (Notes + Chords)',clefs:['treble','bass'],accs:['#','b'],mode:'both',roots:'all',chordLevel:3},
+
+      // Ear Training - Intervals
+      P16:{id:'P16',name:'Level 16 — Ear Training: Simple Intervals',mode:'earInterval',intervals:[0,2,4,5,7,12]}, // Unison, M2, M3, P4, P5, Octave
+      P17:{id:'P17',name:'Level 17 — Ear Training: All Intervals',mode:'earInterval',intervals:[0,1,2,3,4,5,6,7,8,9,10,11,12]},
+
+      // Ear Training - Chords
+      P18:{id:'P18',name:'Level 18 — Ear Training: Triads',mode:'earChord',chordLevel:2},
+      P19:{id:'P19',name:'Level 19 — Ear Training: Sevenths',mode:'earChord',chordLevel:3},
+      P20:{id:'P20',name:'Level 20 — Ear Training: All Chords',mode:'earChord',chordLevel:10}
     };
+
+    // Interval names for ear training
+    const INTERVAL_NAMES = [
+      'Unison',      // 0
+      'Minor 2nd',   // 1
+      'Major 2nd',   // 2
+      'Minor 3rd',   // 3
+      'Major 3rd',   // 4
+      'Perfect 4th', // 5
+      'Tritone',     // 6
+      'Perfect 5th', // 7
+      'Minor 6th',   // 8
+      'Major 6th',   // 9
+      'Minor 7th',   // 10
+      'Major 7th',   // 11
+      'Octave'       // 12
+    ];
 
     function getNotesForPreset(preset){
       const notes = ALL_NOTES.filter(n => n.acc === ''); // naturals
@@ -1217,7 +1257,7 @@ let inputLocked = false;
     const SETTINGS_KEY = 'piano_note_quiz_settings_v1';
     const TOTALS_KEY   = 'piano_note_quiz_totals_v1';
 
-    const DEFAULT_SETTINGS = { presetId: 'P2', roundTarget: 10, timerSeconds: 10, revealSeconds: 7, soundMode: 'manual', hapticEnabled: true, darkMode: false };
+    const DEFAULT_SETTINGS = { presetId: 'P2', roundTarget: 10, timerSeconds: 10, revealSeconds: 7, soundMode: 'manual', hapticEnabled: true, darkMode: false, earTrainingMode: 'melodic' };
     const DEFAULT_TOTALS   = { totalCorrect: 0, totalWrong: 0, bestStreakEver: 0 };
 
     function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
@@ -1290,6 +1330,13 @@ let inputLocked = false;
       if(mode === 'off') return;
       try{
         await ensurePiano();
+
+        // Handle ear training modes
+        if(currentQuestion.type === 'earInterval' || currentQuestion.type === 'earChord'){
+          playEarTrainingSound(currentQuestion);
+          return;
+        }
+
         try{ setKeyboardWindowForMidis(getQuestionMidis()); }catch(e){}
         if(currentQuestion.type === 'chord'){
           const tones = currentQuestion.data.chord.notes.map((n,i) => {
@@ -1302,6 +1349,47 @@ let inputLocked = false;
           piano.triggerAttackRelease(noteToTone(currentQuestion.data.note, currentQuestion.data.octave), '2n');
         }
       }catch(e){console.warn('Sound error:',e);}
+    }
+
+    // Play sound for ear training questions
+    async function playEarTrainingSound(q){
+      if(!q) q = currentQuestion;
+      if(!q) return;
+
+      try{
+        await ensurePiano();
+        hapticLight();
+
+        if(q.type === 'earInterval'){
+          const baseMidi = q.data.baseMidi || 60;
+          const semitones = q.data.semitones;
+          const earMode = settings.earTrainingMode || 'melodic';
+
+          if(earMode === 'harmonic'){
+            // Play both notes simultaneously
+            const note1 = midiToNoteName(baseMidi);
+            const note2 = midiToNoteName(baseMidi + semitones);
+            piano.triggerAttackRelease([note1, note2], '2n');
+          } else {
+            // Play melodically (ascending)
+            piano.triggerAttackRelease(midiToNoteName(baseMidi), '4n');
+            setTimeout(() => {
+              piano.triggerAttackRelease(midiToNoteName(baseMidi + semitones), '4n');
+            }, 500);
+          }
+        } else if(q.type === 'earChord'){
+          const chord = q.data.chord;
+          const octave = q.data.octave || 4;
+          const tones = chord.notes.map((n, i) => {
+            let oct = octave;
+            if(i > 0 && n.semitone < chord.notes[0].semitone) oct++;
+            return noteToTone(n, oct);
+          });
+          piano.triggerAttackRelease(tones, '2n');
+        }
+      }catch(e){
+        console.warn('Ear training sound error:', e);
+      }
     }
 
     // ==================== PLAYABLE PIANO ====================
@@ -1407,6 +1495,27 @@ let inputLocked = false;
 
     function renderQuestion(q){
       if(!q) return;
+
+      // Ear training modes - show listening UI instead of notation
+      if(q.type === 'earInterval' || q.type === 'earChord'){
+        const label = q.type === 'earInterval' ? 'Interval' : 'Chord';
+        board.innerHTML = `
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;">
+            <div style="font-size:32px;">🎧</div>
+            <div style="font-size:16px;color:var(--text);font-weight:600;">Listen to the ${label}</div>
+            <button id="replayBtn" class="tinybtn" style="font-size:14px;padding:8px 16px;">
+              ▶ Play Again
+            </button>
+          </div>
+        `;
+        // Attach replay handler
+        const replayBtn = document.getElementById('replayBtn');
+        if(replayBtn){
+          replayBtn.onclick = () => playEarTrainingSound(q);
+        }
+        return;
+      }
+
       if(q.type === 'chord'){
         const chord = q.data.chord;
         const baseOct = q.data.octave;
@@ -1438,6 +1547,11 @@ let inputLocked = false;
 
     function generateQuestion(){
       const preset = currentPreset;
+
+      // Handle ear training modes
+      if(preset.mode === 'earInterval') return generateEarIntervalQuestion();
+      if(preset.mode === 'earChord') return generateEarChordQuestion();
+
       let isChord = preset.mode === 'chord' || (preset.mode === 'both' && Math.random() > 0.5);
       const clef = preset.clefs[Math.floor(Math.random() * preset.clefs.length)];
       const range = getClefRange(clef);
@@ -1491,6 +1605,89 @@ let inputLocked = false;
         else break;
       }
       return wrong;
+    }
+
+    // ==================== EAR TRAINING ====================
+    function generateEarIntervalQuestion(){
+      const preset = currentPreset;
+      const intervals = preset.intervals || [0,2,4,5,7,12];
+      const semitones = intervals[Math.floor(Math.random() * intervals.length)];
+      const correctAnswer = INTERVAL_NAMES[semitones];
+
+      // Generate wrong answers from other intervals in the set
+      const wrongPool = intervals.filter(i => i !== semitones);
+      shuffle(wrongPool);
+      const wrongAnswers = wrongPool.slice(0, 3).map(i => INTERVAL_NAMES[i]);
+
+      // Fill with any interval if we don't have enough
+      while(wrongAnswers.length < 3){
+        const fallback = INTERVAL_NAMES.filter(n => n !== correctAnswer && !wrongAnswers.includes(n));
+        if(fallback.length) wrongAnswers.push(fallback[Math.floor(Math.random() * fallback.length)]);
+        else break;
+      }
+
+      const allAnswers = shuffle([correctAnswer, ...wrongAnswers]);
+
+      // Random starting note (MIDI 48-72 = C3-C5)
+      const baseMidi = 48 + Math.floor(Math.random() * 24);
+
+      return {
+        type: 'earInterval',
+        data: { semitones, baseMidi },
+        correctAnswer,
+        wrongAnswers,
+        allAnswers
+      };
+    }
+
+    function generateEarChordQuestion(){
+      const preset = currentPreset;
+      const chordTypes = chordTypesUpTo(preset.chordLevel || 1);
+      const roots = ['C','D','E','F','G','A','B'];
+      const root = roots[Math.floor(Math.random() * roots.length)];
+      const chordType = chordTypes[Math.floor(Math.random() * chordTypes.length)];
+      const chord = buildChord(root, chordType);
+
+      if(!chord) return generateEarChordQuestion(); // retry
+
+      const correctAnswer = chord.name;
+
+      // Generate wrong answers from other chord types with same root or same type different root
+      const wrongPool = [];
+      chordTypes.forEach(t => {
+        if(t !== chordType){
+          const c = buildChord(root, t);
+          if(c) wrongPool.push(c.name);
+        }
+      });
+      roots.forEach(r => {
+        if(r !== root){
+          const c = buildChord(r, chordType);
+          if(c && !wrongPool.includes(c.name)) wrongPool.push(c.name);
+        }
+      });
+      shuffle(wrongPool);
+      const wrongAnswers = wrongPool.slice(0, 3);
+
+      while(wrongAnswers.length < 3){
+        const fallback = ['C major','D minor','E major','F major','G major','A minor','B minor']
+          .filter(n => n !== correctAnswer && !wrongAnswers.includes(n));
+        if(fallback.length) wrongAnswers.push(fallback[0]);
+        else break;
+      }
+
+      const allAnswers = shuffle([correctAnswer, ...wrongAnswers]);
+
+      // Random octave (3 or 4)
+      const octave = 3 + Math.floor(Math.random() * 2);
+
+      return {
+        type: 'earChord',
+        data: { chord, octave },
+        correctAnswer,
+        wrongAnswers,
+        allAnswers
+      };
     }
 
     // ==================== UI ====================
@@ -1666,6 +1863,26 @@ function toneToMidiSafe(toneStr){
       if(!currentQuestion) return [];
       const oct = (currentQuestion.data && typeof currentQuestion.data.octave === 'number') ? currentQuestion.data.octave : 4;
 
+      // Ear training: interval mode
+      if(currentQuestion.type === 'earInterval'){
+        const baseMidi = currentQuestion.data.baseMidi || 60;
+        const semitones = currentQuestion.data.semitones || 0;
+        return [baseMidi, baseMidi + semitones];
+      }
+
+      // Ear training: chord mode
+      if(currentQuestion.type === 'earChord'){
+        const notes = currentQuestion.data.chord?.notes || [];
+        if(!notes.length) return [];
+        const rootSemi = notes[0].semitone;
+        const tones = notes.map((n,i) => {
+          let o = oct;
+          if(i>0 && n.semitone < rootSemi) o++;
+          return noteToTone(n, o);
+        });
+        return tones.map(t => toneToMidiSafe(t)).filter(v => v!=null);
+      }
+
       if(currentQuestion.type === 'chord'){
         const notes = currentQuestion.data.chord?.notes || [];
         if(!notes.length) return [];
@@ -1688,6 +1905,27 @@ function toneToMidiSafe(toneStr){
     function getAnswerMidis(answerStr){
       if(!currentQuestion) return [];
       const oct = (currentQuestion.data && typeof currentQuestion.data.octave === 'number') ? currentQuestion.data.octave : 4;
+
+      // Ear training: interval mode - show the two notes of the interval
+      if(currentQuestion.type === 'earInterval'){
+        const baseMidi = currentQuestion.data.baseMidi || 60;
+        const semitones = currentQuestion.data.semitones || 0;
+        return [baseMidi, baseMidi + semitones];
+      }
+
+      // Ear training: chord mode - similar to regular chord
+      if(currentQuestion.type === 'earChord'){
+        const chord = currentQuestion.data.chord;
+        if(!chord || !chord.notes) return [];
+        const notes = chord.notes;
+        const rootSemi = notes[0].semitone;
+        const tones = notes.map((n,i) => {
+          let o = oct;
+          if(i>0 && n.semitone < rootSemi) o++;
+          return noteToTone(n, o);
+        });
+        return tones.map(t => toneToMidiSafe(t)).filter(v => v!=null);
+      }
 
       if(currentQuestion.type === 'chord'){
         const chord = chordFromName(answerStr);
@@ -2061,15 +2299,26 @@ questionToken++;
       inputLocked = false;
       // Adjust keyboard octave window so the correct answer always fits on-screen
       try{
-        const _midis = (currentQuestion?.type === 'chord')
-          ? chordMidisRootPosition(currentQuestion.correctAnswer)
-          : [noteMidi(currentQuestion.correctAnswer)].filter(v => v!=null);
+        let _midis;
+        if(currentQuestion?.type === 'earInterval'){
+          const baseMidi = currentQuestion.data.baseMidi || 60;
+          const semitones = currentQuestion.data.semitones || 0;
+          _midis = [baseMidi, baseMidi + semitones];
+        } else if(currentQuestion?.type === 'earChord'){
+          _midis = getQuestionMidis();
+        } else if(currentQuestion?.type === 'chord'){
+          _midis = chordMidisRootPosition(currentQuestion.correctAnswer);
+        } else {
+          _midis = [noteMidi(currentQuestion.correctAnswer)].filter(v => v!=null);
+        }
         setKeyboardWindowForMidis(_midis);
       }catch(e){/* ignore */}
       renderQuestion(currentQuestion);
       buildAnswerButtons();
 startTimer();
-      if((document.getElementById('soundMode')?document.getElementById('soundMode').value:'manual') === 'auto') playSound();
+      // Always auto-play for ear training modes, otherwise check soundMode setting
+      const isEarTraining = currentQuestion?.type === 'earInterval' || currentQuestion?.type === 'earChord';
+      if(isEarTraining || (document.getElementById('soundMode')?document.getElementById('soundMode').value:'manual') === 'auto') playSound();
     }
 
     function startQuiz(){
@@ -2799,10 +3048,33 @@ startTimer();
         settings.presetId = e.target.value;
         saveSettings();
         currentPreset = PRESETS[e.target.value] || PRESETS.P2;
+        updateEarTrainingModeVisibility();
         updateStats();
         if(running) nextQuestion();
       };
     }
+
+    // Show/hide ear training mode setting based on preset
+    function updateEarTrainingModeVisibility(){
+      const earField = document.getElementById('earTrainingModeField');
+      if(!earField) return;
+      const preset = PRESETS[settings.presetId] || PRESETS.P2;
+      const isEarInterval = preset.mode === 'earInterval';
+      earField.style.display = isEarInterval ? 'block' : 'none';
+    }
+
+    // Ear training mode handler
+    const earTrainingModeSelect = document.getElementById('earTrainingMode');
+    if(earTrainingModeSelect){
+      earTrainingModeSelect.value = settings.earTrainingMode || 'melodic';
+      earTrainingModeSelect.onchange = e => {
+        settings.earTrainingMode = e.target.value;
+        saveSettings();
+      };
+    }
+
+    // Initialize ear training mode visibility
+    updateEarTrainingModeVisibility();
 
     if(timerSetting){
       timerSetting.oninput = e => {

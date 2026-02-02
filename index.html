@@ -1797,33 +1797,27 @@ let inputLocked = false;
         const isDotted = duration.endsWith('d');
         const isRest = rhythmValue.isRest;
 
-        // Build base duration without 'd' suffix
+        // Build base duration without 'd' suffix for dotted notes
         let baseDuration = isDotted ? duration.slice(0, -1) : duration;
         // Remove 'r' suffix for rests as we'll handle separately
         if(isRest && baseDuration.endsWith('r')) {
           baseDuration = baseDuration.slice(0, -1);
         }
 
-        // Create the note
-        let note;
-        if(isRest){
-          // For rests, use 'r' suffix in duration
-          note = new VF.StaveNote({
-            clef: 'percussion',
-            keys: ['b/4'],
-            duration: baseDuration + 'r'
-          });
-        } else {
-          note = new VF.StaveNote({
-            clef: 'percussion',
-            keys: ['b/4'],
-            duration: baseDuration
-          });
-        }
+        // Determine the VexFlow duration string
+        let vexDuration = isRest ? (baseDuration + 'r') : baseDuration;
 
-        // Add dot if needed
+        // Create the note
+        const note = new VF.StaveNote({
+          clef: 'percussion',
+          keys: ['b/4'],
+          duration: vexDuration
+        });
+
+        // Add dot for dotted notes using VexFlow 4.x Dot class
         if(isDotted){
-          note.addDotToAll();
+          const dot = new VF.Dot();
+          note.addModifier(dot, 0);
         }
 
         // Calculate beats for voice
@@ -1838,8 +1832,8 @@ let inputLocked = false;
         new VF.Formatter().joinVoices([voice]).format([voice], w - 100);
         voice.draw(ctx, stave);
       } catch(e) {
-        console.warn('VexFlow rhythm draw error:', e);
-        board.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666;font-size:14px;">Loading notation...</div>';
+        console.error('VexFlow rhythm draw error:', e, 'rhythmValue:', rhythmValue);
+        board.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666;font-size:14px;">Error loading notation</div>';
       }
     }
 

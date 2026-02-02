@@ -106,6 +106,34 @@
     .stat .k{font-size:11px;opacity:.7}
     .stat .v{font-size:14px;font-weight:900;margin-top:2px}
 
+    /* Clickable stats */
+    .stat.clickable{cursor:pointer;position:relative;transition:background .15s}
+    .stat.clickable:hover{background:var(--btn)}
+    .stat.clickable:active{transform:scale(.97)}
+    .stat.clickable .v{text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px}
+
+    /* Stat popup */
+    .statPopup{
+      position:absolute;
+      top:calc(100% + 6px);
+      left:50%;
+      transform:translateX(-50%);
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      box-shadow:0 8px 24px rgba(0,0,0,.18);
+      z-index:200;
+      min-width:180px;
+      display:none;
+    }
+    .statPopup.active{display:block}
+    .statPopup label{display:block;font-size:12px;font-weight:700;margin-bottom:8px;text-align:left}
+    .statPopup input[type="range"]{width:100%;margin:4px 0}
+    .statPopup select{width:100%;font-size:14px;padding:8px}
+    .statPopup .popupVal{font-size:14px;font-weight:900;text-align:center;margin-top:4px}
+    body.dark .statPopup{background:var(--card)}
+
     .boardCard{
       background:var(--card); border:1px solid var(--border);
       border-radius:14px; padding:6px;
@@ -428,12 +456,56 @@
     </div>
 
     <div class="stats">
-      <div class="stat"><div class="k">Time</div><div class="v" id="statTime">—</div></div>
-      <div class="stat"><div class="k">Round</div><div class="v" id="statRound">0/10</div></div>
+      <div class="stat clickable" id="statTimeBox">
+        <div class="k">Time</div><div class="v" id="statTime">—</div>
+        <div class="statPopup" id="timePopup">
+          <label>Time per question (sec)</label>
+          <input type="range" id="timePopupSlider" min="0" max="60" value="10">
+          <div class="popupVal" id="timePopupVal">10</div>
+        </div>
+      </div>
+      <div class="stat clickable" id="statRoundBox">
+        <div class="k">Round</div><div class="v" id="statRound">0/10</div>
+        <div class="statPopup" id="roundPopup">
+          <label>Questions per round</label>
+          <input type="range" id="roundPopupSlider" min="0" max="50" step="5" value="10">
+          <div class="popupVal" id="roundPopupVal">10</div>
+        </div>
+      </div>
       <div class="stat"><div class="k">Correct</div><div class="v" id="statCorrect">0</div></div>
       <div class="stat"><div class="k">Wrong</div><div class="v" id="statWrong">0</div></div>
       <div class="stat"><div class="k">Streak</div><div class="v" id="statStreak">0</div></div>
-      <div class="stat"><div class="k">Preset</div><div class="v" id="statPreset">P1</div></div>
+      <div class="stat clickable" id="statPresetBox">
+        <div class="k">Preset</div><div class="v" id="statPreset">P1</div>
+        <div class="statPopup" id="presetPopup">
+          <label>Difficulty Preset</label>
+          <select id="presetPopupSelect">
+            <option value="P1">P1 — Notes (Treble)</option>
+            <option value="P2">P2 — Notes (Both)</option>
+            <option value="P3">P3 — + Sharps</option>
+            <option value="P4">P4 — + Flats</option>
+            <option value="P5">P5 — All accidentals</option>
+            <option value="P6">P6 — Triads</option>
+            <option value="P7">P7 — + Altered</option>
+            <option value="P8">P8 — + Sevenths</option>
+            <option value="P9">P9 — + Dim 7ths</option>
+            <option value="P10">P10 — + 6/sus/add</option>
+            <option value="P11">P11 — + 9ths</option>
+            <option value="P12">P12 — Altered dom</option>
+            <option value="P13">P13 — Extended</option>
+            <option value="P14">P14 — All chords</option>
+            <option value="P15">P15 — Mixed</option>
+            <option value="P16">P16 — Ear: Intervals</option>
+            <option value="P17">P17 — Ear: All Int.</option>
+            <option value="P18">P18 — Ear: Triads</option>
+            <option value="P19">P19 — Ear: Sevenths</option>
+            <option value="P20">P20 — Ear: All</option>
+            <option value="P21">P21 — Rhythm: Basic</option>
+            <option value="P22">P22 — Rhythm: Dotted</option>
+            <option value="P23">P23 — Rhythm: Rests</option>
+          </select>
+        </div>
+      </div>
     </div>
 
     <div class="main">
@@ -3489,6 +3561,25 @@ startTimer();
       if(darkModeToggle){
         darkModeToggle.checked = settings.darkMode === true;
       }
+      // Sync stat popups
+      syncStatPopups();
+    }
+
+    function syncStatPopups(){
+      const tps = document.getElementById('timePopupSlider');
+      const tpv = document.getElementById('timePopupVal');
+      const rps = document.getElementById('roundPopupSlider');
+      const rpv = document.getElementById('roundPopupVal');
+      const pps = document.getElementById('presetPopupSelect');
+      if(tps){
+        tps.value = settings.timerSeconds ?? 10;
+        tpv.textContent = tps.value === '0' ? '∞' : tps.value;
+      }
+      if(rps){
+        rps.value = settings.roundTarget ?? 10;
+        rpv.textContent = rps.value === '0' ? '∞' : rps.value;
+      }
+      if(pps) pps.value = settings.presetId || 'P2';
     }
     applySettingsToUI();
 
@@ -3500,6 +3591,7 @@ startTimer();
         currentPreset = PRESETS[e.target.value] || PRESETS.P2;
         updateEarTrainingModeVisibility();
         updateStats();
+        syncStatPopups();
         if(running) nextQuestion();
       };
     }
@@ -3534,6 +3626,7 @@ startTimer();
       timerSetting.onchange = e => {
         settings.timerSeconds = parseInt(e.target.value, 10);
         saveSettings();
+        syncStatPopups();
       };
     }
 
@@ -3551,6 +3644,8 @@ startTimer();
         settings.roundTarget = parseInt(e.target.value, 10);
         roundTarget = settings.roundTarget || 10;
         saveSettings();
+        syncStatPopups();
+        updateStats();
       };
     }
 
@@ -3611,6 +3706,112 @@ startTimer();
         saveSettings();
       };
     }
+
+    // --- Clickable stat popups ---
+    const timePopup = document.getElementById('timePopup');
+    const roundPopup = document.getElementById('roundPopup');
+    const presetPopup = document.getElementById('presetPopup');
+    const allPopups = [timePopup, roundPopup, presetPopup];
+
+    function closeAllPopups(){
+      allPopups.forEach(p => p && p.classList.remove('active'));
+    }
+
+    function togglePopup(popup, e){
+      e.stopPropagation();
+      const wasActive = popup.classList.contains('active');
+      closeAllPopups();
+      if(!wasActive){
+        popup.classList.add('active');
+        hapticLight();
+      }
+    }
+
+    // Time stat click
+    document.getElementById('statTimeBox').onclick = e => {
+      if(e.target.closest('.statPopup')) return;
+      togglePopup(timePopup, e);
+    };
+
+    // Round stat click
+    document.getElementById('statRoundBox').onclick = e => {
+      if(e.target.closest('.statPopup')) return;
+      togglePopup(roundPopup, e);
+    };
+
+    // Preset stat click
+    document.getElementById('statPresetBox').onclick = e => {
+      if(e.target.closest('.statPopup')) return;
+      togglePopup(presetPopup, e);
+    };
+
+    // Close popups when clicking outside
+    document.addEventListener('click', e => {
+      if(!e.target.closest('.statPopup') && !e.target.closest('.stat.clickable')){
+        closeAllPopups();
+      }
+    });
+
+    // Time popup slider
+    const timePopupSlider = document.getElementById('timePopupSlider');
+    const timePopupVal = document.getElementById('timePopupVal');
+    timePopupSlider.value = settings.timerSeconds ?? 10;
+    timePopupVal.textContent = timePopupSlider.value === '0' ? '∞' : timePopupSlider.value;
+
+    timePopupSlider.oninput = e => {
+      timePopupVal.textContent = e.target.value === '0' ? '∞' : e.target.value;
+    };
+    timePopupSlider.onchange = e => {
+      const val = parseInt(e.target.value, 10);
+      settings.timerSeconds = val;
+      saveSettings();
+      // Sync with main settings slider
+      if(timerSetting){
+        timerSetting.value = val;
+        timerVal.textContent = val === 0 ? '∞' : val;
+      }
+      hapticLight();
+    };
+
+    // Round popup slider
+    const roundPopupSlider = document.getElementById('roundPopupSlider');
+    const roundPopupVal = document.getElementById('roundPopupVal');
+    roundPopupSlider.value = settings.roundTarget ?? 10;
+    roundPopupVal.textContent = roundPopupSlider.value === '0' ? '∞' : roundPopupSlider.value;
+
+    roundPopupSlider.oninput = e => {
+      roundPopupVal.textContent = e.target.value === '0' ? '∞' : e.target.value;
+    };
+    roundPopupSlider.onchange = e => {
+      const val = parseInt(e.target.value, 10);
+      settings.roundTarget = val;
+      roundTarget = val || 10;
+      saveSettings();
+      updateStats();
+      // Sync with main settings slider
+      if(roundSetting){
+        roundSetting.value = val;
+        roundVal.textContent = val === 0 ? '∞' : val;
+      }
+      hapticLight();
+    };
+
+    // Preset popup select
+    const presetPopupSelect = document.getElementById('presetPopupSelect');
+    presetPopupSelect.value = settings.presetId || 'P2';
+
+    presetPopupSelect.onchange = e => {
+      settings.presetId = e.target.value;
+      saveSettings();
+      currentPreset = PRESETS[e.target.value] || PRESETS.P2;
+      updateEarTrainingModeVisibility();
+      updateStats();
+      // Sync with main settings select
+      if(presetSelect) presetSelect.value = e.target.value;
+      if(running) nextQuestion();
+      hapticLight();
+      closeAllPopups();
+    };
 
 // Round overlay buttons
     document.getElementById('nextRoundBtn').onclick = () => {

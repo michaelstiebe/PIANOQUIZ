@@ -130,7 +130,7 @@
     .statPopup.active{display:block}
     .statPopup label{display:block;font-size:12px;font-weight:700;margin-bottom:8px;text-align:left}
     .statPopup input[type="range"]{width:100%;margin:4px 0}
-    .statPopup select{width:100%;font-size:14px;padding:8px}
+    .statPopup select{width:100%;font-size:14px;padding:8px;-webkit-appearance:menulist;appearance:menulist;cursor:pointer;touch-action:manipulation;position:relative;z-index:10}
     .statPopup .popupVal{font-size:14px;font-weight:900;text-align:center;margin-top:4px}
     body.dark .statPopup{background:var(--card)}
     /* Keep edge popups in viewport */
@@ -3985,10 +3985,8 @@ startTimer();
     const presetPopupSelect = document.getElementById('presetPopupSelect');
     presetPopupSelect.value = settings.presetId || 'P2';
 
-    // Prevent dropdown clicks from closing popup
-    presetPopupSelect.onclick = e => e.stopPropagation();
-    presetPopupSelect.onmousedown = e => e.stopPropagation();
-    presetPopupSelect.ontouchstart = e => e.stopPropagation();
+    // Note: removed stopPropagation handlers that were blocking native select on Android
+    // The document click handler and statPresetBox handler already check for .statPopup containment
 
     presetPopupSelect.onchange = e => {
       settings.presetId = e.target.value;

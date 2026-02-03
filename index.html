@@ -481,6 +481,9 @@
           <label>Time per question (sec)</label>
           <input type="range" id="timePopupSlider" min="0" max="60" value="10">
           <div class="popupVal" id="timePopupVal">10</div>
+          <label style="margin-top:12px">Reveal time (sec)</label>
+          <input type="range" id="revealPopupSlider" min="1" max="45" value="7">
+          <div class="popupVal" id="revealPopupVal">7</div>
         </div>
       </div>
       <div class="stat clickable" id="statRoundBox">
@@ -3708,12 +3711,18 @@ startTimer();
     function syncStatPopups(){
       const tps = document.getElementById('timePopupSlider');
       const tpv = document.getElementById('timePopupVal');
+      const revps = document.getElementById('revealPopupSlider');
+      const revpv = document.getElementById('revealPopupVal');
       const rps = document.getElementById('roundPopupSlider');
       const rpv = document.getElementById('roundPopupVal');
       const pps = document.getElementById('presetPopupSelect');
       if(tps){
         tps.value = settings.timerSeconds ?? 10;
         tpv.textContent = tps.value === '0' ? '∞' : tps.value;
+      }
+      if(revps){
+        revps.value = settings.revealSeconds ?? 7;
+        revpv.textContent = revps.value;
       }
       if(rps){
         rps.value = settings.roundTarget ?? 10;
@@ -3773,8 +3782,14 @@ startTimer();
     if(revealSetting){
       revealSetting.oninput = e => { revealVal.textContent = e.target.value; };
       revealSetting.onchange = e => {
-        settings.revealSeconds = parseInt(e.target.value, 10);
+        const val = parseInt(e.target.value, 10);
+        settings.revealSeconds = val;
         saveSettings();
+        // Sync with popup slider
+        const rps = document.getElementById('revealPopupSlider');
+        const rpv = document.getElementById('revealPopupVal');
+        if(rps){ rps.value = val; }
+        if(rpv){ rpv.textContent = val; }
       };
     }
 
@@ -3922,6 +3937,27 @@ startTimer();
       hapticLight();
     };
 
+    // Reveal time popup slider
+    const revealPopupSlider = document.getElementById('revealPopupSlider');
+    const revealPopupVal = document.getElementById('revealPopupVal');
+    revealPopupSlider.value = settings.revealSeconds ?? 7;
+    revealPopupVal.textContent = revealPopupSlider.value;
+
+    revealPopupSlider.oninput = e => {
+      revealPopupVal.textContent = e.target.value;
+    };
+    revealPopupSlider.onchange = e => {
+      const val = parseInt(e.target.value, 10);
+      settings.revealSeconds = val;
+      saveSettings();
+      // Sync with main settings slider
+      if(revealSetting){
+        revealSetting.value = val;
+        revealVal.textContent = val;
+      }
+      hapticLight();
+    };
+
     // Round popup slider
     const roundPopupSlider = document.getElementById('roundPopupSlider');
     const roundPopupVal = document.getElementById('roundPopupVal');
@@ -3948,6 +3984,11 @@ startTimer();
     // Preset popup select
     const presetPopupSelect = document.getElementById('presetPopupSelect');
     presetPopupSelect.value = settings.presetId || 'P2';
+
+    // Prevent dropdown clicks from closing popup
+    presetPopupSelect.onclick = e => e.stopPropagation();
+    presetPopupSelect.onmousedown = e => e.stopPropagation();
+    presetPopupSelect.ontouchstart = e => e.stopPropagation();
 
     presetPopupSelect.onchange = e => {
       settings.presetId = e.target.value;

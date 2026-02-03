@@ -3877,12 +3877,17 @@ startTimer();
     const presetPopup = document.getElementById('presetPopup');
     const allPopups = [timePopup, roundPopup, presetPopup];
 
+    // Global flag to prevent popup closure during select interaction (Android fix)
+    let blockPopupClose = false;
+
     function closeAllPopups(){
+      if(blockPopupClose) return; // Don't close if interacting with select
       allPopups.forEach(p => p && p.classList.remove('active'));
     }
 
     function togglePopup(popup, e){
       e.stopPropagation();
+      if(blockPopupClose) return; // Don't toggle if interacting with select
       const wasActive = popup.classList.contains('active');
       closeAllPopups();
       if(!wasActive){
@@ -3905,9 +3910,24 @@ startTimer();
 
     // Preset stat click
     const statPresetBox = document.getElementById('statPresetBox');
+    // Track if we're touching the select to prevent popup toggle
+    let touchingPresetSelect = false;
+
+    statPresetBox.addEventListener('touchstart', e => {
+      // Check if touch is on the select element
+      if(e.target.tagName === 'SELECT' || e.target.tagName === 'OPTION' || e.target.closest('select')) {
+        touchingPresetSelect = true;
+      } else {
+        touchingPresetSelect = false;
+      }
+    }, {passive: true});
+
     statPresetBox.onclick = e => {
       // Ignore clicks on the select element or inside the popup
-      if(e.target.tagName === 'SELECT' || e.target.tagName === 'OPTION' || e.target.closest('.statPopup')) return;
+      if(touchingPresetSelect || e.target.tagName === 'SELECT' || e.target.tagName === 'OPTION' || e.target.closest('.statPopup')) {
+        touchingPresetSelect = false;
+        return;
+      }
       togglePopup(presetPopup, e);
     };
 
@@ -3987,12 +4007,33 @@ startTimer();
     const presetPopupSelect = document.getElementById('presetPopupSelect');
     presetPopupSelect.value = settings.presetId || 'P2';
 
-    // Android: ensure select gets proper focus on tap to trigger native picker
-    presetPopupSelect.addEventListener('touchstart', function(e) {
-      // Don't stop propagation - let default behavior happen
-      // Just ensure focus is set
-      setTimeout(() => this.focus(), 0);
-    }, {passive: true});
+    // Android: robust touch/pointer handling for native select picker
+    // Block popup closure when interacting with the select
+    ['pointerdown', 'touchstart', 'mousedown'].forEach(eventType => {
+      presetPopupSelect.addEventListener(eventType, function(e) {
+        blockPopupClose = true; // Prevent popup from closing
+        e.stopPropagation();
+      }, eventType === 'touchstart' ? {passive: true} : false);
+    });
+
+    ['pointerup', 'touchend', 'mouseup', 'click'].forEach(eventType => {
+      presetPopupSelect.addEventListener(eventType, function(e) {
+        e.stopPropagation();
+        // Keep blocking for a short while to let native picker open
+        setTimeout(() => { blockPopupClose = false; }, 300);
+      }, eventType === 'touchend' ? {passive: true} : false);
+    });
+
+    // For focus events, ensure the select stays focused and block closure
+    presetPopupSelect.addEventListener('focus', function(e) {
+      blockPopupClose = true;
+      e.stopPropagation();
+    });
+
+    // Release block when select loses focus (picker closed)
+    presetPopupSelect.addEventListener('blur', function() {
+      setTimeout(() => { blockPopupClose = false; }, 100);
+    });
 
     // Handle preset change (using both change and input for Android compatibility)
     function handlePresetChange(e) {
@@ -4007,6 +4048,7 @@ startTimer();
       if(presetSelect) presetSelect.value = newValue;
       if(running) nextQuestion();
       hapticLight();
+      blockPopupClose = false;
       closeAllPopups();
     }
     presetPopupSelect.onchange = handlePresetChange;

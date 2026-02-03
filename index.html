@@ -132,6 +132,42 @@
     .statPopup input[type="range"]{width:100%;margin:4px 0}
     .statPopup select{width:100%;font-size:14px;padding:8px;-webkit-appearance:menulist;appearance:menulist;cursor:pointer;touch-action:manipulation;position:relative;z-index:10;pointer-events:auto}
     .statPopup .popupVal{font-size:14px;font-weight:900;text-align:center;margin-top:4px}
+
+    /* Custom Preset Picker (replaces unreliable native select on mobile) */
+    .presetPicker{
+      display:flex;flex-direction:column;gap:4px;
+      max-height:50vh;overflow-y:auto;overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      margin:-4px;padding:4px;
+    }
+    .presetPicker .presetBtn{
+      display:block;width:100%;
+      padding:10px 12px;
+      font-size:13px;font-weight:500;
+      text-align:left;
+      background:var(--bg);
+      border:2px solid var(--border);
+      border-radius:8px;
+      cursor:pointer;
+      touch-action:manipulation;
+      -webkit-tap-highlight-color:transparent;
+      transition:background .1s,border-color .1s,transform .1s;
+    }
+    .presetPicker .presetBtn:active{transform:scale(.98)}
+    .presetPicker .presetBtn.selected{
+      background:var(--primary);
+      border-color:var(--primary);
+      color:#fff;
+      font-weight:700;
+    }
+    .presetPicker .presetBtn:not(.selected):hover{background:var(--btn)}
+    .presetPicker .presetGroup{
+      font-size:10px;font-weight:700;
+      text-transform:uppercase;letter-spacing:.5px;
+      color:var(--muted);opacity:.7;
+      margin:8px 0 4px;padding-left:2px;
+    }
+    .presetPicker .presetGroup:first-child{margin-top:0}
     body.dark .statPopup{background:var(--card)}
     /* Keep edge popups in viewport */
     #timePopup{left:0;transform:none}
@@ -500,32 +536,37 @@
       <div class="stat clickable" id="statPresetBox">
         <div class="k">Preset</div><div class="v" id="statPreset">P1</div>
         <div class="statPopup" id="presetPopup">
-          <label>Difficulty Preset</label>
-          <select id="presetPopupSelect">
-            <option value="P1">P1 — Notes (Treble)</option>
-            <option value="P2">P2 — Notes (Both)</option>
-            <option value="P3">P3 — + Sharps</option>
-            <option value="P4">P4 — + Flats</option>
-            <option value="P5">P5 — All accidentals</option>
-            <option value="P6">P6 — Triads</option>
-            <option value="P7">P7 — + Altered</option>
-            <option value="P8">P8 — + Sevenths</option>
-            <option value="P9">P9 — + Dim 7ths</option>
-            <option value="P10">P10 — + 6/sus/add</option>
-            <option value="P11">P11 — + 9ths</option>
-            <option value="P12">P12 — Altered dom</option>
-            <option value="P13">P13 — Extended</option>
-            <option value="P14">P14 — All chords</option>
-            <option value="P15">P15 — Mixed</option>
-            <option value="P16">P16 — Ear: Intervals</option>
-            <option value="P17">P17 — Ear: All Int.</option>
-            <option value="P18">P18 — Ear: Triads</option>
-            <option value="P19">P19 — Ear: Sevenths</option>
-            <option value="P20">P20 — Ear: All</option>
-            <option value="P21">P21 — Rhythm: Basic</option>
-            <option value="P22">P22 — Rhythm: Dotted</option>
-            <option value="P23">P23 — Rhythm: Rests</option>
-          </select>
+          <label>Select Preset</label>
+          <div class="presetPicker" id="presetPicker">
+            <div class="presetGroup">Notes</div>
+            <button type="button" class="presetBtn" data-preset="P1">P1 — Treble clef only</button>
+            <button type="button" class="presetBtn" data-preset="P2">P2 — Both clefs</button>
+            <button type="button" class="presetBtn" data-preset="P3">P3 — + Sharps</button>
+            <button type="button" class="presetBtn" data-preset="P4">P4 — + Flats</button>
+            <button type="button" class="presetBtn" data-preset="P5">P5 — All accidentals</button>
+            <div class="presetGroup">Chords</div>
+            <button type="button" class="presetBtn" data-preset="P6">P6 — Triads</button>
+            <button type="button" class="presetBtn" data-preset="P7">P7 — + Altered triads</button>
+            <button type="button" class="presetBtn" data-preset="P8">P8 — + Sevenths</button>
+            <button type="button" class="presetBtn" data-preset="P9">P9 — + Dim 7ths</button>
+            <button type="button" class="presetBtn" data-preset="P10">P10 — + 6/sus/add</button>
+            <button type="button" class="presetBtn" data-preset="P11">P11 — + 9ths</button>
+            <button type="button" class="presetBtn" data-preset="P12">P12 — Altered dom</button>
+            <button type="button" class="presetBtn" data-preset="P13">P13 — Extended 11/13</button>
+            <button type="button" class="presetBtn" data-preset="P14">P14 — All chords</button>
+            <div class="presetGroup">Mixed</div>
+            <button type="button" class="presetBtn" data-preset="P15">P15 — Notes + Chords</button>
+            <div class="presetGroup">Ear Training</div>
+            <button type="button" class="presetBtn" data-preset="P16">P16 — Simple Intervals</button>
+            <button type="button" class="presetBtn" data-preset="P17">P17 — All Intervals</button>
+            <button type="button" class="presetBtn" data-preset="P18">P18 — Triads</button>
+            <button type="button" class="presetBtn" data-preset="P19">P19 — Sevenths</button>
+            <button type="button" class="presetBtn" data-preset="P20">P20 — All Chords</button>
+            <div class="presetGroup">Rhythm</div>
+            <button type="button" class="presetBtn" data-preset="P21">P21 — Basic Values</button>
+            <button type="button" class="presetBtn" data-preset="P22">P22 — + Dotted Notes</button>
+            <button type="button" class="presetBtn" data-preset="P23">P23 — + Rests</button>
+          </div>
         </div>
       </div>
     </div>
@@ -3715,7 +3756,6 @@ startTimer();
       const revpv = document.getElementById('revealPopupVal');
       const rps = document.getElementById('roundPopupSlider');
       const rpv = document.getElementById('roundPopupVal');
-      const pps = document.getElementById('presetPopupSelect');
       if(tps){
         tps.value = settings.timerSeconds ?? 10;
         tpv.textContent = tps.value === '0' ? '∞' : tps.value;
@@ -3728,7 +3768,7 @@ startTimer();
         rps.value = settings.roundTarget ?? 10;
         rpv.textContent = rps.value === '0' ? '∞' : rps.value;
       }
-      if(pps) pps.value = settings.presetId || 'P2';
+      // Preset picker selection is synced via updatePresetPickerSelection() when popup opens
     }
     applySettingsToUI();
 
@@ -3910,25 +3950,16 @@ startTimer();
 
     // Preset stat click
     const statPresetBox = document.getElementById('statPresetBox');
-    // Track if we're touching the select to prevent popup toggle
-    let touchingPresetSelect = false;
-
-    statPresetBox.addEventListener('touchstart', e => {
-      // Check if touch is on the select element
-      if(e.target.tagName === 'SELECT' || e.target.tagName === 'OPTION' || e.target.closest('select')) {
-        touchingPresetSelect = true;
-      } else {
-        touchingPresetSelect = false;
-      }
-    }, {passive: true});
 
     statPresetBox.onclick = e => {
-      // Ignore clicks on the select element or inside the popup
-      if(touchingPresetSelect || e.target.tagName === 'SELECT' || e.target.tagName === 'OPTION' || e.target.closest('.statPopup')) {
-        touchingPresetSelect = false;
-        return;
-      }
+      // Ignore clicks inside the popup (buttons handle themselves)
+      if(e.target.closest('.statPopup')) return;
       togglePopup(presetPopup, e);
+      // Scroll selected preset into view after popup opens
+      setTimeout(() => {
+        const selectedBtn = presetPopup.querySelector('.presetBtn.selected');
+        if(selectedBtn) selectedBtn.scrollIntoView({block: 'center', behavior: 'instant'});
+      }, 10);
     };
 
     // Close popups when clicking outside
@@ -4003,56 +4034,48 @@ startTimer();
       hapticLight();
     };
 
-    // Preset popup select
-    const presetPopupSelect = document.getElementById('presetPopupSelect');
-    presetPopupSelect.value = settings.presetId || 'P2';
+    // Preset popup button picker (replaces unreliable native select on mobile)
+    const presetPicker = document.getElementById('presetPicker');
+    const presetBtns = presetPicker.querySelectorAll('.presetBtn');
 
-    // Android: robust touch/pointer handling for native select picker
-    // Block popup closure when interacting with the select
-    ['pointerdown', 'touchstart', 'mousedown'].forEach(eventType => {
-      presetPopupSelect.addEventListener(eventType, function(e) {
-        blockPopupClose = true; // Prevent popup from closing
-        e.stopPropagation();
-      }, eventType === 'touchstart' ? {passive: true} : false);
-    });
+    // Update selected state based on current preset
+    function updatePresetPickerSelection() {
+      const currentId = settings.presetId || 'P2';
+      presetBtns.forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.preset === currentId);
+      });
+    }
+    updatePresetPickerSelection();
 
-    ['pointerup', 'touchend', 'mouseup', 'click'].forEach(eventType => {
-      presetPopupSelect.addEventListener(eventType, function(e) {
-        e.stopPropagation();
-        // Keep blocking for a short while to let native picker open
-        setTimeout(() => { blockPopupClose = false; }, 300);
-      }, eventType === 'touchend' ? {passive: true} : false);
-    });
+    // Handle preset button clicks
+    presetPicker.addEventListener('click', function(e) {
+      const btn = e.target.closest('.presetBtn');
+      if(!btn) return;
 
-    // For focus events, ensure the select stays focused and block closure
-    presetPopupSelect.addEventListener('focus', function(e) {
-      blockPopupClose = true;
       e.stopPropagation();
-    });
+      const newValue = btn.dataset.preset;
+      if(settings.presetId === newValue) {
+        // Same preset selected, just close popup
+        closeAllPopups();
+        return;
+      }
 
-    // Release block when select loses focus (picker closed)
-    presetPopupSelect.addEventListener('blur', function() {
-      setTimeout(() => { blockPopupClose = false; }, 100);
-    });
-
-    // Handle preset change (using both change and input for Android compatibility)
-    function handlePresetChange(e) {
-      const newValue = e.target.value;
-      if(settings.presetId === newValue) return; // Avoid duplicate calls
       settings.presetId = newValue;
       saveSettings();
       currentPreset = PRESETS[newValue] || PRESETS.P2;
       updateEarTrainingModeVisibility();
       updateStats();
+      updatePresetPickerSelection();
       // Sync with main settings select
       if(presetSelect) presetSelect.value = newValue;
       if(running) nextQuestion();
-      hapticLight();
-      blockPopupClose = false;
+      hapticMedium();
       closeAllPopups();
-    }
-    presetPopupSelect.onchange = handlePresetChange;
-    presetPopupSelect.addEventListener('input', handlePresetChange);
+    });
+
+    // Prevent popup from closing when interacting with picker
+    presetPicker.addEventListener('touchstart', e => e.stopPropagation(), {passive: true});
+    presetPicker.addEventListener('touchmove', e => e.stopPropagation(), {passive: true});
 
 // Round overlay buttons
     document.getElementById('nextRoundBtn').onclick = () => {

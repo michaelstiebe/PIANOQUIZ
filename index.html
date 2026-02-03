@@ -107,7 +107,7 @@
     .stat .v{font-size:14px;font-weight:900;margin-top:2px}
 
     /* Clickable stats */
-    .stat.clickable{cursor:pointer;position:relative;transition:background .15s}
+    .stat.clickable{cursor:pointer;position:relative;transition:background .15s;touch-action:manipulation}
     .stat.clickable:hover{background:var(--btn)}
     .stat.clickable:active{transform:scale(.97)}
     .stat.clickable .v{text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px}
@@ -130,7 +130,7 @@
     .statPopup.active{display:block}
     .statPopup label{display:block;font-size:12px;font-weight:700;margin-bottom:8px;text-align:left}
     .statPopup input[type="range"]{width:100%;margin:4px 0}
-    .statPopup select{width:100%;font-size:14px;padding:8px;-webkit-appearance:menulist;appearance:menulist;cursor:pointer;touch-action:manipulation;position:relative;z-index:10}
+    .statPopup select{width:100%;font-size:14px;padding:8px;-webkit-appearance:menulist;appearance:menulist;cursor:pointer;touch-action:manipulation;position:relative;z-index:10;pointer-events:auto}
     .statPopup .popupVal{font-size:14px;font-weight:900;text-align:center;margin-top:4px}
     body.dark .statPopup{background:var(--card)}
     /* Keep edge popups in viewport */
@@ -3904,8 +3904,10 @@ startTimer();
     };
 
     // Preset stat click
-    document.getElementById('statPresetBox').onclick = e => {
-      if(e.target.closest('.statPopup')) return;
+    const statPresetBox = document.getElementById('statPresetBox');
+    statPresetBox.onclick = e => {
+      // Ignore clicks on the select element or inside the popup
+      if(e.target.tagName === 'SELECT' || e.target.tagName === 'OPTION' || e.target.closest('.statPopup')) return;
       togglePopup(presetPopup, e);
     };
 
@@ -3985,21 +3987,30 @@ startTimer();
     const presetPopupSelect = document.getElementById('presetPopupSelect');
     presetPopupSelect.value = settings.presetId || 'P2';
 
-    // Note: removed stopPropagation handlers that were blocking native select on Android
-    // The document click handler and statPresetBox handler already check for .statPopup containment
+    // Android: ensure select gets proper focus on tap to trigger native picker
+    presetPopupSelect.addEventListener('touchstart', function(e) {
+      // Don't stop propagation - let default behavior happen
+      // Just ensure focus is set
+      setTimeout(() => this.focus(), 0);
+    }, {passive: true});
 
-    presetPopupSelect.onchange = e => {
-      settings.presetId = e.target.value;
+    // Handle preset change (using both change and input for Android compatibility)
+    function handlePresetChange(e) {
+      const newValue = e.target.value;
+      if(settings.presetId === newValue) return; // Avoid duplicate calls
+      settings.presetId = newValue;
       saveSettings();
-      currentPreset = PRESETS[e.target.value] || PRESETS.P2;
+      currentPreset = PRESETS[newValue] || PRESETS.P2;
       updateEarTrainingModeVisibility();
       updateStats();
       // Sync with main settings select
-      if(presetSelect) presetSelect.value = e.target.value;
+      if(presetSelect) presetSelect.value = newValue;
       if(running) nextQuestion();
       hapticLight();
       closeAllPopups();
-    };
+    }
+    presetPopupSelect.onchange = handlePresetChange;
+    presetPopupSelect.addEventListener('input', handlePresetChange);
 
 // Round overlay buttons
     document.getElementById('nextRoundBtn').onclick = () => {

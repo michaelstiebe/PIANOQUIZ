@@ -429,6 +429,24 @@
     .kb-white:active:not(.sel):not(.sol):not(.correct):not(.wrong){ background:rgba(200,200,200,.5); }
     .kb-black:active:not(.sel):not(.sol):not(.correct):not(.wrong){ background:#333; }
 
+    /* Keyboard Quiz mode */
+    .kb-quiz-prompt{
+      text-align:center;
+      font-weight:700;
+      font-size:14px;
+      color:var(--text);
+      opacity:.7;
+      padding:10px 0 4px;
+    }
+    .keyboard.kb-quiz-active{
+      border-color:var(--primary);
+      box-shadow:0 0 0 2px rgba(59,108,255,.3);
+    }
+    [data-theme="dark"] .keyboard.kb-quiz-active{
+      border-color:var(--primary);
+      box-shadow:0 0 0 2px rgba(107,159,255,.3);
+    }
+
     /* Theory Tabs */
     .theoryTab{
       padding:8px 12px;
@@ -574,6 +592,12 @@
             <button type="button" class="presetBtn" data-preset="P23">P23 — + Rests</button>
             <button type="button" class="presetBtn" data-preset="P24">P24 — + Syncopation</button>
             <button type="button" class="presetBtn" data-preset="P25">P25 — Time Signatures</button>
+            <div class="presetGroup">Keyboard Quiz</div>
+            <button type="button" class="presetBtn" data-preset="P26">P26 — Treble (Naturals)</button>
+            <button type="button" class="presetBtn" data-preset="P27">P27 — Both Clefs</button>
+            <button type="button" class="presetBtn" data-preset="P28">P28 — + Sharps</button>
+            <button type="button" class="presetBtn" data-preset="P29">P29 — + Flats</button>
+            <button type="button" class="presetBtn" data-preset="P30">P30 — All Accidentals</button>
           </div>
         </div>
       </div>
@@ -659,6 +683,11 @@
           <option value="P23">P23 — Rhythm: + Rests</option>
           <option value="P24">P24 — Rhythm: + Syncopation</option>
           <option value="P25">P25 — Rhythm: Time Signatures</option>
+          <option value="P26">P26 — Keyboard: Treble (Naturals)</option>
+          <option value="P27">P27 — Keyboard: Both Clefs (Naturals)</option>
+          <option value="P28">P28 — Keyboard: + Sharps</option>
+          <option value="P29">P29 — Keyboard: + Flats</option>
+          <option value="P30">P30 — Keyboard: All Accidentals</option>
         </select>
         <div class="hint">Presets control clefs, accidentals, and chord complexity.</div>
       </div>
@@ -1517,7 +1546,14 @@
       P22:{id:'P22',name:'Level 22 — Rhythm: + Dotted Notes',mode:'rhythm',rhythmLevel:2},
       P23:{id:'P23',name:'Level 23 — Rhythm: + Rests',mode:'rhythm',rhythmLevel:3},
       P24:{id:'P24',name:'Level 24 — Rhythm: + Syncopation',mode:'rhythm',rhythmLevel:4},
-      P25:{id:'P25',name:'Level 25 — Rhythm: Time Signatures',mode:'timeSig'}
+      P25:{id:'P25',name:'Level 25 — Rhythm: Time Signatures',mode:'timeSig'},
+
+      // Keyboard Quiz (press the correct key on the virtual keyboard)
+      P26:{id:'P26',name:'Level 26 — Keyboard: Treble (Naturals)',clefs:['treble'],accs:[],mode:'keyboardQuiz'},
+      P27:{id:'P27',name:'Level 27 — Keyboard: Both Clefs (Naturals)',clefs:['treble','bass'],accs:[],mode:'keyboardQuiz'},
+      P28:{id:'P28',name:'Level 28 — Keyboard: + Sharps',clefs:['treble','bass'],accs:['#'],mode:'keyboardQuiz'},
+      P29:{id:'P29',name:'Level 29 — Keyboard: + Flats',clefs:['treble','bass'],accs:['b'],mode:'keyboardQuiz'},
+      P30:{id:'P30',name:'Level 30 — Keyboard: All Accidentals',clefs:['treble','bass'],accs:['#','b'],mode:'keyboardQuiz'}
     };
 
     // Interval names for ear training
@@ -1874,12 +1910,96 @@ let inputLocked = false;
         const midi = parseInt(key.dataset.midi, 10);
         if(isNaN(midi)) return;
 
-        // Use pointerdown for faster response
-        key.addEventListener('pointerdown', (e) => {
+        let lastKbFire = 0;
+        const kbHandler = (e) => {
           e.preventDefault();
+          const now = Date.now();
+          if(now - lastKbFire < 300) return;
+          lastKbFire = now;
+
+          // In keyboard quiz mode, pressing a key submits an answer
+          if(running && currentQuestion && currentQuestion.type === 'keyboardQuiz' && !inputLocked && answeredToken !== questionToken){
+            hapticLight();
+            handleKeyboardQuizAnswer(midi, key);
+            return;
+          }
+
           playKeyByMidi(midi, key);
-        }, { passive: false });
+        };
+        // Use pointerdown for faster response
+        key.addEventListener('pointerdown', kbHandler, { passive: false });
       });
+    }
+
+    function handleKeyboardQuizAnswer(pressedMidi, keyElement){
+      if(!running) return;
+      if(answeredToken === questionToken) return;
+      answeredToken = questionToken;
+
+      inputLocked = true;
+      stopTimer();
+
+      // Play the pressed key so user gets audio feedback
+      playKeyByMidi(pressedMidi, null);
+
+      try{
+        const correctMidi = currentQuestion.data.correctMidi;
+        // Compare by semitone class (ignore octave): the keyboard shows 2 octaves,
+        // and the same note name in a different octave should count as correct
+        const pressedSemi = pressedMidi % 12;
+        const correctSemi = correctMidi % 12;
+        const isCorrect = (pressedSemi === correctSemi);
+
+        clearKeyboardHighlights();
+
+        if(isCorrect){
+          stats.correct++;
+          stats.streak++;
+          if(stats.streak > 0 && stats.streak % 5 === 0){
+            hapticStreak();
+          } else {
+            hapticSuccess();
+          }
+          keyElement.classList.add('correct');
+          setFeedback('✓ Correct! ' + currentQuestion.correctAnswer, true);
+        } else {
+          stats.wrong++;
+          stats.streak = 0;
+          hapticError();
+          keyElement.classList.add('wrong');
+          // Highlight the correct key(s) on the keyboard
+          keyboardEl.querySelectorAll('.kb-white, .kb-black').forEach(k => {
+            const m = parseInt(k.dataset.midi, 10);
+            if(m % 12 === correctSemi) k.classList.add('correct');
+          });
+          setFeedback('✗ ' + currentQuestion.correctAnswer, false);
+        }
+
+        showIcon(isCorrect);
+
+        // Long-run totals (persist across sessions)
+        if(isCorrect) totals.totalCorrect++; else totals.totalWrong++;
+        totals.bestStreakEver = Math.max(totals.bestStreakEver, stats.streak);
+        saveTotals();
+
+        const roundComplete = stepRound(isCorrect);
+        updateStats();
+
+        setTimeout(() => {
+          inputLocked = false;
+          if(roundComplete){
+            hapticRoundComplete();
+            showRoundOverlay();
+          } else if(running){
+            nextQuestion();
+          }
+        }, getTransitionDelayMs());
+
+      } catch(err){
+        console.error(err);
+        try{ toast('⚠️ ' + (err && err.message ? err.message : 'error')); }catch(e){}
+        inputLocked = false;
+      }
     }
 
     // ==================== VEXFLOW ====================
@@ -2152,6 +2272,7 @@ let inputLocked = false;
       if(preset.mode === 'earChord') return generateEarChordQuestion();
       if(preset.mode === 'rhythm') return generateRhythmQuestion();
       if(preset.mode === 'timeSig') return generateTimeSigQuestion();
+      if(preset.mode === 'keyboardQuiz') return generateKeyboardQuestion();
 
       let isChord = preset.mode === 'chord' || (preset.mode === 'both' && Math.random() > 0.5);
       const clef = preset.clefs[Math.floor(Math.random() * preset.clefs.length)];
@@ -2206,6 +2327,31 @@ let inputLocked = false;
         else break;
       }
       return wrong;
+    }
+
+    // ==================== KEYBOARD QUIZ ====================
+    function generateKeyboardQuestion(){
+      const preset = currentPreset;
+      const notes = getNotesForPreset(preset);
+      const clef = preset.clefs[Math.floor(Math.random() * preset.clefs.length)];
+      const range = getClefRange(clef);
+      const note = notes[Math.floor(Math.random() * notes.length)];
+      const octave = range.min + Math.floor(Math.random() * (range.max - range.min + 1));
+
+      // Compute the correct MIDI number for this note+octave
+      const tone = noteToTone(note, octave);
+      const midi = toneToMidiSafe(tone);
+
+      // correctAnswer stores the display name (for feedback), correctMidi stores the MIDI
+      // allAnswers is empty since we use keyboard input instead of buttons
+      return {
+        type: 'keyboardQuiz',
+        clef,
+        data: { note, octave, correctMidi: midi },
+        correctAnswer: note.display,
+        wrongAnswers: [],
+        allAnswers: []
+      };
     }
 
     // ==================== EAR TRAINING ====================
@@ -2868,6 +3014,20 @@ function showKeyboardSolution(){
       answerButtons.style.pointerEvents = 'auto';
       if(!currentQuestion) return;
 
+      // Keyboard quiz mode: show prompt instead of answer buttons
+      if(currentQuestion.type === 'keyboardQuiz'){
+        const prompt = document.createElement('div');
+        prompt.className = 'kb-quiz-prompt';
+        prompt.textContent = 'Press the correct key on the keyboard';
+        answerButtons.appendChild(prompt);
+        // Add visual cue to keyboard
+        keyboardEl?.classList.add('kb-quiz-active');
+        return;
+      }
+
+      // Remove keyboard quiz active state for non-keyboard modes
+      keyboardEl?.classList.remove('kb-quiz-active');
+
       currentQuestion.allAnswers.forEach(ans => {
         const btn = document.createElement('button');
         btn.className = 'big';
@@ -2992,6 +3152,8 @@ questionToken++;
           _midis = getQuestionMidis();
         } else if(currentQuestion?.type === 'rhythm' || currentQuestion?.type === 'timeSig'){
           _midis = []; // No pitch for rhythm/timeSig questions
+        } else if(currentQuestion?.type === 'keyboardQuiz'){
+          _midis = currentQuestion.data.correctMidi != null ? [currentQuestion.data.correctMidi] : [];
         } else if(currentQuestion?.type === 'chord'){
           _midis = chordMidisRootPosition(currentQuestion.correctAnswer);
         } else {
@@ -3035,6 +3197,7 @@ startTimer();
       hideRoundOverlay();
       document.getElementById('startBtn').textContent = 'Start';
       answerButtons.innerHTML = '';
+      keyboardEl?.classList.remove('kb-quiz-active');
       clearFeedback();
       // Draw placeholder
       drawStaff('treble', ['c/4'], [null]);

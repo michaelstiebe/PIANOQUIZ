@@ -591,13 +591,14 @@
             <button type="button" class="presetBtn" data-preset="P22">P22 — + Dotted Notes</button>
             <button type="button" class="presetBtn" data-preset="P23">P23 — + Rests</button>
             <button type="button" class="presetBtn" data-preset="P24">P24 — + Syncopation</button>
-            <button type="button" class="presetBtn" data-preset="P25">P25 — Time Signatures</button>
+            <button type="button" class="presetBtn" data-preset="P25">P25 — Beat Counting</button>
+            <button type="button" class="presetBtn" data-preset="P26">P26 — Time Signatures</button>
             <div class="presetGroup">Keyboard Quiz</div>
-            <button type="button" class="presetBtn" data-preset="P26">P26 — Treble (Naturals)</button>
-            <button type="button" class="presetBtn" data-preset="P27">P27 — Both Clefs</button>
-            <button type="button" class="presetBtn" data-preset="P28">P28 — + Sharps</button>
-            <button type="button" class="presetBtn" data-preset="P29">P29 — + Flats</button>
-            <button type="button" class="presetBtn" data-preset="P30">P30 — All Accidentals</button>
+            <button type="button" class="presetBtn" data-preset="P27">P27 — Treble (Naturals)</button>
+            <button type="button" class="presetBtn" data-preset="P28">P28 — Both Clefs</button>
+            <button type="button" class="presetBtn" data-preset="P29">P29 — + Sharps</button>
+            <button type="button" class="presetBtn" data-preset="P30">P30 — + Flats</button>
+            <button type="button" class="presetBtn" data-preset="P31">P31 — All Accidentals</button>
           </div>
         </div>
       </div>
@@ -682,12 +683,13 @@
           <option value="P22">P22 — Rhythm: + Dotted Notes</option>
           <option value="P23">P23 — Rhythm: + Rests</option>
           <option value="P24">P24 — Rhythm: + Syncopation</option>
-          <option value="P25">P25 — Rhythm: Time Signatures</option>
-          <option value="P26">P26 — Keyboard: Treble (Naturals)</option>
-          <option value="P27">P27 — Keyboard: Both Clefs (Naturals)</option>
-          <option value="P28">P28 — Keyboard: + Sharps</option>
-          <option value="P29">P29 — Keyboard: + Flats</option>
-          <option value="P30">P30 — Keyboard: All Accidentals</option>
+          <option value="P25">P25 — Rhythm: Beat Counting</option>
+          <option value="P26">P26 — Rhythm: Time Signatures</option>
+          <option value="P27">P27 — Keyboard: Treble (Naturals)</option>
+          <option value="P28">P28 — Keyboard: Both Clefs (Naturals)</option>
+          <option value="P29">P29 — Keyboard: + Sharps</option>
+          <option value="P30">P30 — Keyboard: + Flats</option>
+          <option value="P31">P31 — Keyboard: All Accidentals</option>
         </select>
         <div class="hint">Presets control clefs, accidentals, and chord complexity.</div>
       </div>
@@ -1100,64 +1102,201 @@
 
         <!-- Rhythm Basics -->
         <div id="tab-rhythm" class="theoryContent">
-          <h3 style="margin:0 0 10px 0;font-size:16px;">Rhythm Basics</h3>
+          <h3 style="margin:0 0 10px 0;font-size:16px;">Rhythm Fundamentals</h3>
           <p style="font-size:13px;line-height:1.5;margin:0 0 12px 0;">
-            <strong>Rhythm</strong> is the pattern of sounds and silences in music. Understanding note values and time signatures is essential for reading and playing music.
+            <strong>Rhythm</strong> is the heartbeat of music — the pattern of sounds and silences over time.
+            Every note and rest has a specific duration measured in <strong>beats</strong>.
           </p>
 
-          <!-- Note Values -->
+          <!-- Beat Subdivision Tree -->
           <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
-            <strong>Note Values</strong><br>
-            <p style="font-size:12px;margin:6px 0;opacity:0.9;">Each note type represents a different duration. In 4/4 time:</p>
-            <table style="width:100%;border-collapse:collapse;margin-top:8px;">
+            <strong>The Rhythm Tree</strong>
+            <p style="font-size:12px;margin:6px 0;opacity:0.9;">Each level divides the beat in half. A whole note = 2 half notes = 4 quarter notes, and so on:</p>
+            <div style="margin-top:10px;">
+              <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);">
+                <span style="font-size:18px;width:24px;text-align:center;">𝅝</span>
+                <div style="flex:1;height:14px;background:var(--primary);border-radius:4px;opacity:0.85;"></div>
+                <span style="font-size:11px;width:55px;text-align:right;opacity:0.8;">4 beats</span>
+                <button class="listen-btn rhythm-listen" data-rhythm="whole" style="width:26px;height:26px;font-size:11px;">▶</button>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);">
+                <span style="font-size:18px;width:24px;text-align:center;">𝅗𝅥</span>
+                <div style="flex:1;display:flex;gap:3px;">
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:4px;opacity:0.75;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:4px;opacity:0.75;"></div>
+                </div>
+                <span style="font-size:11px;width:55px;text-align:right;opacity:0.8;">2 beats</span>
+                <button class="listen-btn rhythm-listen" data-rhythm="half" style="width:26px;height:26px;font-size:11px;">▶</button>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);">
+                <span style="font-size:18px;width:24px;text-align:center;">𝅘𝅥</span>
+                <div style="flex:1;display:flex;gap:3px;">
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:4px;opacity:0.65;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:4px;opacity:0.65;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:4px;opacity:0.65;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:4px;opacity:0.65;"></div>
+                </div>
+                <span style="font-size:11px;width:55px;text-align:right;opacity:0.8;">1 beat</span>
+                <button class="listen-btn rhythm-listen" data-rhythm="quarter" style="width:26px;height:26px;font-size:11px;">▶</button>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);">
+                <span style="font-size:18px;width:24px;text-align:center;">𝅘𝅥𝅮</span>
+                <div style="flex:1;display:flex;gap:2px;">
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:3px;opacity:0.55;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:3px;opacity:0.55;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:3px;opacity:0.55;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:3px;opacity:0.55;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:3px;opacity:0.55;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:3px;opacity:0.55;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:3px;opacity:0.55;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:3px;opacity:0.55;"></div>
+                </div>
+                <span style="font-size:11px;width:55px;text-align:right;opacity:0.8;">½ beat</span>
+                <button class="listen-btn rhythm-listen" data-rhythm="eighth" style="width:26px;height:26px;font-size:11px;">▶</button>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;padding:5px 0;">
+                <span style="font-size:18px;width:24px;text-align:center;">𝅘𝅥𝅯</span>
+                <div style="flex:1;display:flex;gap:1px;">
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:2px;opacity:0.45;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:2px;opacity:0.45;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:2px;opacity:0.45;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:2px;opacity:0.45;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:2px;opacity:0.45;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:2px;opacity:0.45;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:2px;opacity:0.45;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:2px;opacity:0.45;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:2px;opacity:0.45;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:2px;opacity:0.45;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:2px;opacity:0.45;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:2px;opacity:0.45;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:2px;opacity:0.45;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:2px;opacity:0.45;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:2px;opacity:0.45;"></div>
+                  <div style="flex:1;height:14px;background:var(--primary);border-radius:2px;opacity:0.45;"></div>
+                </div>
+                <span style="font-size:11px;width:55px;text-align:right;opacity:0.8;">¼ beat</span>
+                <button class="listen-btn rhythm-listen" data-rhythm="sixteenth" style="width:26px;height:26px;font-size:11px;">▶</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- How to Count -->
+          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
+            <strong>How to Count Rhythms</strong>
+            <p style="font-size:12px;margin:6px 0 8px 0;opacity:0.9;">Use syllables to subdivide beats. Tap your foot on each number:</p>
+            <div style="font-family:monospace;font-size:13px;line-height:2;">
+              <div style="padding:3px 0;border-bottom:1px solid var(--border);">
+                <span style="opacity:0.6;">Quarter notes:</span> <strong>1 &nbsp; 2 &nbsp; 3 &nbsp; 4</strong>
+              </div>
+              <div style="padding:3px 0;border-bottom:1px solid var(--border);">
+                <span style="opacity:0.6;">Eighth notes:</span>&nbsp; <strong>1</strong>-&amp;-<strong>2</strong>-&amp;-<strong>3</strong>-&amp;-<strong>4</strong>-&amp;
+              </div>
+              <div style="padding:3px 0;border-bottom:1px solid var(--border);">
+                <span style="opacity:0.6;">Sixteenths:</span>&nbsp;&nbsp; <strong>1</strong>-e-&amp;-a-<strong>2</strong>-e-&amp;-a-<strong>3</strong>-e-&amp;-a-<strong>4</strong>-e-&amp;-a
+              </div>
+              <div style="padding:3px 0;">
+                <span style="opacity:0.6;">Triplets:</span>&nbsp;&nbsp;&nbsp;&nbsp; <strong>1</strong>-la-li-<strong>2</strong>-la-li-<strong>3</strong>-la-li-<strong>4</strong>-la-li
+              </div>
+            </div>
+          </div>
+
+          <!-- Dotted Notes -->
+          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
+            <strong>Dotted Notes</strong>
+            <p style="font-size:12px;margin:6px 0 8px 0;opacity:0.9;">A dot adds <strong>half the note's value</strong>. Think of it as the note + the next smaller note:</p>
+            <div style="margin-top:4px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
+                <div>
+                  <strong>Dotted Half</strong> <span style="font-size:11px;opacity:0.7;">(𝅗𝅥.)</span><br>
+                  <span style="font-size:11px;opacity:0.8;">2 + 1 = <strong>3 beats</strong></span>
+                  <div style="display:flex;gap:2px;margin-top:3px;">
+                    <div style="width:32px;height:8px;background:var(--primary);border-radius:3px;opacity:0.8;"></div>
+                    <div style="width:32px;height:8px;background:var(--primary);border-radius:3px;opacity:0.8;"></div>
+                    <div style="width:32px;height:8px;background:var(--success);border-radius:3px;opacity:0.7;"></div>
+                  </div>
+                </div>
+                <button class="listen-btn rhythm-listen" data-rhythm="dotted-half" style="width:26px;height:26px;font-size:11px;">▶</button>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
+                <div>
+                  <strong>Dotted Quarter</strong> <span style="font-size:11px;opacity:0.7;">(𝅘𝅥.)</span><br>
+                  <span style="font-size:11px;opacity:0.8;">1 + ½ = <strong>1½ beats</strong></span>
+                  <div style="display:flex;gap:2px;margin-top:3px;">
+                    <div style="width:32px;height:8px;background:var(--primary);border-radius:3px;opacity:0.8;"></div>
+                    <div style="width:16px;height:8px;background:var(--success);border-radius:3px;opacity:0.7;"></div>
+                  </div>
+                </div>
+                <button class="listen-btn rhythm-listen" data-rhythm="dotted-quarter" style="width:26px;height:26px;font-size:11px;">▶</button>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;">
+                <div>
+                  <strong>Dotted Eighth</strong> <span style="font-size:11px;opacity:0.7;">(𝅘𝅥𝅮.)</span><br>
+                  <span style="font-size:11px;opacity:0.8;">½ + ¼ = <strong>¾ beat</strong></span>
+                  <div style="display:flex;gap:2px;margin-top:3px;">
+                    <div style="width:16px;height:8px;background:var(--primary);border-radius:3px;opacity:0.8;"></div>
+                    <div style="width:8px;height:8px;background:var(--success);border-radius:3px;opacity:0.7;"></div>
+                  </div>
+                </div>
+                <button class="listen-btn rhythm-listen" data-rhythm="dotted-eighth" style="width:26px;height:26px;font-size:11px;">▶</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rests -->
+          <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
+            <strong>Rests</strong>
+            <p style="font-size:12px;margin:6px 0 8px 0;opacity:0.9;">Rests are <strong>measured silence</strong> — just as important as notes. Each rest matches a note's duration:</p>
+            <table style="width:100%;border-collapse:collapse;margin-top:4px;">
               <tr style="border-bottom:1px solid var(--border);">
-                <th style="text-align:left;padding:6px;">Note</th>
-                <th style="text-align:center;padding:6px;">Symbol</th>
-                <th style="text-align:left;padding:6px;">Beats</th>
-                <th style="padding:6px;"></th>
+                <th style="text-align:center;padding:6px;font-size:11px;">Rest</th>
+                <th style="text-align:left;padding:6px;font-size:11px;">Name</th>
+                <th style="text-align:left;padding:6px;font-size:11px;">Duration</th>
+                <th style="text-align:center;padding:6px;font-size:11px;">Equivalent</th>
               </tr>
               <tr style="border-bottom:1px solid var(--border);">
-                <td style="padding:6px;">Whole note</td>
-                <td style="text-align:center;font-size:20px;">𝅝</td>
-                <td style="padding:6px;">4 beats</td>
-                <td style="padding:6px;"><button class="listen-btn rhythm-listen" data-rhythm="whole">▶</button></td>
+                <td style="text-align:center;padding:6px;font-size:20px;">𝄻</td>
+                <td style="padding:6px;">Whole Rest</td>
+                <td style="padding:6px;font-size:12px;">4 beats</td>
+                <td style="text-align:center;padding:6px;font-size:16px;opacity:0.5;">= 𝅝</td>
               </tr>
               <tr style="border-bottom:1px solid var(--border);">
-                <td style="padding:6px;">Half note</td>
-                <td style="text-align:center;font-size:20px;">𝅗𝅥</td>
-                <td style="padding:6px;">2 beats</td>
-                <td style="padding:6px;"><button class="listen-btn rhythm-listen" data-rhythm="half">▶</button></td>
+                <td style="text-align:center;padding:6px;font-size:20px;">𝄼</td>
+                <td style="padding:6px;">Half Rest</td>
+                <td style="padding:6px;font-size:12px;">2 beats</td>
+                <td style="text-align:center;padding:6px;font-size:16px;opacity:0.5;">= 𝅗𝅥</td>
               </tr>
               <tr style="border-bottom:1px solid var(--border);">
-                <td style="padding:6px;">Quarter note</td>
-                <td style="text-align:center;font-size:20px;">𝅘𝅥</td>
-                <td style="padding:6px;">1 beat</td>
-                <td style="padding:6px;"><button class="listen-btn rhythm-listen" data-rhythm="quarter">▶</button></td>
+                <td style="text-align:center;padding:6px;font-size:20px;">𝄽</td>
+                <td style="padding:6px;">Quarter Rest</td>
+                <td style="padding:6px;font-size:12px;">1 beat</td>
+                <td style="text-align:center;padding:6px;font-size:16px;opacity:0.5;">= 𝅘𝅥</td>
               </tr>
               <tr style="border-bottom:1px solid var(--border);">
-                <td style="padding:6px;">Eighth note</td>
-                <td style="text-align:center;font-size:20px;">𝅘𝅥𝅮</td>
-                <td style="padding:6px;">½ beat</td>
-                <td style="padding:6px;"><button class="listen-btn rhythm-listen" data-rhythm="eighth">▶</button></td>
+                <td style="text-align:center;padding:6px;font-size:20px;">𝄾</td>
+                <td style="padding:6px;">Eighth Rest</td>
+                <td style="padding:6px;font-size:12px;">½ beat</td>
+                <td style="text-align:center;padding:6px;font-size:16px;opacity:0.5;">= 𝅘𝅥𝅮</td>
               </tr>
               <tr>
-                <td style="padding:6px;">Sixteenth note</td>
-                <td style="text-align:center;font-size:20px;">𝅘𝅥𝅯</td>
-                <td style="padding:6px;">¼ beat</td>
-                <td style="padding:6px;"><button class="listen-btn rhythm-listen" data-rhythm="sixteenth">▶</button></td>
+                <td style="text-align:center;padding:6px;font-size:20px;">𝄿</td>
+                <td style="padding:6px;">16th Rest</td>
+                <td style="padding:6px;font-size:12px;">¼ beat</td>
+                <td style="text-align:center;padding:6px;font-size:16px;opacity:0.5;">= 𝅘𝅥𝅯</td>
               </tr>
             </table>
+            <p style="font-size:11px;margin:8px 0 0 0;opacity:0.7;font-style:italic;">Tip: A whole rest hangs from the line (heavy on top); a half rest sits on the line (hat on head).</p>
           </div>
 
           <!-- Time Signatures -->
           <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
-            <strong>Time Signatures</strong><br>
+            <strong>Time Signatures</strong>
             <p style="font-size:12px;margin:6px 0 10px 0;opacity:0.9;">The top number = beats per measure. The bottom = which note gets one beat.</p>
 
             <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
               <div>
                 <span style="font-size:18px;font-weight:bold;">4/4</span> <span style="font-size:12px;opacity:0.8;">(Common Time)</span><br>
-                <span style="font-size:11px;">4 quarter-note beats per measure • Pop, rock, most music</span>
+                <span style="font-size:11px;">4 quarter-note beats per measure</span><br>
+                <span style="font-size:10px;opacity:0.6;">Pop, rock, classical, jazz — most music</span>
               </div>
               <button class="listen-btn timesig-listen" data-timesig="4-4">▶</button>
             </div>
@@ -1165,7 +1304,8 @@
             <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
               <div>
                 <span style="font-size:18px;font-weight:bold;">3/4</span> <span style="font-size:12px;opacity:0.8;">(Waltz Time)</span><br>
-                <span style="font-size:11px;">3 quarter-note beats • Waltzes, ballads</span>
+                <span style="font-size:11px;">3 quarter-note beats per measure</span><br>
+                <span style="font-size:10px;opacity:0.6;">Waltzes, minuets, ballads</span>
               </div>
               <button class="listen-btn timesig-listen" data-timesig="3-4">▶</button>
             </div>
@@ -1173,58 +1313,123 @@
             <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
               <div>
                 <span style="font-size:18px;font-weight:bold;">6/8</span> <span style="font-size:12px;opacity:0.8;">(Compound Duple)</span><br>
-                <span style="font-size:11px;">2 groups of 3 eighth notes • "House of the Rising Sun"</span>
+                <span style="font-size:11px;">2 groups of 3 eighth notes</span><br>
+                <span style="font-size:10px;opacity:0.6;">Jigs, "House of the Rising Sun"</span>
               </div>
               <button class="listen-btn timesig-listen" data-timesig="6-8">▶</button>
             </div>
 
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
               <div>
                 <span style="font-size:18px;font-weight:bold;">2/4</span> <span style="font-size:12px;opacity:0.8;">(March Time)</span><br>
-                <span style="font-size:11px;">2 quarter-note beats • Marches, polkas</span>
+                <span style="font-size:11px;">2 quarter-note beats per measure</span><br>
+                <span style="font-size:10px;opacity:0.6;">Marches, polkas</span>
               </div>
               <button class="listen-btn timesig-listen" data-timesig="2-4">▶</button>
             </div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+              <div>
+                <span style="font-size:18px;font-weight:bold;">5/4</span> <span style="font-size:12px;opacity:0.8;">(Irregular)</span><br>
+                <span style="font-size:11px;">5 quarter-note beats (3+2 or 2+3)</span><br>
+                <span style="font-size:10px;opacity:0.6;">"Take Five," "Mars" from The Planets</span>
+              </div>
+              <button class="listen-btn timesig-listen" data-timesig="5-4">▶</button>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
+              <div>
+                <span style="font-size:18px;font-weight:bold;">7/8</span> <span style="font-size:12px;opacity:0.8;">(Asymmetric)</span><br>
+                <span style="font-size:11px;">7 eighth-note beats (2+2+3 or 3+2+2)</span><br>
+                <span style="font-size:10px;opacity:0.6;">Balkan folk, progressive rock</span>
+              </div>
+              <button class="listen-btn timesig-listen" data-timesig="7-8">▶</button>
+            </div>
           </div>
 
-          <!-- Rests -->
+          <!-- Syncopation -->
           <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;margin-bottom:12px;">
-            <strong>Rests</strong> <em style="font-size:11px;opacity:0.8;">(silence for the same duration)</em><br>
-            <div style="display:grid;grid-template-columns:repeat(5, 1fr);gap:8px;margin-top:10px;text-align:center;">
-              <div>
-                <div style="font-size:18px;">𝄻</div>
-                <div style="font-size:10px;">Whole</div>
+            <strong>Syncopation & Special Rhythms</strong>
+            <p style="font-size:12px;margin:6px 0 8px 0;opacity:0.9;">Syncopation accents <strong>off-beats</strong> — notes that land between the main beats, creating rhythmic tension and groove.</p>
+            <div style="margin-top:4px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
+                <div>
+                  <strong>Off-beat Accent</strong><br>
+                  <span style="font-size:11px;opacity:0.8;">Rest on beats, play between them</span><br>
+                  <span style="font-size:10px;opacity:0.6;font-family:monospace;">_ <strong>hit</strong> _ <strong>hit</strong></span>
+                </div>
+                <button class="listen-btn syncopation-listen" data-syncopation="syncopation-offbeat" style="width:26px;height:26px;font-size:11px;">▶</button>
               </div>
-              <div>
-                <div style="font-size:18px;">𝄼</div>
-                <div style="font-size:10px;">Half</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
+                <div>
+                  <strong>Anticipated Beat</strong><br>
+                  <span style="font-size:11px;opacity:0.8;">Arriving early before the strong beat</span><br>
+                  <span style="font-size:10px;opacity:0.6;font-family:monospace;"><strong>hit</strong> <strong>hit</strong> <strong>hit</strong>-<strong>hit</strong> <strong>hit</strong></span>
+                </div>
+                <button class="listen-btn syncopation-listen" data-syncopation="syncopation-anticipated" style="width:26px;height:26px;font-size:11px;">▶</button>
               </div>
-              <div>
-                <div style="font-size:18px;">𝄽</div>
-                <div style="font-size:10px;">Quarter</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
+                <div>
+                  <strong>Tied Syncopation</strong><br>
+                  <span style="font-size:11px;opacity:0.8;">Tie across the beat for sustained off-beat</span><br>
+                  <span style="font-size:10px;opacity:0.6;font-family:monospace;"><strong>hit</strong>~~~~~<strong>hit</strong></span>
+                </div>
+                <button class="listen-btn syncopation-listen" data-syncopation="syncopation-tied" style="width:26px;height:26px;font-size:11px;">▶</button>
               </div>
-              <div>
-                <div style="font-size:18px;">𝄾</div>
-                <div style="font-size:10px;">Eighth</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
+                <div>
+                  <strong>Triplet</strong><br>
+                  <span style="font-size:11px;opacity:0.8;">3 even notes in the space of 2</span><br>
+                  <span style="font-size:10px;opacity:0.6;font-family:monospace;"><strong>hit</strong>-<strong>hit</strong>-<strong>hit</strong> (swing feel)</span>
+                </div>
+                <button class="listen-btn syncopation-listen" data-syncopation="triplet-quarter" style="width:26px;height:26px;font-size:11px;">▶</button>
               </div>
-              <div>
-                <div style="font-size:18px;">𝄿</div>
-                <div style="font-size:10px;">16th</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
+                <div>
+                  <strong>Dotted Eighth-Sixteenth</strong><br>
+                  <span style="font-size:11px;opacity:0.8;">Long-short pattern, march-like feel</span><br>
+                  <span style="font-size:10px;opacity:0.6;font-family:monospace;"><strong>looong</strong>-<strong>short</strong></span>
+                </div>
+                <button class="listen-btn syncopation-listen" data-syncopation="syncopation-dotted-eighth-sixteenth" style="width:26px;height:26px;font-size:11px;">▶</button>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
+                <div>
+                  <strong>Sixteenth-Dotted Eighth</strong><br>
+                  <span style="font-size:11px;opacity:0.8;">Short-long, Scotch snap feel</span><br>
+                  <span style="font-size:10px;opacity:0.6;font-family:monospace;"><strong>short</strong>-<strong>looong</strong></span>
+                </div>
+                <button class="listen-btn syncopation-listen" data-syncopation="syncopation-sixteenth-dotted-eighth" style="width:26px;height:26px;font-size:11px;">▶</button>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
+                <div>
+                  <strong>Hemiola</strong><br>
+                  <span style="font-size:11px;opacity:0.8;">3 against 2 — regroups beats</span><br>
+                  <span style="font-size:10px;opacity:0.6;font-family:monospace;"><strong>hit</strong> _ <strong>hit</strong> _ <strong>hit</strong> _</span>
+                </div>
+                <button class="listen-btn syncopation-listen" data-syncopation="syncopation-hemiola" style="width:26px;height:26px;font-size:11px;">▶</button>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;">
+                <div>
+                  <strong>Syncopated Sixteenths</strong><br>
+                  <span style="font-size:11px;opacity:0.8;">Off-beat accents within sixteenth notes</span><br>
+                  <span style="font-size:10px;opacity:0.6;font-family:monospace;"><strong>hit</strong> _ <strong>hit</strong> _ <strong>hit</strong> _ <strong>hit</strong> _</span>
+                </div>
+                <button class="listen-btn syncopation-listen" data-syncopation="syncopation-sixteenths" style="width:26px;height:26px;font-size:11px;">▶</button>
               </div>
             </div>
           </div>
 
-          <!-- Dotted Notes & Ties -->
+          <!-- Ties -->
           <div style="font-size:13px;background:var(--card);padding:12px;border-radius:8px;">
-            <strong>Dotted Notes & Ties</strong><br>
+            <strong>Ties & Slurs</strong>
             <div style="margin-top:8px;">
               <div style="padding:6px 0;border-bottom:1px solid var(--border);">
-                <strong>Dotted note (•)</strong> — adds half the value<br>
-                <span style="font-size:11px;opacity:0.8;">Dotted half = 3 beats • Dotted quarter = 1½ beats</span>
+                <strong>Tie (⁀)</strong> — connects two notes of the <em>same pitch</em><br>
+                <span style="font-size:11px;opacity:0.8;">Hold through the combined duration. e.g. quarter + quarter = half note duration.</span>
               </div>
               <div style="padding:6px 0;">
-                <strong>Tie (⁀)</strong> — connects notes of same pitch<br>
-                <span style="font-size:11px;opacity:0.8;">Hold the note across the combined duration</span>
+                <strong>Slur (⁀)</strong> — connects notes of <em>different pitches</em><br>
+                <span style="font-size:11px;opacity:0.8;">Play smoothly (legato) without re-attacking each note.</span>
               </div>
             </div>
           </div>
@@ -1546,14 +1751,15 @@
       P22:{id:'P22',name:'Level 22 — Rhythm: + Dotted Notes',mode:'rhythm',rhythmLevel:2},
       P23:{id:'P23',name:'Level 23 — Rhythm: + Rests',mode:'rhythm',rhythmLevel:3},
       P24:{id:'P24',name:'Level 24 — Rhythm: + Syncopation',mode:'rhythm',rhythmLevel:4},
-      P25:{id:'P25',name:'Level 25 — Rhythm: Time Signatures',mode:'timeSig'},
+      P25:{id:'P25',name:'Level 25 — Rhythm: Beat Counting',mode:'rhythmCount',rhythmLevel:2},
+      P26:{id:'P26',name:'Level 26 — Rhythm: Time Signatures',mode:'timeSig'},
 
       // Keyboard Quiz (press the correct key on the virtual keyboard)
-      P26:{id:'P26',name:'Level 26 — Keyboard: Treble (Naturals)',clefs:['treble'],accs:[],mode:'keyboardQuiz'},
-      P27:{id:'P27',name:'Level 27 — Keyboard: Both Clefs (Naturals)',clefs:['treble','bass'],accs:[],mode:'keyboardQuiz'},
-      P28:{id:'P28',name:'Level 28 — Keyboard: + Sharps',clefs:['treble','bass'],accs:['#'],mode:'keyboardQuiz'},
-      P29:{id:'P29',name:'Level 29 — Keyboard: + Flats',clefs:['treble','bass'],accs:['b'],mode:'keyboardQuiz'},
-      P30:{id:'P30',name:'Level 30 — Keyboard: All Accidentals',clefs:['treble','bass'],accs:['#','b'],mode:'keyboardQuiz'}
+      P27:{id:'P27',name:'Level 27 — Keyboard: Treble (Naturals)',clefs:['treble'],accs:[],mode:'keyboardQuiz'},
+      P28:{id:'P28',name:'Level 28 — Keyboard: Both Clefs (Naturals)',clefs:['treble','bass'],accs:[],mode:'keyboardQuiz'},
+      P29:{id:'P29',name:'Level 29 — Keyboard: + Sharps',clefs:['treble','bass'],accs:['#'],mode:'keyboardQuiz'},
+      P30:{id:'P30',name:'Level 30 — Keyboard: + Flats',clefs:['treble','bass'],accs:['b'],mode:'keyboardQuiz'},
+      P31:{id:'P31',name:'Level 31 — Keyboard: All Accidentals',clefs:['treble','bass'],accs:['#','b'],mode:'keyboardQuiz'}
     };
 
     // Interval names for ear training
@@ -1748,8 +1954,8 @@ let inputLocked = false;
           return;
         }
 
-        // Handle rhythm quiz mode
-        if(currentQuestion.type === 'rhythm'){
+        // Handle rhythm quiz mode (including beat counting)
+        if(currentQuestion.type === 'rhythm' || currentQuestion.type === 'rhythmCount'){
           playRhythmQuizSound(currentQuestion);
           return;
         }
@@ -1816,9 +2022,42 @@ let inputLocked = false;
     }
 
     // Play sound for rhythm quiz questions
+    // Visual pulse helper for rhythm playback
+    function flashRhythmPulse(durationMs){
+      const el = document.getElementById('rhythmPulse');
+      if(!el) return;
+      el.style.opacity = '1';
+      el.style.transform = 'scale(1.5)';
+      setTimeout(() => {
+        el.style.opacity = '0.3';
+        el.style.transform = 'scale(1)';
+      }, Math.min(durationMs * 0.4, 200));
+    }
+
+    // Map VexFlow-style durations to ms at 100 BPM
+    function rhythmDurToMs(d){
+      const bpm100beat = 500;
+      if(d === 'w') return bpm100beat * 4;
+      if(d === 'h') return bpm100beat * 2;
+      if(d === 'hd') return bpm100beat * 3;
+      if(d === 'q') return bpm100beat;
+      if(d === 'qd') return bpm100beat * 1.5;
+      if(d === '8') return bpm100beat / 2;
+      if(d === '8d') return bpm100beat * 0.75;
+      if(d === '16') return bpm100beat / 4;
+      if(d === '16d') return bpm100beat * 0.375;
+      return bpm100beat;
+    }
+
+    // Map VexFlow-style durations to Tone.js notation
+    function rhythmDurToTone(d){
+      const map = {'w':'1n','h':'2n','hd':'2n.','q':'4n','qd':'4n.','8':'8n','8d':'8n.','16':'16n','16d':'16n.'};
+      return map[d] || '4n';
+    }
+
     async function playRhythmQuizSound(q){
       if(!q) q = currentQuestion;
-      if(!q || q.type !== 'rhythm') return;
+      if(!q || (q.type !== 'rhythm' && q.type !== 'rhythmCount')) return;
 
       try{
         await ensurePiano();
@@ -1834,15 +2073,15 @@ let inputLocked = false;
         // Syncopation patterns: play the multi-note pattern
         if(rhythmValue.isSyncopation && rhythmValue.pattern){
           let delay = 0;
-          const bpm100beat = 500; // ms per quarter note at 100 BPM
           rhythmValue.pattern.forEach(p => {
             const dur = p.d;
             const isRestBeat = dur.endsWith('r');
             const baseDur = isRestBeat ? dur.slice(0, -1) : dur;
-            const ms = baseDur === 'q' ? bpm100beat : baseDur === '8' ? bpm100beat/2 : baseDur === '16' ? bpm100beat/4 : bpm100beat*2;
+            const ms = rhythmDurToMs(baseDur);
             if(!isRestBeat){
               setTimeout(() => {
-                piano.triggerAttackRelease(midiToNoteName(60), baseDur === 'q' ? '4n' : baseDur === '8' ? '8n' : '16n');
+                piano.triggerAttackRelease(midiToNoteName(60), rhythmDurToTone(baseDur));
+                flashRhythmPulse(ms);
               }, delay);
             }
             delay += ms;
@@ -1850,21 +2089,10 @@ let inputLocked = false;
           return;
         }
 
-        // Map our duration to Tone.js notation
-        const durationMap = {
-          'w': '1n',
-          'h': '2n',
-          'hd': '2n.',
-          'q': '4n',
-          'qd': '4n.',
-          '8': '8n',
-          '8d': '8n.',
-          '16': '16n',
-          '16d': '16n.'
-        };
-
-        const toneDuration = durationMap[rhythmValue.vexDuration] || '4n';
-        piano.triggerAttackRelease(midiToNoteName(60), toneDuration); // C4 as neutral pitch
+        // Single note playback with pulse
+        const toneDuration = rhythmDurToTone(rhythmValue.vexDuration);
+        piano.triggerAttackRelease(midiToNoteName(60), toneDuration);
+        flashRhythmPulse(rhythmValue.durationMs || 500);
       }catch(e){
         console.warn('Rhythm quiz sound error:', e);
       }
@@ -2090,16 +2318,23 @@ let inputLocked = false;
           const notes = [];
           rhythmValue.pattern.forEach(p => {
             const isRestBeat = p.d.endsWith('r');
-            const baseDur = isRestBeat ? p.d.slice(0,-1) : p.d;
-            // Map to VexFlow duration codes
+            const rawDur = isRestBeat ? p.d.slice(0,-1) : p.d;
+            // Handle dotted durations: strip trailing 'd' for VexFlow base, add dot modifier
+            const isDotted = rawDur.endsWith('d');
+            const baseDur = isDotted ? rawDur.slice(0,-1) : rawDur;
             const durMap = {'w':'w','h':'h','q':'q','8':'8','16':'16'};
             const vd = durMap[baseDur] || 'q';
             const dur = isRestBeat ? vd + 'r' : vd;
+            // VexFlow needs dotted durations expressed with 'd' suffix
+            const vexDur = isDotted ? dur + 'd' : dur;
             const note = new VF.StaveNote({
               clef: 'percussion',
               keys: ['b/4'],
-              duration: dur
+              duration: vexDur
             });
+            if(isDotted){
+              note.addModifier(new VF.Dot(), 0);
+            }
             notes.push(note);
           });
 
@@ -2192,24 +2427,40 @@ let inputLocked = false;
         return;
       }
 
-      // Rhythm quiz - show rhythm notation with replay button
-      if(q.type === 'rhythm'){
+      // Rhythm quiz / beat counting quiz - show rhythm notation with replay button
+      if(q.type === 'rhythm' || q.type === 'rhythmCount'){
         drawRhythmStaff(q.data.rhythmValue);
+
+        // Add prompt label for beat counting mode
+        if(q.type === 'rhythmCount'){
+          const promptDiv = document.createElement('div');
+          promptDiv.style.cssText = 'position:absolute;top:4px;left:0;right:0;text-align:center;font-size:13px;font-weight:600;color:var(--primary);pointer-events:none;';
+          promptDiv.textContent = 'How many beats?';
+          const boardArea = document.getElementById('boardArea');
+          boardArea.style.position = 'relative';
+          boardArea.appendChild(promptDiv);
+        }
+
         // Add a replay button overlay at the bottom of the board
         const replayDiv = document.createElement('div');
-        replayDiv.style.cssText = 'position:absolute;bottom:6px;left:0;right:0;display:flex;justify-content:center;';
+        replayDiv.style.cssText = 'position:absolute;bottom:6px;left:0;right:0;display:flex;justify-content:center;gap:8px;align-items:center;';
         const replayBtn = document.createElement('button');
         replayBtn.className = 'tinybtn';
-        replayBtn.style.cssText = 'font-size:13px;padding:5px 14px;opacity:0.85;';
+        replayBtn.style.cssText = 'font-size:14px;padding:6px 18px;';
         replayBtn.textContent = q.data.rhythmValue.isRest ? '(Rest — no sound)' : '\u25B6 Play Again';
         replayBtn.disabled = !!q.data.rhythmValue.isRest;
         if(!q.data.rhythmValue.isRest){
           replayBtn.onclick = () => playRhythmQuizSound(q);
         }
         replayDiv.appendChild(replayBtn);
-        // boardArea is the parent that holds board
+
+        // Add pulse indicator element (hidden by default, shown during playback)
+        const pulseEl = document.createElement('div');
+        pulseEl.id = 'rhythmPulse';
+        pulseEl.style.cssText = 'width:10px;height:10px;border-radius:50%;background:var(--primary);opacity:0;transition:opacity 0.1s;';
+        replayDiv.appendChild(pulseEl);
+
         const boardArea = document.getElementById('boardArea');
-        // Remove any existing replay overlay
         boardArea.querySelectorAll('.rhythm-replay').forEach(el => el.remove());
         replayDiv.className = 'rhythm-replay';
         boardArea.style.position = 'relative';
@@ -2271,6 +2522,7 @@ let inputLocked = false;
       if(preset.mode === 'earInterval') return generateEarIntervalQuestion();
       if(preset.mode === 'earChord') return generateEarChordQuestion();
       if(preset.mode === 'rhythm') return generateRhythmQuestion();
+      if(preset.mode === 'rhythmCount') return generateRhythmCountQuestion();
       if(preset.mode === 'timeSig') return generateTimeSigQuestion();
       if(preset.mode === 'keyboardQuiz') return generateKeyboardQuestion();
 
@@ -2470,12 +2722,44 @@ let inputLocked = false;
       };
     }
 
+    // ==================== RHYTHM BEAT COUNTING QUIZ ====================
+    function generateRhythmCountQuestion(){
+      const preset = currentPreset;
+      const rhythmLevel = preset.rhythmLevel || 2;
+      // Only use non-syncopation values that have a beats property
+      const values = getRhythmValuesForLevel(rhythmLevel).filter(v => !v.isSyncopation && v.beats != null);
+
+      const rhythmValue = values[Math.floor(Math.random() * values.length)];
+      const correctBeats = formatBeats(rhythmValue.beats);
+      const correctAnswer = correctBeats + (rhythmValue.beats === 1 ? ' beat' : ' beats');
+
+      // Generate plausible wrong beat counts
+      const allBeatOptions = [4, 3, 2, 1.5, 1, 0.75, 0.5, 0.375, 0.25];
+      const wrongBeatPool = allBeatOptions
+        .filter(b => b !== rhythmValue.beats)
+        .map(b => formatBeats(b) + (b === 1 ? ' beat' : ' beats'));
+      shuffle(wrongBeatPool);
+      const wrongAnswers = wrongBeatPool.slice(0, 3);
+
+      const allAnswers = shuffle([correctAnswer, ...wrongAnswers]);
+
+      return {
+        type: 'rhythmCount',
+        data: { rhythmValue },
+        correctAnswer,
+        wrongAnswers,
+        allAnswers
+      };
+    }
+
     // ==================== TIME SIGNATURE QUIZ ====================
     const TIME_SIG_OPTIONS = [
       { id: '4-4', display: '4/4', description: 'Common Time', beats: 4, beatValue: 4 },
       { id: '3-4', display: '3/4', description: 'Waltz Time', beats: 3, beatValue: 4 },
       { id: '6-8', display: '6/8', description: 'Compound Duple', beats: 6, beatValue: 8 },
-      { id: '2-4', display: '2/4', description: 'March Time', beats: 2, beatValue: 4 }
+      { id: '2-4', display: '2/4', description: 'March Time', beats: 2, beatValue: 4 },
+      { id: '5-4', display: '5/4', description: 'Irregular (3+2)', beats: 5, beatValue: 4 },
+      { id: '7-8', display: '7/8', description: 'Asymmetric (2+2+3)', beats: 7, beatValue: 8 }
     ];
 
     function generateTimeSigQuestion(){
@@ -2704,7 +2988,7 @@ function toneToMidiSafe(toneStr){
       }
 
       // Rhythm mode: no pitch to highlight
-      if(currentQuestion.type === 'rhythm'){
+      if(currentQuestion.type === 'rhythm' || currentQuestion.type === 'rhythmCount'){
         return [];
       }
 
@@ -2753,7 +3037,7 @@ function toneToMidiSafe(toneStr){
       }
 
       // Rhythm mode: no pitch to highlight
-      if(currentQuestion.type === 'rhythm'){
+      if(currentQuestion.type === 'rhythm' || currentQuestion.type === 'rhythmCount'){
         return [];
       }
 
@@ -3056,7 +3340,19 @@ function showKeyboardSolution(){
       answerButtons.querySelectorAll('button').forEach(b => b.disabled = true);
     }
 
-    
+    // Generate educational hint for rhythm feedback
+    function getRhythmFeedbackHint(q, isCorrect){
+      if(!q) return '';
+      if(q.type === 'rhythm' && q.data?.rhythmValue?.beats != null){
+        const b = q.data.rhythmValue.beats;
+        return ' (' + formatBeats(b) + (b === 1 ? ' beat' : ' beats') + ')';
+      }
+      if(q.type === 'timeSig' && !isCorrect && q.data?.timeSig?.description){
+        return ' — ' + q.data.timeSig.description;
+      }
+      return '';
+    }
+
     function handleAnswer(answer, btn){
       if(!running) return;
       if(answeredToken === questionToken) return;
@@ -3089,7 +3385,9 @@ function showKeyboardSolution(){
           }
           if(btn) btn.classList.add('correct');
           showKeyboardSelection(answer,'correct');
-          setFeedback('✓ Correct! ' + currentQuestion.correctAnswer, true);
+          // Enhanced feedback for rhythm modes: show beat count
+          const rhythmHint = getRhythmFeedbackHint(currentQuestion, true);
+          setFeedback('✓ Correct! ' + currentQuestion.correctAnswer + rhythmHint, true);
         }else{
           stats.wrong++;
           stats.streak = 0;
@@ -3102,7 +3400,8 @@ function showKeyboardSolution(){
           });
 
           showKeyboardSolution();
-          setFeedback('✗ ' + currentQuestion.correctAnswer, false);
+          const rhythmHint = getRhythmFeedbackHint(currentQuestion, false);
+          setFeedback('✗ ' + currentQuestion.correctAnswer + rhythmHint, false);
         }
 
         showIcon(isCorrect);
@@ -3150,7 +3449,7 @@ questionToken++;
           _midis = [baseMidi, baseMidi + semitones];
         } else if(currentQuestion?.type === 'earChord'){
           _midis = getQuestionMidis();
-        } else if(currentQuestion?.type === 'rhythm' || currentQuestion?.type === 'timeSig'){
+        } else if(currentQuestion?.type === 'rhythm' || currentQuestion?.type === 'rhythmCount' || currentQuestion?.type === 'timeSig'){
           _midis = []; // No pitch for rhythm/timeSig questions
         } else if(currentQuestion?.type === 'keyboardQuiz'){
           _midis = currentQuestion.data.correctMidi != null ? [currentQuestion.data.correctMidi] : [];
@@ -3166,7 +3465,7 @@ questionToken++;
 startTimer();
       // Always auto-play for ear training and rhythm modes, otherwise check soundMode setting
       const isEarTraining = currentQuestion?.type === 'earInterval' || currentQuestion?.type === 'earChord';
-      const isRhythm = currentQuestion?.type === 'rhythm';
+      const isRhythm = currentQuestion?.type === 'rhythm' || currentQuestion?.type === 'rhythmCount';
       const isTimeSig = currentQuestion?.type === 'timeSig';
       if(isEarTraining || isRhythm || isTimeSig || (document.getElementById('soundMode')?document.getElementById('soundMode').value:'manual') === 'auto') playSound();
     }
@@ -3381,24 +3680,24 @@ startTimer();
     // Each entry: { id, display, vexDuration, durationMs, level, isRest }
     const RHYTHM_VALUES = [
       // Level 1 - Basic note values
-      { id: 'whole', display: 'Whole Note', vexDuration: 'w', durationMs: 2000, level: 1, isRest: false },
-      { id: 'half', display: 'Half Note', vexDuration: 'h', durationMs: 1000, level: 1, isRest: false },
-      { id: 'quarter', display: 'Quarter Note', vexDuration: 'q', durationMs: 500, level: 1, isRest: false },
-      { id: 'eighth', display: 'Eighth Note', vexDuration: '8', durationMs: 250, level: 1, isRest: false },
-      { id: 'sixteenth', display: 'Sixteenth Note', vexDuration: '16', durationMs: 125, level: 1, isRest: false },
+      { id: 'whole', display: 'Whole Note', vexDuration: 'w', durationMs: 2000, level: 1, isRest: false, beats: 4 },
+      { id: 'half', display: 'Half Note', vexDuration: 'h', durationMs: 1000, level: 1, isRest: false, beats: 2 },
+      { id: 'quarter', display: 'Quarter Note', vexDuration: 'q', durationMs: 500, level: 1, isRest: false, beats: 1 },
+      { id: 'eighth', display: 'Eighth Note', vexDuration: '8', durationMs: 250, level: 1, isRest: false, beats: 0.5 },
+      { id: 'sixteenth', display: 'Sixteenth Note', vexDuration: '16', durationMs: 125, level: 1, isRest: false, beats: 0.25 },
 
       // Level 2 - Dotted notes
-      { id: 'dotted-half', display: 'Dotted Half', vexDuration: 'hd', durationMs: 1500, level: 2, isRest: false },
-      { id: 'dotted-quarter', display: 'Dotted Quarter', vexDuration: 'qd', durationMs: 750, level: 2, isRest: false },
-      { id: 'dotted-eighth', display: 'Dotted Eighth', vexDuration: '8d', durationMs: 375, level: 2, isRest: false },
-      { id: 'dotted-sixteenth', display: 'Dotted Sixteenth', vexDuration: '16d', durationMs: 187, level: 2, isRest: false },
+      { id: 'dotted-half', display: 'Dotted Half', vexDuration: 'hd', durationMs: 1500, level: 2, isRest: false, beats: 3 },
+      { id: 'dotted-quarter', display: 'Dotted Quarter', vexDuration: 'qd', durationMs: 750, level: 2, isRest: false, beats: 1.5 },
+      { id: 'dotted-eighth', display: 'Dotted Eighth', vexDuration: '8d', durationMs: 375, level: 2, isRest: false, beats: 0.75 },
+      { id: 'dotted-sixteenth', display: 'Dotted Sixteenth', vexDuration: '16d', durationMs: 187, level: 2, isRest: false, beats: 0.375 },
 
       // Level 3 - Rests
-      { id: 'whole-rest', display: 'Whole Rest', vexDuration: 'wr', durationMs: 2000, level: 3, isRest: true },
-      { id: 'half-rest', display: 'Half Rest', vexDuration: 'hr', durationMs: 1000, level: 3, isRest: true },
-      { id: 'quarter-rest', display: 'Quarter Rest', vexDuration: 'qr', durationMs: 500, level: 3, isRest: true },
-      { id: 'eighth-rest', display: 'Eighth Rest', vexDuration: '8r', durationMs: 250, level: 3, isRest: true },
-      { id: 'sixteenth-rest', display: 'Sixteenth Rest', vexDuration: '16r', durationMs: 125, level: 3, isRest: true },
+      { id: 'whole-rest', display: 'Whole Rest', vexDuration: 'wr', durationMs: 2000, level: 3, isRest: true, beats: 4 },
+      { id: 'half-rest', display: 'Half Rest', vexDuration: 'hr', durationMs: 1000, level: 3, isRest: true, beats: 2 },
+      { id: 'quarter-rest', display: 'Quarter Rest', vexDuration: 'qr', durationMs: 500, level: 3, isRest: true, beats: 1 },
+      { id: 'eighth-rest', display: 'Eighth Rest', vexDuration: '8r', durationMs: 250, level: 3, isRest: true, beats: 0.5 },
+      { id: 'sixteenth-rest', display: 'Sixteenth Rest', vexDuration: '16r', durationMs: 125, level: 3, isRest: true, beats: 0.25 },
 
       // Level 4 - Syncopation patterns (multi-note rhythm patterns)
       { id: 'syncopation-offbeat', display: 'Off-beat Accent', vexDuration: 'syncopation', durationMs: 2000, level: 4, isRest: false, isSyncopation: true,
@@ -3408,19 +3707,50 @@ startTimer();
       { id: 'syncopation-tied', display: 'Tied Syncopation', vexDuration: 'syncopation', durationMs: 2000, level: 4, isRest: false, isSyncopation: true,
         pattern: [{d:'8'},{d:'q',tie:true},{d:'8'}] },
       { id: 'triplet-quarter', display: 'Triplet (Quarter)', vexDuration: 'syncopation', durationMs: 1000, level: 4, isRest: false, isSyncopation: true,
-        pattern: [{d:'8',tuplet:3},{d:'8',tuplet:3},{d:'8',tuplet:3}] }
+        pattern: [{d:'8',tuplet:3},{d:'8',tuplet:3},{d:'8',tuplet:3}] },
+      { id: 'syncopation-dotted-eighth-sixteenth', display: 'Dotted 8th-16th', vexDuration: 'syncopation', durationMs: 1000, level: 4, isRest: false, isSyncopation: true,
+        pattern: [{d:'8d'},{d:'16'},{d:'8d'},{d:'16'}] },
+      { id: 'syncopation-sixteenth-dotted-eighth', display: '16th-Dotted 8th', vexDuration: 'syncopation', durationMs: 1000, level: 4, isRest: false, isSyncopation: true,
+        pattern: [{d:'16'},{d:'8d'},{d:'16'},{d:'8d'}] },
+      { id: 'syncopation-hemiola', display: 'Hemiola', vexDuration: 'syncopation', durationMs: 3000, level: 4, isRest: false, isSyncopation: true,
+        pattern: [{d:'q'},{d:'q'},{d:'q'},{d:'q'},{d:'q'},{d:'q'}] },
+      { id: 'syncopation-sixteenths', display: 'Syncopated 16ths', vexDuration: 'syncopation', durationMs: 1000, level: 4, isRest: false, isSyncopation: true,
+        pattern: [{d:'16r'},{d:'16'},{d:'16r'},{d:'16'},{d:'16r'},{d:'16'},{d:'16r'},{d:'16'}] }
     ];
+
+    // Beat count display helpers
+    function formatBeats(beats) {
+      if(beats === 4) return '4';
+      if(beats === 3) return '3';
+      if(beats === 2) return '2';
+      if(beats === 1.5) return '1½';
+      if(beats === 1) return '1';
+      if(beats === 0.75) return '¾';
+      if(beats === 0.5) return '½';
+      if(beats === 0.375) return '⅜';
+      if(beats === 0.25) return '¼';
+      return String(beats);
+    }
 
     function getRhythmValuesForLevel(level) {
       return RHYTHM_VALUES.filter(r => r.level <= level);
     }
 
-    // Play rhythm demonstration
+    // Play rhythm demonstration (supports basic and dotted note types)
     async function playRhythm(rhythmType, btn) {
       try {
         await ensurePiano();
         btn?.classList.add('playing');
         hapticLight();
+
+        // Look up from RHYTHM_VALUES first for dotted notes
+        const rv = RHYTHM_VALUES.find(r => r.id === rhythmType);
+        if(rv && !rv.isRest && !rv.isSyncopation){
+          const toneDur = rhythmDurToTone(rv.vexDuration);
+          piano.triggerAttackRelease(midiToNoteName(BASE_MIDI), toneDur);
+          setTimeout(() => btn?.classList.remove('playing'), (rv.durationMs || 500) + 200);
+          return;
+        }
 
         const duration = RHYTHM_DURATIONS[rhythmType] || 500;
         const noteDuration = rhythmType === 'whole' ? '1n' :
@@ -3428,7 +3758,6 @@ startTimer();
                             rhythmType === 'quarter' ? '4n' :
                             rhythmType === 'eighth' ? '8n' : '16n';
 
-        // Play the note
         piano.triggerAttackRelease(midiToNoteName(BASE_MIDI), noteDuration);
 
         setTimeout(() => btn?.classList.remove('playing'), duration + 200);
@@ -3443,7 +3772,9 @@ startTimer();
       '4-4': [[0, '4n'], [0, '8n'], [0, '8n'], [0, '4n'], [0, '8n'], [0, '8n']], // Strong-weak-weak-weak
       '3-4': [[0, '4n'], [0, '8n'], [0, '8n']], // Strong-weak-weak (waltz)
       '6-8': [[0, '4n.'], [0, '4n.']], // Two groups of 3 eighth notes
-      '2-4': [[0, '4n'], [0, '4n']]  // March: Strong-weak
+      '2-4': [[0, '4n'], [0, '4n']],  // March: Strong-weak
+      '5-4': [[0, '4n'], [0, '8n'], [0, '8n'], [0, '4n'], [0, '4n']], // 3+2 grouping
+      '7-8': [[0, '8n'], [0, '8n'], [0, '8n'], [0, '8n'], [0, '4n.']]  // 2+2+3 grouping
     };
 
     // Play time signature demonstration
@@ -3457,33 +3788,29 @@ startTimer();
         if (!pattern) return;
 
         let delay = 0;
-        const baseDelay = timeSig === '6-8' ? 200 : 400; // Faster for 6/8
+        const baseDelay = (timeSig === '6-8' || timeSig === '7-8') ? 200 : 400;
 
-        pattern.forEach((note, i) => {
-          setTimeout(() => {
-            // First beat of each group is emphasized (higher velocity/different note)
-            const isStrong = (timeSig === '4-4' && i % 2 === 0) ||
-                           (timeSig === '3-4' && i === 0) ||
-                           (timeSig === '6-8' && i === 0) ||
-                           (timeSig === '2-4' && i === 0);
-            const pitch = isStrong ? BASE_MIDI : BASE_MIDI - 5;
-            piano.triggerAttackRelease(midiToNoteName(pitch), note[1]);
-          }, delay);
-          delay += baseDelay;
-        });
+        // Determine strong-beat indices based on time signature
+        function isStrongBeat(ts, idx) {
+          if(ts === '4-4') return idx % 2 === 0;
+          if(ts === '3-4') return idx === 0;
+          if(ts === '6-8') return idx === 0;
+          if(ts === '2-4') return idx === 0;
+          if(ts === '5-4') return idx === 0 || idx === 3; // 3+2 grouping
+          if(ts === '7-8') return idx === 0 || idx === 2 || idx === 4; // 2+2+3 grouping
+          return idx === 0;
+        }
 
-        // Repeat the pattern once more
-        pattern.forEach((note, i) => {
-          setTimeout(() => {
-            const isStrong = (timeSig === '4-4' && i % 2 === 0) ||
-                           (timeSig === '3-4' && i === 0) ||
-                           (timeSig === '6-8' && i === 0) ||
-                           (timeSig === '2-4' && i === 0);
-            const pitch = isStrong ? BASE_MIDI : BASE_MIDI - 5;
-            piano.triggerAttackRelease(midiToNoteName(pitch), note[1]);
-          }, delay);
-          delay += baseDelay;
-        });
+        // Play pattern twice
+        for(let rep = 0; rep < 2; rep++){
+          pattern.forEach((note, i) => {
+            setTimeout(() => {
+              const pitch = isStrongBeat(timeSig, i) ? BASE_MIDI : BASE_MIDI - 5;
+              piano.triggerAttackRelease(midiToNoteName(pitch), note[1]);
+            }, delay);
+            delay += baseDelay;
+          });
+        }
 
         setTimeout(() => btn?.classList.remove('playing'), delay + 300);
       } catch(e) {
@@ -3878,6 +4205,38 @@ startTimer();
       btn.onclick = (e) => {
         e.stopPropagation();
         playTimeSignature(btn.dataset.timesig, btn);
+      };
+    });
+
+    // Syncopation demonstration buttons
+    document.querySelectorAll('.syncopation-listen').forEach(btn => {
+      btn.onclick = async (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.syncopation;
+        const rv = RHYTHM_VALUES.find(r => r.id === id);
+        if(!rv || !rv.pattern) return;
+        try {
+          await ensurePiano();
+          btn.classList.add('playing');
+          hapticLight();
+          let delay = 0;
+          rv.pattern.forEach(p => {
+            const dur = p.d;
+            const isRestBeat = dur.endsWith('r');
+            const baseDur = isRestBeat ? dur.slice(0, -1) : dur;
+            const ms = rhythmDurToMs(baseDur);
+            if(!isRestBeat){
+              setTimeout(() => {
+                piano.triggerAttackRelease(midiToNoteName(60), rhythmDurToTone(baseDur));
+              }, delay);
+            }
+            delay += ms;
+          });
+          setTimeout(() => btn.classList.remove('playing'), delay + 200);
+        } catch(e) {
+          console.warn('Syncopation play error:', e);
+          btn.classList.remove('playing');
+        }
       };
     });
 

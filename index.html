@@ -492,6 +492,60 @@
     .listen-btn:hover{ background:var(--success); transform:scale(1.1); }
     .listen-btn:active{ transform:scale(0.95); }
     .listen-btn.playing{ background:var(--danger); }
+
+    /* Scroll Quiz Mode */
+    .scroll-hit-line{
+      position:absolute;
+      width:3px;
+      border-radius:2px;
+      background:var(--primary);
+      opacity:0.35;
+      z-index:2;
+      pointer-events:none;
+      animation:hitPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes hitPulse{
+      0%,100%{ opacity:0.25; }
+      50%{ opacity:0.55; }
+    }
+    .scroll-note-group{ will-change:transform; }
+    .scroll-note-group.correct-glow path,
+    .scroll-note-group.correct-glow line,
+    .scroll-note-group.correct-glow rect,
+    .scroll-note-group.correct-glow ellipse{
+      stroke:var(--success) !important;
+      fill:var(--success) !important;
+    }
+    .scroll-note-group.wrong-glow path,
+    .scroll-note-group.wrong-glow line,
+    .scroll-note-group.wrong-glow rect,
+    .scroll-note-group.wrong-glow ellipse{
+      stroke:var(--danger) !important;
+      fill:var(--danger) !important;
+    }
+    .scroll-note-group.fadeout{
+      opacity:0;
+      transition:opacity 0.5s ease-out;
+    }
+    .scroll-progress{
+      position:absolute;
+      bottom:2px;
+      left:10px;
+      right:10px;
+      height:3px;
+      background:var(--border);
+      border-radius:2px;
+      overflow:hidden;
+      z-index:2;
+      pointer-events:none;
+    }
+    .scroll-progress-bar{
+      height:100%;
+      background:var(--primary);
+      border-radius:2px;
+      transition:width 0.05s linear;
+    }
+
     .interval-row{ cursor:pointer; transition:background 0.15s; }
     .interval-row:hover{ background:rgba(59,108,255,0.1); }
 
@@ -599,6 +653,10 @@
             <button type="button" class="presetBtn" data-preset="P29">P29 — + Sharps</button>
             <button type="button" class="presetBtn" data-preset="P30">P30 — + Flats</button>
             <button type="button" class="presetBtn" data-preset="P31">P31 — All Accidentals</button>
+            <div class="presetGroup">Sight Read Scroll</div>
+            <button type="button" class="presetBtn" data-preset="P32">P32 — Treble (Naturals)</button>
+            <button type="button" class="presetBtn" data-preset="P33">P33 — Both Clefs</button>
+            <button type="button" class="presetBtn" data-preset="P34">P34 — All Accidentals</button>
           </div>
         </div>
       </div>
@@ -690,6 +748,9 @@
           <option value="P29">P29 — Keyboard: + Sharps</option>
           <option value="P30">P30 — Keyboard: + Flats</option>
           <option value="P31">P31 — Keyboard: All Accidentals</option>
+          <option value="P32">P32 — Scroll: Treble (Naturals)</option>
+          <option value="P33">P33 — Scroll: Both Clefs</option>
+          <option value="P34">P34 — Scroll: All Accidentals</option>
         </select>
         <div class="hint">Presets control clefs, accidentals, and chord complexity.</div>
       </div>
@@ -1759,7 +1820,12 @@
       P28:{id:'P28',name:'Level 28 — Keyboard: Both Clefs (Naturals)',clefs:['treble','bass'],accs:[],mode:'keyboardQuiz'},
       P29:{id:'P29',name:'Level 29 — Keyboard: + Sharps',clefs:['treble','bass'],accs:['#'],mode:'keyboardQuiz'},
       P30:{id:'P30',name:'Level 30 — Keyboard: + Flats',clefs:['treble','bass'],accs:['b'],mode:'keyboardQuiz'},
-      P31:{id:'P31',name:'Level 31 — Keyboard: All Accidentals',clefs:['treble','bass'],accs:['#','b'],mode:'keyboardQuiz'}
+      P31:{id:'P31',name:'Level 31 — Keyboard: All Accidentals',clefs:['treble','bass'],accs:['#','b'],mode:'keyboardQuiz'},
+
+      // Sight Read Scroll (Guitar Hero style)
+      P32:{id:'P32',name:'Level 32 — Scroll: Treble (Naturals)',clefs:['treble'],accs:[],mode:'scrollQuiz'},
+      P33:{id:'P33',name:'Level 33 — Scroll: Both Clefs',clefs:['treble','bass'],accs:[],mode:'scrollQuiz'},
+      P34:{id:'P34',name:'Level 34 — Scroll: All Accidentals',clefs:['treble','bass'],accs:['#','b'],mode:'scrollQuiz'}
     };
 
     // Interval names for ear training
@@ -2403,9 +2469,47 @@ let inputLocked = false;
     function renderQuestion(q){
       if(!q) return;
 
-      // Clean up any rhythm replay overlay from previous question
+      // Clean up scroll animation and rhythm replay overlay from previous question
+      stopScrollAnimation();
       const boardArea = document.getElementById('boardArea');
-      if(boardArea) boardArea.querySelectorAll('.rhythm-replay').forEach(el => el.remove());
+      if(boardArea){
+        boardArea.querySelectorAll('.rhythm-replay').forEach(el => el.remove());
+        boardArea.querySelectorAll('.scroll-hit-line,.scroll-progress').forEach(el => el.remove());
+      }
+
+      // Scroll quiz mode — Guitar Hero style
+      if(q.type === 'scrollNote'){
+        // Draw staff background (only if clef changed or first draw)
+        if(!scrollStaffInfo || scrollStaffInfo.clef !== q.clef){
+          drawScrollStaffBackground(q.clef);
+        } else {
+          // Clear previous note elements but keep the stave
+          const svg = board.querySelector('svg');
+          if(svg) svg.querySelectorAll('.scroll-note-group').forEach(el => el.remove());
+        }
+
+        // Add hit zone line near clef
+        if(boardArea){
+          boardArea.style.position = 'relative';
+          if(!boardArea.querySelector('.scroll-hit-line')){
+            const hitLine = document.createElement('div');
+            hitLine.className = 'scroll-hit-line';
+            hitLine.style.cssText = 'top:15%;bottom:15%;left:80px;';
+            boardArea.appendChild(hitLine);
+          }
+          // Add progress bar
+          if(!boardArea.querySelector('.scroll-progress')){
+            const prog = document.createElement('div');
+            prog.className = 'scroll-progress';
+            prog.innerHTML = '<div class="scroll-progress-bar" style="width:100%"></div>';
+            boardArea.appendChild(prog);
+          }
+        }
+
+        // Render and animate the note
+        renderScrollNote(q);
+        return;
+      }
 
       // Ear training modes - show listening UI instead of notation
       if(q.type === 'earInterval' || q.type === 'earChord'){
@@ -2548,7 +2652,8 @@ let inputLocked = false;
       const octave = range.min + Math.floor(Math.random() * (range.max - range.min + 1));
       const wrongAnswers = generateWrongNoteAnswers(note, notes);
       const allAnswers = shuffle([note.display, ...wrongAnswers]);
-      return {type:'note',clef,data:{note,octave},correctAnswer:note.display,wrongAnswers,allAnswers};
+      const qType = (preset.mode === 'scrollQuiz') ? 'scrollNote' : 'note';
+      return {type:qType,clef,data:{note,octave},correctAnswer:note.display,wrongAnswers,allAnswers};
     }
 
     function generateWrongNoteAnswers(correct, pool){
@@ -2792,6 +2897,180 @@ let inputLocked = false;
       }catch(e){
         console.warn('Time sig quiz sound error:', e);
       }
+    }
+
+    // ==================== SCROLL QUIZ (Guitar Hero mode) ====================
+    let scrollAnimId = null;
+    let scrollNoteGroup = null;
+    let scrollStartTime = 0;
+    let scrollAnswered = false;
+    let scrollMaxOffset = 0;
+    let scrollStaffInfo = null;
+    const SCROLL_DURATION_MS = 4000; // 4 seconds per note
+
+    function stopScrollAnimation(){
+      scrollAnswered = true;
+      if(scrollAnimId){
+        cancelAnimationFrame(scrollAnimId);
+        scrollAnimId = null;
+      }
+    }
+
+    // Draw the empty staff background (clef + lines, no notes)
+    function drawScrollStaffBackground(clef){
+      const VF = Vex.Flow;
+      const w = Math.max(260, board.clientWidth - 8);
+      const h = Math.max(140, board.clientHeight - 8);
+
+      board.innerHTML = '';
+      cachedRenderer = new VF.Renderer(board, VF.Renderer.Backends.SVG);
+      cachedRendererWidth = w;
+      cachedRendererHeight = h;
+      cachedRenderer.resize(w, h);
+
+      const ctx = cachedRenderer.getContext();
+      const y = Math.max(18, h/2 - 48);
+      const stave = new VF.Stave(10, y, w - 20);
+      stave.addClef(clef);
+      stave.setContext(ctx).draw();
+
+      scrollStaffInfo = { ctx, stave, w, h, y, clef };
+      return scrollStaffInfo;
+    }
+
+    // Render a note onto the scroll staff and animate it
+    function renderScrollNote(q){
+      if(!scrollStaffInfo) return;
+      const VF = Vex.Flow;
+      const { ctx, stave, w, h, y } = scrollStaffInfo;
+      const svg = board.querySelector('svg');
+      if(!svg) return;
+
+      // Remove any existing scroll note group
+      svg.querySelectorAll('.scroll-note-group').forEach(el => el.remove());
+
+      // Record SVG child count before drawing note
+      const beforeCount = svg.childElementCount;
+
+      // Build note keys and accidentals from the question data (same format as drawStaff)
+      const note = q.data.note;
+      const octave = q.data.octave;
+      const base = (note.base || note.name).toLowerCase();
+      const noteKey = base + '/' + octave;
+      const accidental = note.acc || null;
+
+      const staveNote = new VF.StaveNote({
+        clef: q.clef,
+        keys: [noteKey],
+        duration: 'q'
+      });
+      if(accidental){
+        staveNote.addModifier(new VF.Accidental(accidental), 0);
+      }
+
+      const voice = new VF.Voice({num_beats: 1, beat_value: 4}).setMode(VF.Voice.Mode.SOFT);
+      voice.addTickables([staveNote]);
+      new VF.Formatter().joinVoices([voice]).format([voice], 40);
+      voice.draw(ctx, stave);
+
+      // Gather all new SVG elements (the note)
+      const noteElements = [];
+      for(let i = beforeCount; i < svg.childElementCount; i++){
+        noteElements.push(svg.children[i]);
+      }
+      if(noteElements.length === 0) return;
+
+      // Wrap in animated group
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.classList.add('scroll-note-group');
+      noteElements.forEach(el => g.appendChild(el));
+      svg.appendChild(g);
+
+      // Start note at right edge, animate to rendered position (translateX=0)
+      scrollMaxOffset = w - 100;
+      g.style.transform = 'translateX(' + scrollMaxOffset + 'px)';
+
+      scrollNoteGroup = g;
+      scrollAnswered = false;
+      scrollStartTime = performance.now();
+
+      function tick(now){
+        if(scrollAnswered) return;
+        const elapsed = now - scrollStartTime;
+        const progress = Math.min(elapsed / SCROLL_DURATION_MS, 1);
+        const currentOffset = scrollMaxOffset * (1 - progress);
+        g.style.transform = 'translateX(' + currentOffset + 'px)';
+
+        // Update progress bar
+        const bar = document.querySelector('.scroll-progress-bar');
+        if(bar) bar.style.width = ((1 - progress) * 100) + '%';
+
+        if(progress >= 1){
+          // Time's up — treat as timeout
+          handleScrollTimeout();
+          return;
+        }
+        scrollAnimId = requestAnimationFrame(tick);
+      }
+
+      scrollAnimId = requestAnimationFrame(tick);
+    }
+
+    function handleScrollTimeout(){
+      if(scrollAnswered) return;
+      scrollAnswered = true;
+      stopScrollAnimation();
+      inputLocked = true;
+      window.disableAnswers();
+
+      // Flash wrong
+      if(scrollNoteGroup) scrollNoteGroup.classList.add('wrong-glow');
+
+      stats.wrong++;
+      stats.streak = 0;
+      hapticError();
+
+      // Reveal correct answer on buttons
+      answerButtons.querySelectorAll('button').forEach(b => {
+        if(b.textContent === currentQuestion.correctAnswer) b.classList.add('reveal');
+      });
+
+      setFeedback('\u2717 Time! ' + currentQuestion.correctAnswer, false);
+      showIcon(false);
+
+      const roundComplete = stepRound(false);
+      updateStats();
+
+      // Fade note then advance
+      setTimeout(() => {
+        if(scrollNoteGroup) scrollNoteGroup.classList.add('fadeout');
+      }, 300);
+
+      setTimeout(() => {
+        inputLocked = false;
+        if(roundComplete){
+          hapticRoundComplete();
+          showRoundOverlay();
+        } else if(running){
+          nextQuestion();
+        }
+      }, getTransitionDelayMs() + 400);
+    }
+
+    function handleScrollCorrect(btn){
+      stopScrollAnimation();
+      if(scrollNoteGroup) scrollNoteGroup.classList.add('correct-glow');
+      setTimeout(() => {
+        if(scrollNoteGroup) scrollNoteGroup.classList.add('fadeout');
+      }, 250);
+    }
+
+    function handleScrollWrong(btn){
+      stopScrollAnimation();
+      if(scrollNoteGroup) scrollNoteGroup.classList.add('wrong-glow');
+      setTimeout(() => {
+        if(scrollNoteGroup) scrollNoteGroup.classList.add('fadeout');
+      }, 400);
     }
 
     // ==================== UI ====================
@@ -3360,6 +3639,7 @@ function showKeyboardSolution(){
 
       inputLocked = true;
       stopTimer();
+      stopScrollAnimation();
       window.disableAnswers();
 
       try{
@@ -3385,6 +3665,8 @@ function showKeyboardSolution(){
           }
           if(btn) btn.classList.add('correct');
           showKeyboardSelection(answer,'correct');
+          // Scroll quiz visual feedback
+          if(currentQuestion.type === 'scrollNote') handleScrollCorrect(btn);
           // Enhanced feedback for rhythm modes: show beat count
           const rhythmHint = getRhythmFeedbackHint(currentQuestion, true);
           setFeedback('✓ Correct! ' + currentQuestion.correctAnswer + rhythmHint, true);
@@ -3394,6 +3676,8 @@ function showKeyboardSolution(){
           hapticError(); // Haptic feedback for wrong answer
           if(btn) btn.classList.add('wrong');
           showKeyboardSelection(answer,'wrong');
+          // Scroll quiz visual feedback
+          if(currentQuestion.type === 'scrollNote') handleScrollWrong(btn);
 
           answerButtons.querySelectorAll('button').forEach(b => {
             if(b.textContent === currentQuestion.correctAnswer) b.classList.add('reveal');
@@ -3462,7 +3746,9 @@ questionToken++;
       }catch(e){/* ignore */}
       renderQuestion(currentQuestion);
       buildAnswerButtons();
-startTimer();
+      // Scroll quiz uses its own animation timer, skip global timer
+      const isScrollQuiz = currentQuestion?.type === 'scrollNote';
+      if(!isScrollQuiz) startTimer();
       // Always auto-play for ear training and rhythm modes, otherwise check soundMode setting
       const isEarTraining = currentQuestion?.type === 'earInterval' || currentQuestion?.type === 'earChord';
       const isRhythm = currentQuestion?.type === 'rhythm' || currentQuestion?.type === 'rhythmCount';
@@ -3481,6 +3767,7 @@ startTimer();
     function pauseQuiz(){
       running = false;
       stopTimer();
+      stopScrollAnimation();
       document.getElementById('startBtn').textContent = 'Start';
       updateStats();
     }
@@ -3488,6 +3775,8 @@ startTimer();
     function resetQuiz(){
       running = false;
       stopTimer();
+      stopScrollAnimation();
+      scrollStaffInfo = null;
       inputLocked = false;
       currentQuestion = null;
       stats = {correct:0,wrong:0,streak:0};

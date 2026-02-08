@@ -2469,47 +2469,16 @@ let inputLocked = false;
     function renderQuestion(q){
       if(!q) return;
 
-      // Clean up scroll animation and rhythm replay overlay from previous question
-      stopScrollAnimation();
+      // Clean up scroll game and rhythm replay overlay from previous question
+      stopScrollGame();
       const boardArea = document.getElementById('boardArea');
       if(boardArea){
         boardArea.querySelectorAll('.rhythm-replay').forEach(el => el.remove());
         boardArea.querySelectorAll('.scroll-hit-line,.scroll-progress').forEach(el => el.remove());
       }
 
-      // Scroll quiz mode — Guitar Hero style
-      if(q.type === 'scrollNote'){
-        // Draw staff background (only if clef changed or first draw)
-        if(!scrollStaffInfo || scrollStaffInfo.clef !== q.clef){
-          drawScrollStaffBackground(q.clef);
-        } else {
-          // Clear previous note elements but keep the stave
-          const svg = board.querySelector('svg');
-          if(svg) svg.querySelectorAll('.scroll-note-group').forEach(el => el.remove());
-        }
-
-        // Add hit zone line near clef
-        if(boardArea){
-          boardArea.style.position = 'relative';
-          if(!boardArea.querySelector('.scroll-hit-line')){
-            const hitLine = document.createElement('div');
-            hitLine.className = 'scroll-hit-line';
-            hitLine.style.cssText = 'top:15%;bottom:15%;left:80px;';
-            boardArea.appendChild(hitLine);
-          }
-          // Add progress bar
-          if(!boardArea.querySelector('.scroll-progress')){
-            const prog = document.createElement('div');
-            prog.className = 'scroll-progress';
-            prog.innerHTML = '<div class="scroll-progress-bar" style="width:100%"></div>';
-            boardArea.appendChild(prog);
-          }
-        }
-
-        // Render and animate the note
-        renderScrollNote(q);
-        return;
-      }
+      // Scroll quiz is handled entirely by the game loop in nextQuestion, not here
+      if(q.type === 'scrollNote') return;
 
       // Ear training modes - show listening UI instead of notation
       if(q.type === 'earInterval' || q.type === 'earChord'){
@@ -2900,23 +2869,30 @@ let inputLocked = false;
     }
 
     // ==================== SCROLL QUIZ (Guitar Hero mode) ====================
-    let scrollAnimId = null;
-    let scrollNoteGroup = null;
-    let scrollStartTime = 0;
-    let scrollAnswered = false;
-    let scrollMaxOffset = 0;
+    // Continuous multi-note pipeline: notes spawn at intervals, scroll across
+    // the staff, and must be answered before reaching the clef. Answered notes
+    // glow green/red and fade away while new ones keep coming.
+    let scrollNotes = [];           // active note pipeline
+    let scrollGameLoopId = null;    // rAF id
+    let scrollSpawnTimer = null;    // setInterval id
     let scrollStaffInfo = null;
-    const SCROLL_DURATION_MS = 4000; // 4 seconds per note
+    const SCROLL_DURATION_MS = 4000;     // time for a note to cross the screen
+    const SCROLL_SPAWN_INTERVAL = 2500;  // ms between new note spawns
+    const SCROLL_FADE_DELAY = 600;       // ms after answer before fade starts
+    const SCROLL_FADE_DURATION = 500;    // ms for fade-out animation
 
-    function stopScrollAnimation(){
-      scrollAnswered = true;
-      if(scrollAnimId){
-        cancelAnimationFrame(scrollAnimId);
-        scrollAnimId = null;
+    function stopScrollGame(){
+      if(scrollGameLoopId){
+        cancelAnimationFrame(scrollGameLoopId);
+        scrollGameLoopId = null;
       }
+      if(scrollSpawnTimer){
+        clearInterval(scrollSpawnTimer);
+        scrollSpawnTimer = null;
+      }
+      scrollNotes = [];
     }
 
-    // Draw the empty staff background (clef + lines, no notes)
     function drawScrollStaffBackground(clef){
       const VF = Vex.Flow;
       const w = Math.max(260, board.clientWidth - 8);
@@ -2938,26 +2914,29 @@ let inputLocked = false;
       return scrollStaffInfo;
     }
 
-    // Render a note onto the scroll staff and animate it
-    function renderScrollNote(q){
-      if(!scrollStaffInfo) return;
+    // Spawn a single note onto the staff and add it to the pipeline
+    function spawnScrollNote(){
+      if(!running || !scrollStaffInfo) return;
       const VF = Vex.Flow;
-      const { ctx, stave, w, h, y } = scrollStaffInfo;
+      const { ctx, stave, w } = scrollStaffInfo;
       const svg = board.querySelector('svg');
       if(!svg) return;
 
-      // Remove any existing scroll note group
-      svg.querySelectorAll('.scroll-note-group').forEach(el => el.remove());
+      // Force generated question to use the staff's clef
+      const origClefs = currentPreset.clefs;
+      currentPreset.clefs = [scrollStaffInfo.clef];
+      const q = generateQuestion();
+      currentPreset.clefs = origClefs;
+      if(!q) return;
 
-      // Record SVG child count before drawing note
-      const beforeCount = svg.childElementCount;
-
-      // Build note keys and accidentals from the question data (same format as drawStaff)
       const note = q.data.note;
       const octave = q.data.octave;
       const base = (note.base || note.name).toLowerCase();
       const noteKey = base + '/' + octave;
       const accidental = note.acc || null;
+
+      // Record child count before drawing so we can isolate new elements
+      const beforeCount = svg.childElementCount;
 
       const staveNote = new VF.StaveNote({
         clef: q.clef,
@@ -2968,109 +2947,176 @@ let inputLocked = false;
         staveNote.addModifier(new VF.Accidental(accidental), 0);
       }
 
-      const voice = new VF.Voice({num_beats: 1, beat_value: 4}).setMode(VF.Voice.Mode.SOFT);
+      const voice = new VF.Voice({num_beats:1, beat_value:4}).setMode(VF.Voice.Mode.SOFT);
       voice.addTickables([staveNote]);
       new VF.Formatter().joinVoices([voice]).format([voice], 40);
       voice.draw(ctx, stave);
 
-      // Gather all new SVG elements (the note)
+      // Gather newly-added SVG elements
       const noteElements = [];
       for(let i = beforeCount; i < svg.childElementCount; i++){
         noteElements.push(svg.children[i]);
       }
       if(noteElements.length === 0) return;
 
-      // Wrap in animated group
+      // Wrap in an animated group
       const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
       g.classList.add('scroll-note-group');
       noteElements.forEach(el => g.appendChild(el));
       svg.appendChild(g);
 
-      // Start note at right edge, animate to rendered position (translateX=0)
-      scrollMaxOffset = w - 100;
-      g.style.transform = 'translateX(' + scrollMaxOffset + 'px)';
+      const maxOffset = w - 100;
+      g.style.transform = 'translateX(' + maxOffset + 'px)';
 
-      scrollNoteGroup = g;
-      scrollAnswered = false;
-      scrollStartTime = performance.now();
-
-      function tick(now){
-        if(scrollAnswered) return;
-        const elapsed = now - scrollStartTime;
-        const progress = Math.min(elapsed / SCROLL_DURATION_MS, 1);
-        const currentOffset = scrollMaxOffset * (1 - progress);
-        g.style.transform = 'translateX(' + currentOffset + 'px)';
-
-        // Update progress bar
-        const bar = document.querySelector('.scroll-progress-bar');
-        if(bar) bar.style.width = ((1 - progress) * 100) + '%';
-
-        if(progress >= 1){
-          // Time's up — treat as timeout
-          handleScrollTimeout();
-          return;
-        }
-        scrollAnimId = requestAnimationFrame(tick);
-      }
-
-      scrollAnimId = requestAnimationFrame(tick);
-    }
-
-    function handleScrollTimeout(){
-      if(scrollAnswered) return;
-      scrollAnswered = true;
-      stopScrollAnimation();
-      inputLocked = true;
-      window.disableAnswers();
-
-      // Flash wrong
-      if(scrollNoteGroup) scrollNoteGroup.classList.add('wrong-glow');
-
-      stats.wrong++;
-      stats.streak = 0;
-      hapticError();
-
-      // Reveal correct answer on buttons
-      answerButtons.querySelectorAll('button').forEach(b => {
-        if(b.textContent === currentQuestion.correctAnswer) b.classList.add('reveal');
+      scrollNotes.push({
+        group: g,
+        startTime: performance.now(),
+        maxOffset,
+        answered: false,
+        correct: false,
+        fadeStart: 0,
+        question: q
       });
 
-      setFeedback('\u2717 Time! ' + currentQuestion.correctAnswer, false);
-      showIcon(false);
+      // If this is the first unanswered note, show its answer buttons
+      updateScrollFrontNote();
+    }
 
-      const roundComplete = stepRound(false);
+    // Return the frontmost (oldest) unanswered note
+    function getScrollFrontNote(){
+      return scrollNotes.find(n => !n.answered);
+    }
+
+    // Rebuild answer buttons whenever the front note changes
+    function updateScrollFrontNote(){
+      const front = getScrollFrontNote();
+      if(!front) return;
+      currentQuestion = front.question;
+      buildAnswerButtons();
+    }
+
+    // Main game loop — moves ALL active notes, handles fades and auto-fails
+    function scrollGameLoop(now){
+      if(!running){
+        scrollGameLoopId = null;
+        return;
+      }
+
+      let needButtonUpdate = false;
+
+      for(let i = scrollNotes.length - 1; i >= 0; i--){
+        const entry = scrollNotes[i];
+        const elapsed = now - entry.startTime;
+        const progress = Math.min(elapsed / SCROLL_DURATION_MS, 1);
+
+        // Move the note
+        const currentOffset = entry.maxOffset * (1 - progress);
+        entry.group.style.transform = 'translateX(' + currentOffset + 'px)';
+
+        // Handle fade lifecycle (after answer or auto-fail)
+        if(entry.fadeStart > 0 && now >= entry.fadeStart){
+          const fadeProg = (now - entry.fadeStart) / SCROLL_FADE_DURATION;
+          if(fadeProg >= 1){
+            entry.group.remove();
+            scrollNotes.splice(i, 1);
+            continue;
+          }
+          entry.group.style.opacity = String(1 - fadeProg);
+        }
+
+        // Auto-fail: note reached the clef without being answered
+        if(progress >= 1 && !entry.answered){
+          entry.answered = true;
+          entry.correct = false;
+          entry.group.classList.add('wrong-glow');
+          entry.fadeStart = now + SCROLL_FADE_DELAY;
+
+          stats.wrong++;
+          stats.streak = 0;
+          hapticError();
+          setFeedback('\u2717 Time! ' + entry.question.correctAnswer, false);
+          showIcon(false);
+
+          const roundComplete = stepRound(false);
+          updateStats();
+
+          if(roundComplete){
+            stopScrollGame();
+            hapticRoundComplete();
+            showRoundOverlay();
+            return;
+          }
+          needButtonUpdate = true;
+        }
+      }
+
+      if(needButtonUpdate) updateScrollFrontNote();
+      scrollGameLoopId = requestAnimationFrame(scrollGameLoop);
+    }
+
+    // Handle an answer in scroll mode — targets the frontmost unanswered note
+    function handleScrollAnswer(answer, btn){
+      const front = getScrollFrontNote();
+      if(!front) return;
+
+      const isCorrect = (answer === front.question.correctAnswer);
+      front.answered = true;
+      front.correct = isCorrect;
+      front.fadeStart = performance.now() + SCROLL_FADE_DELAY;
+
+      if(isCorrect){
+        stats.correct++;
+        stats.streak++;
+        if(stats.streak > 0 && stats.streak % 5 === 0) hapticStreak();
+        else hapticSuccess();
+        front.group.classList.add('correct-glow');
+        if(btn) btn.classList.add('correct');
+        setFeedback('\u2713 ' + front.question.correctAnswer, true);
+      } else {
+        stats.wrong++;
+        stats.streak = 0;
+        hapticError();
+        front.group.classList.add('wrong-glow');
+        if(btn) btn.classList.add('wrong');
+        setFeedback('\u2717 ' + front.question.correctAnswer, false);
+      }
+
+      showIcon(isCorrect);
+
+      const roundComplete = stepRound(isCorrect);
       updateStats();
 
-      // Fade note then advance
-      setTimeout(() => {
-        if(scrollNoteGroup) scrollNoteGroup.classList.add('fadeout');
-      }, 300);
+      if(roundComplete){
+        stopScrollGame();
+        hapticRoundComplete();
+        showRoundOverlay();
+        return;
+      }
 
-      setTimeout(() => {
-        inputLocked = false;
-        if(roundComplete){
-          hapticRoundComplete();
-          showRoundOverlay();
-        } else if(running){
-          nextQuestion();
-        }
-      }, getTransitionDelayMs() + 400);
+      // Immediately show buttons for the next unanswered note
+      updateScrollFrontNote();
     }
 
-    function handleScrollCorrect(btn){
-      stopScrollAnimation();
-      if(scrollNoteGroup) scrollNoteGroup.classList.add('correct-glow');
-      setTimeout(() => {
-        if(scrollNoteGroup) scrollNoteGroup.classList.add('fadeout');
-      }, 250);
-    }
+    // Set up the scroll staff and kick off the continuous game
+    function startScrollGame(){
+      stopScrollGame();
+      if(!scrollStaffInfo) return;
 
-    function handleScrollWrong(btn){
-      stopScrollAnimation();
-      if(scrollNoteGroup) scrollNoteGroup.classList.add('wrong-glow');
-      setTimeout(() => {
-        if(scrollNoteGroup) scrollNoteGroup.classList.add('fadeout');
-      }, 400);
+      // Clear any leftover note groups from DOM
+      const svg = board.querySelector('svg');
+      if(svg) svg.querySelectorAll('.scroll-note-group').forEach(el => el.remove());
+
+      // Spawn first note immediately
+      spawnScrollNote();
+
+      // Spawn new notes on a regular interval
+      scrollSpawnTimer = setInterval(() => {
+        if(!running) return;
+        spawnScrollNote();
+      }, SCROLL_SPAWN_INTERVAL);
+
+      // Start the animation/game loop
+      scrollGameLoopId = requestAnimationFrame(scrollGameLoop);
     }
 
     // ==================== UI ====================
@@ -3634,12 +3680,18 @@ function showKeyboardSolution(){
 
     function handleAnswer(answer, btn){
       if(!running) return;
+
+      // Scroll mode: continuous pipeline, no token locking
+      if(currentQuestion?.type === 'scrollNote'){
+        handleScrollAnswer(answer, btn);
+        return;
+      }
+
       if(answeredToken === questionToken) return;
       answeredToken = questionToken;
 
       inputLocked = true;
       stopTimer();
-      stopScrollAnimation();
       window.disableAnswers();
 
       try{
@@ -3665,8 +3717,6 @@ function showKeyboardSolution(){
           }
           if(btn) btn.classList.add('correct');
           showKeyboardSelection(answer,'correct');
-          // Scroll quiz visual feedback
-          if(currentQuestion.type === 'scrollNote') handleScrollCorrect(btn);
           // Enhanced feedback for rhythm modes: show beat count
           const rhythmHint = getRhythmFeedbackHint(currentQuestion, true);
           setFeedback('✓ Correct! ' + currentQuestion.correctAnswer + rhythmHint, true);
@@ -3676,8 +3726,6 @@ function showKeyboardSolution(){
           hapticError(); // Haptic feedback for wrong answer
           if(btn) btn.classList.add('wrong');
           showKeyboardSelection(answer,'wrong');
-          // Scroll quiz visual feedback
-          if(currentQuestion.type === 'scrollNote') handleScrollWrong(btn);
 
           answerButtons.querySelectorAll('button').forEach(b => {
             if(b.textContent === currentQuestion.correctAnswer) b.classList.add('reveal');
@@ -3714,14 +3762,34 @@ function showKeyboardSolution(){
 
 
     function nextQuestion(){
-  if(!running) return;
-  clearKeyboardHighlights();
+      if(!running) return;
+      clearKeyboardHighlights();
       clearFeedback();
+
+      // Scroll quiz mode — continuous pipeline handled by the game loop
+      if(currentPreset?.mode === 'scrollQuiz'){
+        const clef = currentPreset.clefs[Math.floor(Math.random() * currentPreset.clefs.length)];
+        if(!scrollStaffInfo || scrollStaffInfo.clef !== clef){
+          drawScrollStaffBackground(clef);
+        }
+        // Add hit-zone line near the clef
+        const boardArea = document.getElementById('boardArea');
+        if(boardArea){
+          boardArea.style.position = 'relative';
+          if(!boardArea.querySelector('.scroll-hit-line')){
+            const hitLine = document.createElement('div');
+            hitLine.className = 'scroll-hit-line';
+            hitLine.style.cssText = 'top:15%;bottom:15%;left:80px;';
+            boardArea.appendChild(hitLine);
+          }
+        }
+        inputLocked = false;
+        startScrollGame();
+        return;
+      }
+
       currentQuestion = generateQuestion();
       questionToken++;
-      answeredToken = -1;
-      inputLocked = false;
-questionToken++;
       answeredToken = -1;
       inputLocked = false;
       // Adjust keyboard octave window so the correct answer always fits on-screen
@@ -3746,9 +3814,7 @@ questionToken++;
       }catch(e){/* ignore */}
       renderQuestion(currentQuestion);
       buildAnswerButtons();
-      // Scroll quiz uses its own animation timer, skip global timer
-      const isScrollQuiz = currentQuestion?.type === 'scrollNote';
-      if(!isScrollQuiz) startTimer();
+      startTimer();
       // Always auto-play for ear training and rhythm modes, otherwise check soundMode setting
       const isEarTraining = currentQuestion?.type === 'earInterval' || currentQuestion?.type === 'earChord';
       const isRhythm = currentQuestion?.type === 'rhythm' || currentQuestion?.type === 'rhythmCount';
@@ -3767,7 +3833,7 @@ questionToken++;
     function pauseQuiz(){
       running = false;
       stopTimer();
-      stopScrollAnimation();
+      stopScrollGame();
       document.getElementById('startBtn').textContent = 'Start';
       updateStats();
     }
@@ -3775,7 +3841,7 @@ questionToken++;
     function resetQuiz(){
       running = false;
       stopTimer();
-      stopScrollAnimation();
+      stopScrollGame();
       scrollStaffInfo = null;
       inputLocked = false;
       currentQuestion = null;
@@ -3803,6 +3869,13 @@ questionToken++;
     document.getElementById('skipBtn').onclick = () => {
       if(!running || inputLocked) return;
       hapticLight();
+
+      // In scroll mode, skipping treats the front note as wrong
+      if(currentQuestion?.type === 'scrollNote'){
+        handleScrollAnswer('__skip__', null);
+        return;
+      }
+
       inputLocked = true;
       stopTimer();
       window.disableAnswers();

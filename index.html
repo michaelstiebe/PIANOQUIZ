@@ -2218,6 +2218,23 @@ let inputLocked = false;
             return;
           }
 
+          // In scroll quiz mode, pressing a key answers the front note
+          if(running && currentQuestion && currentQuestion.type === 'scrollNote'){
+            const front = getScrollFrontNote();
+            if(front){
+              hapticLight();
+              playKeyByMidi(midi, key);
+              const pressedSemi = midi % 12;
+              const correctSemi = front.question.data.note.semitone;
+              if(pressedSemi === correctSemi){
+                handleScrollAnswer(front.question.correctAnswer, null);
+              } else {
+                handleScrollAnswer('__kb_wrong__', null);
+              }
+              return;
+            }
+          }
+
           playKeyByMidi(midi, key);
         };
         // Use pointerdown for faster response
@@ -2978,8 +2995,11 @@ let inputLocked = false;
         question: q
       });
 
-      // If this is the first unanswered note, show its answer buttons
-      updateScrollFrontNote();
+      // Only update buttons if the new note IS the front (no prior unanswered notes)
+      const front = getScrollFrontNote();
+      if(front === scrollNotes[scrollNotes.length - 1]){
+        updateScrollFrontNote();
+      }
     }
 
     // Return the frontmost (oldest) unanswered note
@@ -4098,7 +4118,46 @@ function showKeyboardSolution(){
       return RHYTHM_VALUES.filter(r => r.level <= level);
     }
 
-    // Play rhythm demonstration (supports basic and dotted note types)
+    // ---- Metronome click for rhythm demonstrations ----
+    let clickSynth = null;
+    function ensureClickSynth(){
+      if(!clickSynth){
+        clickSynth = new Tone.MembraneSynth({
+          pitchDecay: 0.008,
+          octaves: 2,
+          envelope: { attack: 0.001, decay: 0.06, sustain: 0, release: 0.01 }
+        }).toDestination();
+        clickSynth.volume.value = -10;
+      }
+      return clickSynth;
+    }
+    const METRO_BEAT_MS = 500; // matches rhythmDurToMs quarter-note at ~120 BPM
+
+    function playMetronomeClick(strong){
+      const synth = ensureClickSynth();
+      synth.triggerAttackRelease(strong ? 'G3' : 'C3', '32n');
+    }
+
+    // Schedule metronome clicks: 2-beat count-in then clicks for `numBeats` beats.
+    // Returns the offset (ms) at which the actual note should start playing.
+    function scheduleMetronome(numBeats){
+      const countIn = 2;
+      // Count-in clicks
+      for(let i = 0; i < countIn; i++){
+        const t = i * METRO_BEAT_MS;
+        setTimeout(() => playMetronomeClick(i === 0), t);
+      }
+      // Clicks during the note (downbeat + subsequent beats)
+      const noteStart = countIn * METRO_BEAT_MS;
+      const totalBeats = Math.max(1, Math.ceil(numBeats));
+      for(let b = 0; b < totalBeats; b++){
+        const t = noteStart + b * METRO_BEAT_MS;
+        setTimeout(() => playMetronomeClick(b === 0), t);
+      }
+      return noteStart;
+    }
+
+    // Play rhythm demonstration with metronome count-in
     async function playRhythm(rhythmType, btn) {
       try {
         await ensurePiano();
@@ -4108,21 +4167,30 @@ function showKeyboardSolution(){
         // Look up from RHYTHM_VALUES first for dotted notes
         const rv = RHYTHM_VALUES.find(r => r.id === rhythmType);
         if(rv && !rv.isRest && !rv.isSyncopation){
+          const beats = rv.beats || 1;
+          const noteStart = scheduleMetronome(beats);
           const toneDur = rhythmDurToTone(rv.vexDuration);
-          piano.triggerAttackRelease(midiToNoteName(BASE_MIDI), toneDur);
-          setTimeout(() => btn?.classList.remove('playing'), (rv.durationMs || 500) + 200);
+          setTimeout(() => {
+            piano.triggerAttackRelease(midiToNoteName(BASE_MIDI), toneDur);
+          }, noteStart);
+          const totalMs = noteStart + (rv.durationMs || 500);
+          setTimeout(() => btn?.classList.remove('playing'), totalMs + 200);
           return;
         }
 
         const duration = RHYTHM_DURATIONS[rhythmType] || 500;
+        const beats = duration / METRO_BEAT_MS;
+        const noteStart = scheduleMetronome(beats);
         const noteDuration = rhythmType === 'whole' ? '1n' :
                             rhythmType === 'half' ? '2n' :
                             rhythmType === 'quarter' ? '4n' :
                             rhythmType === 'eighth' ? '8n' : '16n';
 
-        piano.triggerAttackRelease(midiToNoteName(BASE_MIDI), noteDuration);
+        setTimeout(() => {
+          piano.triggerAttackRelease(midiToNoteName(BASE_MIDI), noteDuration);
+        }, noteStart);
 
-        setTimeout(() => btn?.classList.remove('playing'), duration + 200);
+        setTimeout(() => btn?.classList.remove('playing'), noteStart + duration + 200);
       } catch(e) {
         console.warn('Rhythm play error:', e);
         btn?.classList.remove('playing');
@@ -4570,7 +4638,7 @@ function showKeyboardSolution(){
       };
     });
 
-    // Syncopation demonstration buttons
+    // Syncopation demonstration buttons (with metronome count-in)
     document.querySelectorAll('.syncopation-listen').forEach(btn => {
       btn.onclick = async (e) => {
         e.stopPropagation();
@@ -4581,6 +4649,20 @@ function showKeyboardSolution(){
           await ensurePiano();
           btn.classList.add('playing');
           hapticLight();
+
+          // Calculate total pattern duration in beats
+          let patternMs = 0;
+          rv.pattern.forEach(p => {
+            const dur = p.d;
+            const baseDur = dur.endsWith('r') ? dur.slice(0,-1) : dur;
+            patternMs += rhythmDurToMs(baseDur);
+          });
+          const patternBeats = patternMs / METRO_BEAT_MS;
+
+          // 2-beat count-in + metronome clicks over the pattern
+          const noteStart = scheduleMetronome(patternBeats);
+
+          // Schedule the pattern notes after the count-in
           let delay = 0;
           rv.pattern.forEach(p => {
             const dur = p.d;
@@ -4588,13 +4670,14 @@ function showKeyboardSolution(){
             const baseDur = isRestBeat ? dur.slice(0, -1) : dur;
             const ms = rhythmDurToMs(baseDur);
             if(!isRestBeat){
+              const t = noteStart + delay;
               setTimeout(() => {
                 piano.triggerAttackRelease(midiToNoteName(60), rhythmDurToTone(baseDur));
-              }, delay);
+              }, t);
             }
             delay += ms;
           });
-          setTimeout(() => btn.classList.remove('playing'), delay + 200);
+          setTimeout(() => btn.classList.remove('playing'), noteStart + delay + 200);
         } catch(e) {
           console.warn('Syncopation play error:', e);
           btn.classList.remove('playing');

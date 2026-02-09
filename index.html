@@ -112,6 +112,22 @@
     .stat .k{font-size:11px;opacity:.7}
     .stat .v{font-size:14px;font-weight:900;margin-top:2px}
 
+    /* Prominent countdown timer */
+    #statTimeBox .v{font-size:22px;line-height:1;margin-top:1px}
+    #statTimeBox.timer-active,#statTimeBox.timer-active:hover{
+      background:var(--primary);border-color:var(--primary);color:#fff;
+    }
+    #statTimeBox.timer-active .k{opacity:1}
+    #statTimeBox.timer-warn,#statTimeBox.timer-warn:hover{
+      background:var(--danger);border-color:var(--danger);color:#fff;
+      animation:timer-pulse .5s ease-in-out infinite alternate;
+    }
+    #statTimeBox.timer-warn .k{opacity:1}
+    @keyframes timer-pulse{
+      from{transform:scale(1)}
+      to{transform:scale(1.05)}
+    }
+
     /* Clickable stats */
     .stat.clickable{cursor:pointer;position:relative;transition:background .15s;touch-action:manipulation}
     .stat.clickable:hover{background:var(--btn)}
@@ -3485,7 +3501,21 @@ function showKeyboardSolution(){
 
 
     function updateStats(){
+      const timeBox = document.getElementById('statTimeBox');
+      const timerLimit = getTimerSetting();
       document.getElementById('statTime').textContent = running ? String(timeLeft) : '—';
+      // Highlight timer when active; warn when low
+      if(running && timerLimit > 0){
+        if(timeLeft <= 3 && timeLeft > 0){
+          timeBox.classList.remove('timer-active');
+          timeBox.classList.add('timer-warn');
+        } else {
+          timeBox.classList.add('timer-active');
+          timeBox.classList.remove('timer-warn');
+        }
+      } else {
+        timeBox.classList.remove('timer-active','timer-warn');
+      }
       document.getElementById('statRound').textContent = `${roundCount}/${roundTarget === 0 ? '∞' : roundTarget}`;
       document.getElementById('statCorrect').textContent = stats.correct;
       document.getElementById('statWrong').textContent = stats.wrong;
@@ -5271,6 +5301,12 @@ function showKeyboardSolution(){
         return;
       }
 
+      // Clean up previous mode before switching
+      stopScrollGame();
+      stopTimer();
+      clearKeyboardHighlights();
+      keyboardEl?.classList.remove('kb-quiz-active');
+
       settings.presetId = newValue;
       saveSettings();
       currentPreset = PRESETS[newValue] || PRESETS.P2;
@@ -5278,6 +5314,7 @@ function showKeyboardSolution(){
       updateScrollSpeedVisibility();
       updateStats();
       updatePresetPickerSelection();
+      syncStatPopups();
       // Sync with main settings select
       if(presetSelect) presetSelect.value = newValue;
       if(running) nextQuestion();
